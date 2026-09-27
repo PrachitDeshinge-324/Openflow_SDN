@@ -299,7 +299,7 @@ if __name__ == '__main__':
     print("CS G525 Advanced Computer Networks - Project SA7")
     print("="*70)
     
-    out_dir = '/home/prachit/.gemini/antigravity/brain/27ff7fac-be84-4a82-b303-29827febfd33/scratch/results'
+    out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
     
     exp1 = run_flow_setup_latency_experiment()
     exp2 = run_flow_table_occupancy_experiment()

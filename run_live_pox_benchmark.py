@@ -18,8 +18,7 @@ import struct
 import subprocess
 import threading
 
-SCRATCH_DIR = "/home/prachit/.gemini/antigravity/brain/27ff7fac-be84-4a82-b303-29827febfd33/scratch"
-POX_DIR = os.path.join(SCRATCH_DIR, "pox")
+POX_DIR = os.environ.get('POX_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pox'))
 sys.path.insert(0, POX_DIR)
 
 import pox.openflow.libopenflow_01 as of
