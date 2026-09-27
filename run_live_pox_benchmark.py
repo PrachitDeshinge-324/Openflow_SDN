@@ -17,8 +17,12 @@ import socket
 import struct
 import subprocess
 import threading
+import json
+import tempfile
 
-POX_DIR = os.environ.get('POX_DIR', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pox'))
+REPO = os.path.dirname(os.path.abspath(__file__))
+POX_DIR = os.environ.get('POX_DIR', os.path.join(REPO, 'pox'))
+CONTROLLER_DIR = os.path.join(REPO, 'controllers')
 sys.path.insert(0, POX_DIR)
 
 import pox.openflow.libopenflow_01 as of
@@ -26,6 +30,46 @@ from pox.lib.addresses import EthAddr, IPAddr
 from pox.lib.packet.ethernet import ethernet
 from pox.lib.packet.ipv4 import ipv4
 from pox.lib.packet.icmp import icmp, echo
+
+OFPT_ECHO_REQUEST, OFPT_ECHO_REPLY, OFPT_FLOW_MOD = 2, 3, 14
+OFPT_BARRIER_REQUEST, OFPT_BARRIER_REPLY = 18, 19
+
+
+def pump_messages(sock, duration, stop=None):
+    """Read OpenFlow messages for up to `duration` seconds, answering ECHO and
+    BARRIER requests like a real switch. Returns the raw messages received."""
+    msgs, buf = [], b""
+    end = time.time() + duration
+    while time.time() < end:
+        sock.settimeout(max(0.01, end - time.time()))
+        try:
+            chunk = sock.recv(65536)
+        except socket.timeout:
+            break
+        if not chunk:
+            break
+        buf += chunk
+        while len(buf) >= 8:
+            length = struct.unpack("!H", buf[2:4])[0]
+            if len(buf) < length:
+                break
+            msg, buf = buf[:length], buf[length:]
+            msgs.append(msg)
+            if msg[1] in (OFPT_ECHO_REQUEST, OFPT_BARRIER_REQUEST):
+                reply_type = OFPT_ECHO_REPLY if msg[1] == OFPT_ECHO_REQUEST else OFPT_BARRIER_REPLY
+                sock.sendall(bytes([1, reply_type]) + struct.pack("!H", 8) + msg[4:8])
+            if stop and stop(msg):
+                return msgs
+    return msgs
+
+
+def is_rule_add(msg):
+    """FLOW_MOD with command ADD and non-zero priority (skips POX's delete-all and the table-miss rule)."""
+    if msg[1] != OFPT_FLOW_MOD or len(msg) < 64:
+        return False
+    command, priority = struct.unpack("!H", msg[56:58])[0], struct.unpack("!H", msg[62:64])[0]
+    return command == 0 and priority > 0
+
 
 def run_openflow_test_client(mode="reactive", host_count=4, port=6633):
     print(f"\n[CLIENT] Initializing OpenFlow 1.0 Switch Client (Target: {mode.upper()} controller on port {port})...")
@@ -62,27 +106,12 @@ def run_openflow_test_client(mode="reactive", host_count=4, port=6633):
         feat.ports.append(port_desc)
     sock.sendall(feat.pack())
     
-    # Check for proactive rules sent immediately
-    time.sleep(0.3)
-    sock.setblocking(False)
-    proactive_rules = 0
-    try:
-        while True:
-            resp = sock.recv(4096)
-            if not resp: break
-            offset = 0
-            while offset < len(resp):
-                length = struct.unpack("!H", resp[offset+2:offset+4])[0]
-                m_type = resp[offset+1]
-                if m_type == 14: # OFPT_FLOW_MOD
-                    proactive_rules += 1
-                offset += length
-    except BlockingIOError:
-        pass
-    
-    sock.setblocking(True)
-    
-    # Step 4: Inject first packet (Miss -> PACKET_IN)
+    # Step 4: Answer the controller's handshake (POX waits for a BARRIER_REPLY before
+    # it raises ConnectionUp) and count proactive rules pushed right after it
+    msgs = pump_messages(sock, 1.5)
+    proactive_rules = sum(1 for m in msgs if is_rule_add(m))
+
+    # Step 5: Inject first packet (Miss -> PACKET_IN)
     pkt = ethernet()
     pkt.src = EthAddr("00:00:00:00:00:01")
     pkt.dst = EthAddr("00:00:00:00:00:02")
@@ -96,7 +125,7 @@ def run_openflow_test_client(mode="reactive", host_count=4, port=6633):
     icmpp = icmp()
     icmpp.type = 8
     echop = echo(id=1, seq=1)
-    echop.payload = b"SDN_BENCHMARK_PROBE"
+    echop.payload = b"SDN_BENCHMARK_PROBE!"  # even length: POX's checksum() breaks on odd lengths in Python 3
     icmpp.payload = echop
     ipp.payload = icmpp
     pkt.payload = ipp
@@ -109,15 +138,15 @@ def run_openflow_test_client(mode="reactive", host_count=4, port=6633):
     t_pkt1_start = time.perf_counter()
     sock.sendall(pkt_in.pack())
     
-    try:
-        reply = sock.recv(2048)
+    type_names = {13: "OFPT_PACKET_OUT", 14: "OFPT_FLOW_MOD"}
+    replies = pump_messages(sock, 3.0, stop=lambda m: m[1] in type_names)
+    answers = [m for m in replies if m[1] in type_names]
+    if answers:
         t_pkt1_elapsed_ms = (time.perf_counter() - t_pkt1_start) * 1000
-        reply_type = reply[1] if len(reply) > 1 else -1
-        type_names = {13: "OFPT_PACKET_OUT", 14: "OFPT_FLOW_MOD"}
-    except Exception as e:
+        reply_type = answers[0][1]
+    else:
         t_pkt1_elapsed_ms = 0
-        reply_type = -1
-        type_names = {}
+        reply_type = -1   # no answer (expected for proactive: table misses are not handled)
 
     sock.close()
     
@@ -125,14 +154,23 @@ def run_openflow_test_client(mode="reactive", host_count=4, port=6633):
         'mode': mode,
         'proactive_rules_installed': proactive_rules,
         'first_packet_ctrl_rtt_ms': t_pkt1_elapsed_ms,
-        'response_type': type_names.get(reply_type, f"Type_{reply_type}")
+        'response_type': type_names.get(reply_type, "none (packet not handled by controller)")
     }
 
 
-def test_pox_controller_live(module_name="forwarding.reactive_eval", mode="reactive", port=6633):
+def write_single_switch_topology(path, host_count=4):
+    """Topology matching the simulated switch below: dpid 1, host i on port i."""
+    hosts = [{"name": f"h{i}", "mac": f"00:00:00:00:00:{i:02x}", "ip": f"10.0.0.{i}",
+              "dpid": 1, "port": i} for i in range(1, host_count + 1)]
+    with open(path, "w") as f:
+        json.dump({"switches": [1], "hosts": hosts, "links": []}, f)
+
+
+def test_pox_controller_live(module_args=("reactive_eval",), mode="reactive", port=6633):
+    module_name = " ".join(module_args)
     print("="*70)
     print(f"[*] TESTING CONTROLLER WITH MODULE: {module_name} (Mode: {mode.upper()})")
-    print(f"[*] Command: python3 pox.py openflow.of_01 --port={port} {module_name}")
+    print(f"[*] Command: PYTHONPATH=../controllers python3 pox.py openflow.of_01 --port={port} {module_name}")
     print("="*70)
 
     pox_cmd = [
@@ -140,13 +178,14 @@ def test_pox_controller_live(module_name="forwarding.reactive_eval", mode="react
         os.path.join(POX_DIR, "pox.py"),
         "openflow.of_01",
         f"--port={port}",
-        module_name
-    ]
+    ] + list(module_args)
+    env = dict(os.environ, PYTHONPATH=CONTROLLER_DIR)
 
     # Start POX process
     proc = subprocess.Popen(
         pox_cmd,
         cwd=POX_DIR,
+        env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         stdin=subprocess.PIPE,
@@ -179,8 +218,10 @@ def test_pox_controller_live(module_name="forwarding.reactive_eval", mode="react
 
 if __name__ == '__main__':
     # 1. Test Reactive Mode
-    res_reactive = test_pox_controller_live("forwarding.reactive_eval", "reactive", port=8833)
+    res_reactive = test_pox_controller_live(("reactive_eval",), "reactive", port=8833)
     time.sleep(1.0)
     
-    # 2. Test Proactive Mode
-    res_proactive = test_pox_controller_live("forwarding.proactive_eval", "proactive", port=8834)
+    # 2. Test Proactive Mode (the controller needs the topology in advance)
+    topo_file = os.path.join(tempfile.gettempdir(), "sa7_single_switch_topo.json")
+    write_single_switch_topology(topo_file, host_count=4)
+    res_proactive = test_pox_controller_live(("proactive_eval", f"--topo={topo_file}"), "proactive", port=8834)

@@ -1,0 +1,2536 @@
+{
+  "meta": {
+    "args": {
+      "topos": [
+        "tree-d2-f2",
+        "tree-d3-f2",
+        "tree-d2-f4"
+      ],
+      "modes": [
+        "reactive",
+        "proactive"
+      ],
+      "pairs": 20,
+      "count": 10,
+      "interval": "0.1",
+      "fractions": [
+        0.25,
+        0.5,
+        1.0
+      ],
+      "rates": [
+        10,
+        50,
+        100,
+        200
+      ],
+      "churn_duration": 5,
+      "reactive_match": "exact",
+      "granularity": "pair",
+      "idle_timeout": 10,
+      "hard_timeout": 30,
+      "datapath": "user",
+      "seed": 7,
+      "quick": false,
+      "out": "/tmp/claude-0/-home-user-Openflow-SDN/25f038d7-cd94-589c-b23f-7775cc6c37f2/scratchpad/full"
+    },
+    "started_by": null,
+    "uname": "Linux vm 6.18.44-fc-v37 #1 SMP PREEMPT_DYNAMIC @0 x86_64",
+    "python": "3.11.15",
+    "ovs": "ovs-vsctl (Open vSwitch) 3.3.9"
+  },
+  "results": [
+    {
+      "topology": "tree-d2-f2",
+      "mode": "reactive",
+      "hosts": 4,
+      "switches": 3,
+      "latency": {
+        "pairs": [
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              5.49,
+              0.678,
+              0.536,
+              0.458,
+              0.495,
+              0.614,
+              0.519,
+              0.519,
+              0.621,
+              0.549
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              5.39,
+              0.658,
+              0.573,
+              0.586,
+              0.531,
+              0.544,
+              0.628,
+              0.615,
+              0.666,
+              0.827
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h3",
+            "rtts_ms": [
+              4.5,
+              1.07,
+              0.872,
+              0.805,
+              0.733,
+              0.484,
+              0.615,
+              0.577,
+              0.845,
+              0.55
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              2.54,
+              0.472,
+              0.35,
+              0.362,
+              0.303,
+              0.26,
+              0.275,
+              0.258,
+              0.326,
+              0.41
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              2.72,
+              0.453,
+              0.446,
+              0.495,
+              0.488,
+              0.436,
+              0.451,
+              0.492,
+              0.456,
+              0.677
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h4",
+            "rtts_ms": [
+              5.62,
+              0.979,
+              0.574,
+              2.24,
+              0.587,
+              0.513,
+              0.539,
+              0.591,
+              0.542,
+              0.596
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 28,
+        "flow_mod": 28,
+        "pkt1_mean_ms": 4.376666666666667,
+        "pkt1_std_ms": 1.4103427479398993,
+        "pkt2_mean_ms": 0.7183333333333334,
+        "pkt2_std_ms": 0.2561114340802977,
+        "steady_mean_ms": 0.5281666666666667,
+        "steady_std_ms": 0.12493745101716565
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 2,
+          "total_rules": 8,
+          "max_rules_per_switch": 4,
+          "per_switch": {
+            "s1": 2,
+            "s2": 4,
+            "s3": 2
+          }
+        },
+        "0.5": {
+          "active_pairs": 3,
+          "total_rules": 14,
+          "max_rules_per_switch": 6,
+          "per_switch": {
+            "s1": 4,
+            "s2": 6,
+            "s3": 4
+          }
+        },
+        "1.0": {
+          "active_pairs": 6,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.900335788726807,
+          "packet_in_per_s": 24.488117789001173,
+          "flow_mod_per_s": 24.488117789001173,
+          "controller_cpu_pct": 1.6265640637351797,
+          "rules_after": 120
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980230331420898,
+          "packet_in_per_s": 120.47635552406575,
+          "flow_mod_per_s": 120.47635552406575,
+          "controller_cpu_pct": 7.209685099058659,
+          "rules_after": 600
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990222215652466,
+          "packet_in_per_s": 241.27182076651837,
+          "flow_mod_per_s": 241.27182076651837,
+          "controller_cpu_pct": 13.174155643228996,
+          "rules_after": 1204
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995173931121826,
+          "packet_in_per_s": 463.24713251382565,
+          "flow_mod_per_s": 463.24713251382565,
+          "controller_cpu_pct": 25.199940137138388,
+          "rules_after": 2314
+        }
+      ],
+      "controller": {
+        "mode": "reactive",
+        "config": {
+          "match": "exact",
+          "idle_timeout": 10,
+          "hard_timeout": 30
+        },
+        "pid": 5214,
+        "uptime_s": 69.54824042320251,
+        "written_at": 1790519946.6994355,
+        "totals": {
+          "packet_in": 4328,
+          "flow_mod": 4316,
+          "packet_out": 12,
+          "rules_installed": 0
+        },
+        "switches": {
+          "1": {
+            "packet_in": 1249,
+            "flow_mod": 1245,
+            "packet_out": 4,
+            "connected_at": 1790519877.284868,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "2": {
+            "packet_in": 1826,
+            "flow_mod": 1822,
+            "packet_out": 4,
+            "connected_at": 1790519877.2967925,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "3": {
+            "packet_in": 1253,
+            "flow_mod": 1249,
+            "packet_out": 4,
+            "connected_at": 1790519877.3128512,
+            "rules_installed": 0,
+            "install_ms": null
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 4328,
+          "mean": 253.57887476084426,
+          "p50": 230.0160003869678,
+          "p95": 367.2359998745378,
+          "max": 4556.4789998024935
+        }
+      }
+    },
+    {
+      "topology": "tree-d2-f2",
+      "mode": "proactive",
+      "hosts": 4,
+      "switches": 3,
+      "proactive_install": {
+        "1": {
+          "rules": 8,
+          "install_ms": 43.813467025756836
+        },
+        "2": {
+          "rules": 10,
+          "install_ms": 47.91593551635742
+        },
+        "3": {
+          "rules": 10,
+          "install_ms": 43.76029968261719
+        }
+      },
+      "latency": {
+        "pairs": [
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              1.15,
+              0.561,
+              0.506,
+              0.524,
+              0.499,
+              0.516,
+              0.965,
+              0.599,
+              0.493,
+              0.479
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              0.875,
+              0.516,
+              0.503,
+              0.673,
+              0.592,
+              0.527,
+              0.542,
+              0.484,
+              0.549,
+              0.548
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h3",
+            "rtts_ms": [
+              0.792,
+              0.466,
+              0.597,
+              0.563,
+              0.653,
+              0.443,
+              0.593,
+              0.512,
+              0.743,
+              0.718
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              0.576,
+              0.4,
+              0.4,
+              0.455,
+              0.767,
+              0.625,
+              0.468,
+              0.392,
+              0.426,
+              0.381
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              0.787,
+              0.453,
+              0.476,
+              0.452,
+              0.394,
+              0.418,
+              0.419,
+              0.325,
+              0.656,
+              0.626
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h4",
+            "rtts_ms": [
+              0.905,
+              0.561,
+              0.382,
+              0.707,
+              0.547,
+              0.53,
+              0.499,
+              0.472,
+              0.531,
+              0.566
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 0,
+        "flow_mod": 0,
+        "pkt1_mean_ms": 0.8475,
+        "pkt1_std_ms": 0.18762808958149096,
+        "pkt2_mean_ms": 0.49283333333333335,
+        "pkt2_std_ms": 0.06442799598518231,
+        "steady_mean_ms": 0.5095833333333333,
+        "steady_std_ms": 0.06204950980198527
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 2,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        },
+        "0.5": {
+          "active_pairs": 3,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        },
+        "1.0": {
+          "active_pairs": 6,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.900269508361816,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.0,
+          "rules_after": 28
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980224847793579,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09980439613400935,
+          "rules_after": 28
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990184307098389,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09968752104896546,
+          "rules_after": 28
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995144367218018,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.0,
+          "rules_after": 28
+        }
+      ],
+      "controller": {
+        "mode": "proactive",
+        "config": {
+          "granularity": "pair",
+          "miss": "drop",
+          "topo": "/tmp/claude-0/-home-user-Openflow-SDN/25f038d7-cd94-589c-b23f-7775cc6c37f2/scratchpad/full/tree-d2-f2-topo.json"
+        },
+        "pid": 5567,
+        "uptime_s": 83.09104871749878,
+        "written_at": 1790520031.3260202,
+        "totals": {
+          "packet_in": 0,
+          "flow_mod": 31,
+          "packet_out": 0,
+          "rules_installed": 28
+        },
+        "switches": {
+          "1": {
+            "packet_in": 0,
+            "flow_mod": 9,
+            "packet_out": 0,
+            "connected_at": 1790519948.3768647,
+            "rules_installed": 8,
+            "install_ms": 43.813467025756836
+          },
+          "2": {
+            "packet_in": 0,
+            "flow_mod": 11,
+            "packet_out": 0,
+            "connected_at": 1790519948.3847413,
+            "rules_installed": 10,
+            "install_ms": 47.91593551635742
+          },
+          "3": {
+            "packet_in": 0,
+            "flow_mod": 11,
+            "packet_out": 0,
+            "connected_at": 1790519948.3967917,
+            "rules_installed": 10,
+            "install_ms": 43.76029968261719
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 0
+        }
+      }
+    },
+    {
+      "topology": "tree-d3-f2",
+      "mode": "reactive",
+      "hosts": 8,
+      "switches": 7,
+      "latency": {
+        "pairs": [
+          {
+            "src": "h2",
+            "dst": "h6",
+            "rtts_ms": [
+              9.38,
+              1.51,
+              1.87,
+              1.37,
+              1.97,
+              1.29,
+              1.34,
+              1.32,
+              1.32,
+              1.34
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              9.78,
+              1.46,
+              1.28,
+              1.34,
+              1.4,
+              1.31,
+              1.2,
+              1.84,
+              1.92,
+              1.32
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h8",
+            "rtts_ms": [
+              9.74,
+              1.4,
+              1.33,
+              1.23,
+              1.1,
+              1.14,
+              1.3,
+              1.24,
+              1.95,
+              1.21
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h7",
+            "rtts_ms": [
+              10.5,
+              1.32,
+              1.24,
+              1.16,
+              1.21,
+              1.14,
+              1.15,
+              1.14,
+              1.39,
+              1.18
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              6.68,
+              0.962,
+              0.763,
+              1.05,
+              0.78,
+              0.626,
+              0.851,
+              0.795,
+              0.857,
+              1.09
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              7.01,
+              0.915,
+              0.837,
+              0.734,
+              0.811,
+              0.742,
+              0.78,
+              0.704,
+              0.734,
+              0.975
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h8",
+            "rtts_ms": [
+              16.7,
+              1.18,
+              1.18,
+              1.33,
+              1.18,
+              1.42,
+              1.18,
+              1.65,
+              1.15,
+              1.12
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h5",
+            "rtts_ms": [
+              9.86,
+              1.56,
+              1.82,
+              1.34,
+              1.35,
+              1.45,
+              1.44,
+              1.37,
+              1.86,
+              1.66
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              11.5,
+              1.85,
+              1.7,
+              1.21,
+              1.14,
+              1.03,
+              1.45,
+              1.14,
+              1.8,
+              1.07
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h5",
+            "rtts_ms": [
+              11.9,
+              1.51,
+              1.24,
+              1.63,
+              1.48,
+              1.47,
+              1.84,
+              1.61,
+              1.33,
+              2.03
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              7.3,
+              0.962,
+              1.22,
+              1.23,
+              0.857,
+              1.31,
+              0.85,
+              0.876,
+              0.807,
+              0.822
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h7",
+            "rtts_ms": [
+              10.4,
+              1.68,
+              1.13,
+              1.23,
+              1.15,
+              1.24,
+              1.26,
+              1.29,
+              1.72,
+              1.22
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              11.1,
+              1.35,
+              1.84,
+              1.28,
+              1.23,
+              1.16,
+              1.06,
+              1.79,
+              1.7,
+              1.39
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              2.84,
+              0.377,
+              0.294,
+              0.312,
+              0.254,
+              0.232,
+              0.293,
+              0.293,
+              0.341,
+              0.328
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h8",
+            "rtts_ms": [
+              9.56,
+              1.28,
+              1.1,
+              1.06,
+              1.34,
+              1.47,
+              1.67,
+              2.44,
+              1.16,
+              1.14
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h6",
+            "rtts_ms": [
+              9.7,
+              1.53,
+              1.43,
+              1.4,
+              1.33,
+              1.45,
+              1.58,
+              1.41,
+              1.95,
+              1.33
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h7",
+            "rtts_ms": [
+              8.11,
+              1.05,
+              0.82,
+              0.811,
+              0.899,
+              0.635,
+              1.13,
+              0.78,
+              0.859,
+              0.841
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              2.31,
+              0.635,
+              0.782,
+              0.67,
+              1.04,
+              0.536,
+              0.683,
+              0.795,
+              0.556,
+              0.604
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h8",
+            "rtts_ms": [
+              6.74,
+              0.947,
+              0.824,
+              1.05,
+              0.752,
+              0.741,
+              0.844,
+              0.84,
+              0.873,
+              1.15
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h8",
+            "rtts_ms": [
+              2.79,
+              0.451,
+              0.339,
+              0.327,
+              0.372,
+              0.42,
+              0.407,
+              0.397,
+              2.27,
+              0.357
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 156,
+        "flow_mod": 156,
+        "pkt1_mean_ms": 8.695,
+        "pkt1_std_ms": 3.425531844991757,
+        "pkt2_mean_ms": 1.19645,
+        "pkt2_std_ms": 0.4021799119535278,
+        "steady_mean_ms": 1.056875,
+        "steady_std_ms": 0.3517591832864009
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 7,
+          "total_rules": 54,
+          "max_rules_per_switch": 12,
+          "per_switch": {
+            "s1": 8,
+            "s2": 12,
+            "s3": 6,
+            "s4": 12,
+            "s5": 8,
+            "s6": 4,
+            "s7": 4
+          }
+        },
+        "0.5": {
+          "active_pairs": 14,
+          "total_rules": 108,
+          "max_rules_per_switch": 20,
+          "per_switch": {
+            "s1": 14,
+            "s2": 20,
+            "s3": 12,
+            "s4": 16,
+            "s5": 20,
+            "s6": 12,
+            "s7": 14
+          }
+        },
+        "1.0": {
+          "active_pairs": 28,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.90276837348938,
+          "packet_in_per_s": 39.161548205743706,
+          "flow_mod_per_s": 39.161548205743706,
+          "controller_cpu_pct": 2.7282302393268227,
+          "rules_after": 192
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980179309844971,
+          "packet_in_per_s": 191.5593677749923,
+          "flow_mod_per_s": 191.5593677749923,
+          "controller_cpu_pct": 10.912806318055397,
+          "rules_after": 954
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990165948867798,
+          "packet_in_per_s": 375.9394014593121,
+          "flow_mod_per_s": 375.9394014593121,
+          "controller_cpu_pct": 21.034083482695728,
+          "rules_after": 1876
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.99523401260376,
+          "packet_in_per_s": 761.1255029107659,
+          "flow_mod_per_s": 761.1255029107659,
+          "controller_cpu_pct": 38.6186238115223,
+          "rules_after": 3802
+        }
+      ],
+      "controller": {
+        "mode": "reactive",
+        "config": {
+          "match": "exact",
+          "idle_timeout": 10,
+          "hard_timeout": 30
+        },
+        "pid": 5934,
+        "uptime_s": 87.25000286102295,
+        "written_at": 1790520120.343592,
+        "totals": {
+          "packet_in": 7414,
+          "flow_mod": 7358,
+          "packet_out": 56,
+          "rules_installed": 0
+        },
+        "switches": {
+          "1": {
+            "packet_in": 1085,
+            "flow_mod": 1077,
+            "packet_out": 8,
+            "connected_at": 1790520033.19953,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "2": {
+            "packet_in": 1623,
+            "flow_mod": 1615,
+            "packet_out": 8,
+            "connected_at": 1790520033.214227,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "3": {
+            "packet_in": 1866,
+            "flow_mod": 1858,
+            "packet_out": 8,
+            "connected_at": 1790520033.2290754,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "4": {
+            "packet_in": 596,
+            "flow_mod": 588,
+            "packet_out": 8,
+            "connected_at": 1790520033.2487967,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "5": {
+            "packet_in": 1105,
+            "flow_mod": 1097,
+            "packet_out": 8,
+            "connected_at": 1790520033.2607327,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "6": {
+            "packet_in": 579,
+            "flow_mod": 571,
+            "packet_out": 8,
+            "connected_at": 1790520033.27285,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "7": {
+            "packet_in": 560,
+            "flow_mod": 552,
+            "packet_out": 8,
+            "connected_at": 1790520033.2888432,
+            "rules_installed": 0,
+            "install_ms": null
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 7414,
+          "mean": 238.55995778117963,
+          "p50": 224.6449994345312,
+          "p95": 350.8789995976258,
+          "max": 3781.2979999216623
+        }
+      }
+    },
+    {
+      "topology": "tree-d3-f2",
+      "mode": "proactive",
+      "hosts": 8,
+      "switches": 7,
+      "proactive_install": {
+        "1": {
+          "rules": 32,
+          "install_ms": 46.97155952453613
+        },
+        "2": {
+          "rules": 40,
+          "install_ms": 43.12705993652344
+        },
+        "3": {
+          "rules": 26,
+          "install_ms": 44.13914680480957
+        },
+        "4": {
+          "rules": 26,
+          "install_ms": 47.986745834350586
+        },
+        "5": {
+          "rules": 40,
+          "install_ms": 48.32172393798828
+        },
+        "6": {
+          "rules": 26,
+          "install_ms": 44.07334327697754
+        },
+        "7": {
+          "rules": 26,
+          "install_ms": 44.029951095581055
+        }
+      },
+      "latency": {
+        "pairs": [
+          {
+            "src": "h2",
+            "dst": "h6",
+            "rtts_ms": [
+              1.84,
+              1.42,
+              1.73,
+              1.87,
+              1.4,
+              1.36,
+              1.43,
+              1.33,
+              1.86,
+              1.2
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              1.14,
+              1.2,
+              1.33,
+              1.91,
+              1.68,
+              1.25,
+              1.2,
+              1.37,
+              1.78,
+              1.31
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h8",
+            "rtts_ms": [
+              1.51,
+              1.44,
+              1.48,
+              1.33,
+              1.27,
+              1.42,
+              1.15,
+              1.84,
+              1.4,
+              1.44
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h7",
+            "rtts_ms": [
+              1.53,
+              2.02,
+              1.44,
+              1.36,
+              1.39,
+              1.55,
+              1.5,
+              1.32,
+              1.73,
+              2.03
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              1.78,
+              0.964,
+              0.971,
+              1.25,
+              0.88,
+              0.939,
+              0.959,
+              0.992,
+              1.26,
+              1.04
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              0.922,
+              0.971,
+              1.1,
+              0.888,
+              0.919,
+              1.24,
+              0.993,
+              0.919,
+              0.944,
+              0.935
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h8",
+            "rtts_ms": [
+              1.67,
+              1.3,
+              1.4,
+              1.48,
+              1.18,
+              1.72,
+              1.8,
+              1.45,
+              1.52,
+              1.75
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h5",
+            "rtts_ms": [
+              1.4,
+              1.09,
+              1.71,
+              1.09,
+              1.65,
+              1.03,
+              1.86,
+              1.29,
+              1.25,
+              1.61
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              2.29,
+              1.26,
+              1.24,
+              1.95,
+              1.25,
+              1.91,
+              1.15,
+              2.74,
+              1.35,
+              1.32
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h5",
+            "rtts_ms": [
+              1.45,
+              1.29,
+              1.28,
+              1.68,
+              1.19,
+              1.17,
+              0.873,
+              1.02,
+              1.03,
+              1.07
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              0.879,
+              0.812,
+              0.788,
+              1.01,
+              0.944,
+              0.857,
+              1.37,
+              0.818,
+              0.841,
+              1.18
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h7",
+            "rtts_ms": [
+              3.28,
+              1.44,
+              3.95,
+              1.43,
+              1.33,
+              1.5,
+              1.3,
+              5.23,
+              1.46,
+              1.79
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              1.33,
+              1.25,
+              1.24,
+              1.14,
+              1.23,
+              1.18,
+              1.14,
+              1.06,
+              1.34,
+              1.24
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              0.455,
+              0.602,
+              0.532,
+              0.572,
+              0.488,
+              0.464,
+              0.529,
+              0.476,
+              0.571,
+              0.569
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h8",
+            "rtts_ms": [
+              1.63,
+              1.94,
+              1.38,
+              1.19,
+              1.27,
+              1.27,
+              1.26,
+              1.37,
+              1.24,
+              1.2
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h6",
+            "rtts_ms": [
+              1.58,
+              1.07,
+              1.45,
+              1.29,
+              1.51,
+              1.35,
+              1.27,
+              1.21,
+              1.28,
+              1.39
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h7",
+            "rtts_ms": [
+              1.04,
+              1.05,
+              1.02,
+              1.08,
+              0.991,
+              1.02,
+              1.06,
+              0.931,
+              0.982,
+              1.03
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              1.04,
+              0.589,
+              0.556,
+              0.559,
+              0.531,
+              0.562,
+              0.571,
+              0.536,
+              0.561,
+              0.543
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h8",
+            "rtts_ms": [
+              1.09,
+              0.899,
+              0.925,
+              0.767,
+              0.847,
+              0.953,
+              0.98,
+              0.838,
+              0.976,
+              0.74
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h8",
+            "rtts_ms": [
+              0.598,
+              0.341,
+              0.556,
+              0.445,
+              0.715,
+              0.381,
+              0.295,
+              0.357,
+              0.314,
+              0.397
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 0,
+        "flow_mod": 0,
+        "pkt1_mean_ms": 1.4227,
+        "pkt1_std_ms": 0.6201802878790039,
+        "pkt2_mean_ms": 1.1474,
+        "pkt2_std_ms": 0.4118030188279215,
+        "steady_mean_ms": 1.126225,
+        "steady_std_ms": 0.3407500424759598
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 7,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        },
+        "0.5": {
+          "active_pairs": 14,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        },
+        "1.0": {
+          "active_pairs": 28,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.900271654129028,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.201357973237413,
+          "rules_after": 216
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980212926864624,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.099786616291956,
+          "rules_after": 216
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.9901885986328125,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09975729624520925,
+          "rules_after": 216
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995121002197266,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09966861518073022,
+          "rules_after": 216
+        }
+      ],
+      "controller": {
+        "mode": "proactive",
+        "config": {
+          "granularity": "pair",
+          "miss": "drop",
+          "topo": "/tmp/claude-0/-home-user-Openflow-SDN/25f038d7-cd94-589c-b23f-7775cc6c37f2/scratchpad/full/tree-d3-f2-topo.json"
+        },
+        "pid": 6662,
+        "uptime_s": 92.643301486969,
+        "written_at": 1790520214.7323112,
+        "totals": {
+          "packet_in": 0,
+          "flow_mod": 223,
+          "packet_out": 0,
+          "rules_installed": 216
+        },
+        "switches": {
+          "1": {
+            "packet_in": 0,
+            "flow_mod": 33,
+            "packet_out": 0,
+            "connected_at": 1790520122.2005825,
+            "rules_installed": 32,
+            "install_ms": 46.97155952453613
+          },
+          "2": {
+            "packet_in": 0,
+            "flow_mod": 41,
+            "packet_out": 0,
+            "connected_at": 1790520122.209627,
+            "rules_installed": 40,
+            "install_ms": 43.12705993652344
+          },
+          "3": {
+            "packet_in": 0,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1790520122.22456,
+            "rules_installed": 26,
+            "install_ms": 44.13914680480957
+          },
+          "4": {
+            "packet_in": 0,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1790520122.244756,
+            "rules_installed": 26,
+            "install_ms": 47.986745834350586
+          },
+          "5": {
+            "packet_in": 0,
+            "flow_mod": 41,
+            "packet_out": 0,
+            "connected_at": 1790520122.2606363,
+            "rules_installed": 40,
+            "install_ms": 48.32172393798828
+          },
+          "6": {
+            "packet_in": 0,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1790520122.2647314,
+            "rules_installed": 26,
+            "install_ms": 44.07334327697754
+          },
+          "7": {
+            "packet_in": 0,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1790520122.2807393,
+            "rules_installed": 26,
+            "install_ms": 44.029951095581055
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 0
+        }
+      }
+    },
+    {
+      "topology": "tree-d2-f4",
+      "mode": "reactive",
+      "hosts": 16,
+      "switches": 5,
+      "latency": {
+        "pairs": [
+          {
+            "src": "h3",
+            "dst": "h16",
+            "rtts_ms": [
+              6.51,
+              1.12,
+              1.37,
+              1.0,
+              0.965,
+              1.16,
+              1.03,
+              1.03,
+              1.17,
+              1.1
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              6.19,
+              1.09,
+              0.874,
+              0.742,
+              0.748,
+              0.556,
+              0.904,
+              0.867,
+              0.785,
+              0.77
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h13",
+            "rtts_ms": [
+              6.86,
+              1.07,
+              1.1,
+              1.31,
+              0.879,
+              0.87,
+              1.03,
+              1.41,
+              1.04,
+              0.983
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h16",
+            "rtts_ms": [
+              6.87,
+              0.958,
+              1.01,
+              0.981,
+              1.09,
+              0.977,
+              1.13,
+              1.34,
+              1.02,
+              1.22
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              6.02,
+              1.63,
+              1.11,
+              1.05,
+              1.01,
+              1.14,
+              1.04,
+              0.956,
+              1.47,
+              0.983
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h11",
+            "rtts_ms": [
+              6.43,
+              1.18,
+              1.47,
+              0.974,
+              1.44,
+              1.08,
+              0.896,
+              1.01,
+              1.33,
+              1.12
+            ]
+          },
+          {
+            "src": "h11",
+            "dst": "h12",
+            "rtts_ms": [
+              2.87,
+              0.581,
+              0.448,
+              0.605,
+              0.542,
+              0.333,
+              0.49,
+              0.478,
+              0.382,
+              0.431
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h10",
+            "rtts_ms": [
+              7.01,
+              1.13,
+              1.43,
+              1.14,
+              1.36,
+              1.39,
+              0.956,
+              1.37,
+              1.11,
+              1.01
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h14",
+            "rtts_ms": [
+              7.36,
+              1.57,
+              1.12,
+              1.19,
+              1.37,
+              1.08,
+              1.07,
+              1.28,
+              1.43,
+              1.26
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h9",
+            "rtts_ms": [
+              6.56,
+              1.18,
+              1.06,
+              1.1,
+              1.35,
+              1.38,
+              1.08,
+              1.48,
+              1.22,
+              1.02
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h16",
+            "rtts_ms": [
+              6.97,
+              1.04,
+              1.03,
+              1.27,
+              1.06,
+              0.948,
+              1.17,
+              0.999,
+              0.944,
+              1.11
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h9",
+            "rtts_ms": [
+              6.84,
+              1.14,
+              1.08,
+              1.07,
+              1.12,
+              1.05,
+              1.14,
+              1.07,
+              1.12,
+              1.07
+            ]
+          },
+          {
+            "src": "h13",
+            "dst": "h16",
+            "rtts_ms": [
+              4.59,
+              0.435,
+              0.414,
+              0.428,
+              0.387,
+              0.331,
+              0.299,
+              0.319,
+              0.391,
+              0.339
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h16",
+            "rtts_ms": [
+              6.63,
+              1.16,
+              1.11,
+              0.894,
+              0.89,
+              1.04,
+              0.972,
+              1.28,
+              1.09,
+              0.996
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h15",
+            "rtts_ms": [
+              6.66,
+              1.07,
+              1.1,
+              1.05,
+              1.08,
+              1.01,
+              1.06,
+              1.53,
+              1.5,
+              1.16
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              6.98,
+              1.18,
+              2.99,
+              1.11,
+              1.0,
+              1.08,
+              1.19,
+              1.37,
+              1.12,
+              1.05
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h13",
+            "rtts_ms": [
+              6.25,
+              1.15,
+              1.09,
+              3.1,
+              1.34,
+              1.38,
+              1.49,
+              1.49,
+              1.41,
+              1.56
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              3.08,
+              0.403,
+              0.365,
+              0.581,
+              0.524,
+              0.426,
+              0.356,
+              0.415,
+              0.387,
+              0.535
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h16",
+            "rtts_ms": [
+              8.85,
+              1.22,
+              1.16,
+              1.09,
+              1.06,
+              1.02,
+              1.1,
+              0.981,
+              1.1,
+              2.27
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h10",
+            "rtts_ms": [
+              7.15,
+              1.09,
+              1.43,
+              1.06,
+              1.08,
+              1.13,
+              1.69,
+              1.09,
+              1.08,
+              1.07
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 108,
+        "flow_mod": 108,
+        "pkt1_mean_ms": 6.334,
+        "pkt1_std_ms": 1.3800930555963475,
+        "pkt2_mean_ms": 1.06985,
+        "pkt2_std_ms": 0.30343459799956546,
+        "steady_mean_ms": 0.9966,
+        "steady_std_ms": 0.2797091816794534
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 30,
+          "total_rules": 160,
+          "max_rules_per_switch": 50,
+          "per_switch": {
+            "s1": 50,
+            "s2": 26,
+            "s3": 28,
+            "s4": 24,
+            "s5": 32
+          }
+        },
+        "0.5": {
+          "active_pairs": 60,
+          "total_rules": 312,
+          "max_rules_per_switch": 96,
+          "per_switch": {
+            "s1": 96,
+            "s2": 50,
+            "s3": 62,
+            "s4": 58,
+            "s5": 46
+          }
+        },
+        "1.0": {
+          "active_pairs": 120,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.900298118591309,
+          "packet_in_per_s": 27.345275074513438,
+          "flow_mod_per_s": 27.345275074513438,
+          "controller_cpu_pct": 1.8003795890040748,
+          "rules_after": 134
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.9802327156066895,
+          "packet_in_per_s": 129.71281401682543,
+          "flow_mod_per_s": 129.71281401682543,
+          "controller_cpu_pct": 7.943364326043762,
+          "rules_after": 646
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990145683288574,
+          "packet_in_per_s": 255.90435250748823,
+          "flow_mod_per_s": 255.90435250748823,
+          "controller_cpu_pct": 14.588767217749416,
+          "rules_after": 1277
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995146751403809,
+          "packet_in_per_s": 518.7034793866345,
+          "flow_mod_per_s": 518.7034793866345,
+          "controller_cpu_pct": 29.32948145880776,
+          "rules_after": 2591
+        }
+      ],
+      "controller": {
+        "mode": "reactive",
+        "config": {
+          "match": "exact",
+          "idle_timeout": 10,
+          "hard_timeout": 30
+        },
+        "pid": 7337,
+        "uptime_s": 92.54483771324158,
+        "written_at": 1790520309.1008818,
+        "totals": {
+          "packet_in": 5932,
+          "flow_mod": 5852,
+          "packet_out": 80,
+          "rules_installed": 0
+        },
+        "switches": {
+          "1": {
+            "packet_in": 1813,
+            "flow_mod": 1797,
+            "packet_out": 16,
+            "connected_at": 1790520216.7184763,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "2": {
+            "packet_in": 2024,
+            "flow_mod": 2008,
+            "packet_out": 16,
+            "connected_at": 1790520216.7248209,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "3": {
+            "packet_in": 691,
+            "flow_mod": 675,
+            "packet_out": 16,
+            "connected_at": 1790520216.7447839,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "4": {
+            "packet_in": 706,
+            "flow_mod": 690,
+            "packet_out": 16,
+            "connected_at": 1790520216.76483,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "5": {
+            "packet_in": 698,
+            "flow_mod": 682,
+            "packet_out": 16,
+            "connected_at": 1790520216.780954,
+            "rules_installed": 0,
+            "install_ms": null
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 5932,
+          "mean": 241.47411564554704,
+          "p50": 224.13300030166283,
+          "p95": 354.4159999364638,
+          "max": 5138.683999575733
+        }
+      }
+    },
+    {
+      "topology": "tree-d2-f4",
+      "mode": "proactive",
+      "hosts": 16,
+      "switches": 5,
+      "proactive_install": {
+        "1": {
+          "rules": 192,
+          "install_ms": 43.62797737121582
+        },
+        "2": {
+          "rules": 108,
+          "install_ms": 44.928550720214844
+        },
+        "3": {
+          "rules": 108,
+          "install_ms": 62.87884712219238
+        },
+        "4": {
+          "rules": 108,
+          "install_ms": 44.664859771728516
+        },
+        "5": {
+          "rules": 108,
+          "install_ms": 43.24841499328613
+        }
+      },
+      "latency": {
+        "pairs": [
+          {
+            "src": "h3",
+            "dst": "h16",
+            "rtts_ms": [
+              0.89,
+              0.837,
+              0.942,
+              0.758,
+              0.854,
+              0.477,
+              0.827,
+              0.874,
+              0.767,
+              0.69
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              1.07,
+              2.46,
+              1.05,
+              0.934,
+              0.916,
+              0.887,
+              1.01,
+              0.979,
+              0.956,
+              0.972
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h13",
+            "rtts_ms": [
+              0.926,
+              0.605,
+              0.979,
+              0.792,
+              0.817,
+              0.889,
+              2.34,
+              1.09,
+              1.05,
+              0.735
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h16",
+            "rtts_ms": [
+              1.19,
+              0.847,
+              0.789,
+              0.815,
+              0.905,
+              0.856,
+              0.761,
+              0.867,
+              1.01,
+              0.835
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              0.921,
+              0.931,
+              1.11,
+              1.07,
+              1.15,
+              1.22,
+              1.0,
+              1.04,
+              1.02,
+              0.885
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h11",
+            "rtts_ms": [
+              0.949,
+              0.975,
+              1.03,
+              1.39,
+              1.06,
+              1.25,
+              1.03,
+              1.0,
+              1.05,
+              1.53
+            ]
+          },
+          {
+            "src": "h11",
+            "dst": "h12",
+            "rtts_ms": [
+              0.609,
+              0.39,
+              0.413,
+              0.448,
+              0.368,
+              0.317,
+              0.393,
+              0.378,
+              0.44,
+              0.354
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h10",
+            "rtts_ms": [
+              0.948,
+              1.04,
+              0.956,
+              1.17,
+              2.06,
+              0.885,
+              1.07,
+              1.4,
+              1.25,
+              1.23
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h14",
+            "rtts_ms": [
+              0.827,
+              0.879,
+              4.97,
+              0.762,
+              0.821,
+              1.06,
+              0.993,
+              0.73,
+              0.843,
+              1.09
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h9",
+            "rtts_ms": [
+              1.24,
+              1.02,
+              0.998,
+              0.915,
+              0.931,
+              0.905,
+              1.03,
+              0.896,
+              1.02,
+              1.29
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h16",
+            "rtts_ms": [
+              1.05,
+              1.29,
+              0.927,
+              0.806,
+              0.897,
+              0.942,
+              0.822,
+              0.83,
+              0.872,
+              1.04
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h9",
+            "rtts_ms": [
+              1.11,
+              1.25,
+              1.25,
+              0.996,
+              0.979,
+              0.978,
+              1.07,
+              1.08,
+              1.15,
+              1.14
+            ]
+          },
+          {
+            "src": "h13",
+            "dst": "h16",
+            "rtts_ms": [
+              0.429,
+              0.578,
+              0.568,
+              0.633,
+              0.536,
+              0.632,
+              0.539,
+              0.583,
+              0.641,
+              0.507
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h16",
+            "rtts_ms": [
+              0.944,
+              0.769,
+              0.802,
+              0.805,
+              0.891,
+              0.932,
+              0.922,
+              0.798,
+              0.857,
+              0.907
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h15",
+            "rtts_ms": [
+              1.01,
+              0.77,
+              0.784,
+              0.792,
+              0.782,
+              1.06,
+              0.951,
+              1.06,
+              1.07,
+              0.785
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              1.08,
+              0.931,
+              0.769,
+              0.733,
+              0.855,
+              0.828,
+              0.821,
+              1.11,
+              0.794,
+              0.834
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h13",
+            "rtts_ms": [
+              0.868,
+              0.726,
+              0.863,
+              0.8,
+              0.805,
+              0.812,
+              0.939,
+              0.825,
+              0.711,
+              0.728
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              0.34,
+              0.328,
+              0.359,
+              0.321,
+              0.353,
+              0.321,
+              0.368,
+              0.369,
+              0.41,
+              0.474
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h16",
+            "rtts_ms": [
+              1.04,
+              1.04,
+              0.731,
+              2.67,
+              0.572,
+              1.12,
+              0.718,
+              0.827,
+              0.834,
+              0.729
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h10",
+            "rtts_ms": [
+              1.29,
+              0.983,
+              8.32,
+              1.17,
+              1.03,
+              0.913,
+              0.981,
+              1.03,
+              1.01,
+              1.03
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 0,
+        "flow_mod": 0,
+        "pkt1_mean_ms": 0.93655,
+        "pkt1_std_ms": 0.24268399964606346,
+        "pkt2_mean_ms": 0.93245,
+        "pkt2_std_ms": 0.43557130964914764,
+        "steady_mean_ms": 0.860225,
+        "steady_std_ms": 0.21343484615364847
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 30,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        },
+        "0.5": {
+          "active_pairs": 60,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        },
+        "1.0": {
+          "active_pairs": 120,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.9003355503082275,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.1006205153767184,
+          "rules_after": 624
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.9802117347717285,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.0,
+          "rules_after": 624
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990172386169434,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09967790732061896,
+          "rules_after": 624
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995213747024536,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09958721786942924,
+          "rules_after": 624
+        }
+      ],
+      "controller": {
+        "mode": "proactive",
+        "config": {
+          "granularity": "pair",
+          "miss": "drop",
+          "topo": "/tmp/claude-0/-home-user-Openflow-SDN/25f038d7-cd94-589c-b23f-7775cc6c37f2/scratchpad/full/tree-d2-f4-topo.json"
+        },
+        "pid": 8446,
+        "uptime_s": 95.17236256599426,
+        "written_at": 1790520406.167153,
+        "totals": {
+          "packet_in": 0,
+          "flow_mod": 629,
+          "packet_out": 0,
+          "rules_installed": 624
+        },
+        "switches": {
+          "1": {
+            "packet_in": 0,
+            "flow_mod": 193,
+            "packet_out": 0,
+            "connected_at": 1790520311.1583614,
+            "rules_installed": 192,
+            "install_ms": 43.62797737121582
+          },
+          "2": {
+            "packet_in": 0,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1790520311.1767206,
+            "rules_installed": 108,
+            "install_ms": 44.928550720214844
+          },
+          "3": {
+            "packet_in": 0,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1790520311.1884384,
+            "rules_installed": 108,
+            "install_ms": 62.87884712219238
+          },
+          "4": {
+            "packet_in": 0,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1790520311.2328236,
+            "rules_installed": 108,
+            "install_ms": 44.664859771728516
+          },
+          "5": {
+            "packet_in": 0,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1790520311.2421308,
+            "rules_installed": 108,
+            "install_ms": 43.24841499328613
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 0
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+topology,mode,hosts,switches,pkt1_ms,pkt1_std,pkt2_ms,steady_ms,steady_std,rules_100pct_total,rules_100pct_max_switch,ctrl_packet_in_proc_us_mean
+tree-d2-f2,reactive,4,3,3.807,1.319,0.889,0.062,0.007,28,10,194.9
+tree-d2-f2,proactive,4,3,0.667,0.263,0.081,0.064,0.006,28,10,0.0
+tree-d3-f2,reactive,8,7,6.596,2.551,0.959,0.071,0.012,216,40,184.1
+tree-d3-f2,proactive,8,7,0.863,0.261,0.088,0.093,0.016,216,40,0.0
+tree-d2-f4,reactive,16,5,5.442,1.541,0.949,0.085,0.011,624,192,198.5
+tree-d2-f4,proactive,16,5,0.772,0.254,0.107,0.092,0.010,624,192,0.0

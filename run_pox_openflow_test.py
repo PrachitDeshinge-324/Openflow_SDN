@@ -20,6 +20,7 @@ from pox.lib.addresses import EthAddr, IPAddr
 from pox.lib.packet.ethernet import ethernet
 from pox.lib.packet.ipv4 import ipv4
 from pox.lib.packet.icmp import icmp, echo
+from run_live_pox_benchmark import pump_messages, is_rule_add
 
 def test_openflow_switch_handshake(controller_ip="127.0.0.1", controller_port=6633):
     print(f"[*] Connecting to OpenFlow Controller at {controller_ip}:{controller_port}...")
@@ -62,25 +63,10 @@ def test_openflow_switch_handshake(controller_ip="127.0.0.1", controller_port=66
     sock.sendall(feat.pack())
     print("[+] Sent OFPT_FEATURES_REPLY (DPID=1, 4 ports: s1-eth1..s1-eth4)")
 
-    # Receive any initial flow mods (e.g. from proactive installer)
-    time.sleep(0.5)
-    sock.setblocking(False)
-    proactive_rules_received = 0
-    try:
-        while True:
-            resp = sock.recv(4096)
-            if not resp:
-                break
-            # Count flow_mods in response (OFPT_FLOW_MOD is type 14)
-            offset = 0
-            while offset < len(resp):
-                length = struct.unpack("!H", resp[offset+2:offset+4])[0]
-                m_type = resp[offset+1]
-                if m_type == 14: # OFPT_FLOW_MOD
-                    proactive_rules_received += 1
-                offset += length
-    except BlockingIOError:
-        pass
+    # Answer the controller's handshake (POX waits for a BARRIER_REPLY before
+    # ConnectionUp) and count any rules pushed immediately (proactive installer)
+    msgs = pump_messages(sock, 1.5)
+    proactive_rules_received = sum(1 for m in msgs if is_rule_add(m))
 
     print(f"[+] Proactive FLOW_MOD rules received on connection: {proactive_rules_received}")
 
@@ -97,7 +83,7 @@ def test_openflow_switch_handshake(controller_ip="127.0.0.1", controller_port=66
     
     icmpp = icmp()
     icmpp.type = 8 # Echo request
-    icmpp.payload = echo(id=1, seq=1, data=b"SDN_BENCHMARK_PROBE")
+    icmpp.payload = echo(id=1, seq=1, payload=b"SDN_BENCHMARK_PROBE!")  # even length: POX's checksum() breaks on odd lengths
     ipp.payload = icmpp
     pkt.payload = ipp
 
@@ -111,16 +97,14 @@ def test_openflow_switch_handshake(controller_ip="127.0.0.1", controller_port=66
     sock.sendall(pkt_in.pack())
 
     # Wait for controller response
-    sock.setblocking(True)
-    sock.settimeout(2.0)
-    try:
-        reply = sock.recv(2048)
+    type_names = {13: "OFPT_PACKET_OUT", 14: "OFPT_FLOW_MOD"}
+    replies = [m for m in pump_messages(sock, 2.0, stop=lambda m: m[1] in type_names) if m[1] in type_names]
+    if replies:
         t_elapsed_ms = (time.perf_counter() - t0) * 1000
-        reply_type = reply[1]
-        type_names = {13: "OFPT_PACKET_OUT", 14: "OFPT_FLOW_MOD"}
-        print(f"[+] Controller Response received in {t_elapsed_ms:.3f} ms! Message Type: {reply_type} ({type_names.get(reply_type, 'OTHER')})")
-    except socket.timeout:
-        print("[-] Timed out waiting for controller response.")
+        reply_type = replies[0][1]
+        print(f"[+] Controller Response received in {t_elapsed_ms:.3f} ms! Message Type: {reply_type} ({type_names[reply_type]})")
+    else:
+        print("[-] No PACKET_OUT/FLOW_MOD from controller within 2 s (expected for proactive_eval).")
 
     sock.close()
     print("[+] Test completed cleanly.\n")

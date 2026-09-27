@@ -1,8 +1,13 @@
 """
-SDN Empirical Benchmark & Evaluation Suite
+SDN Analytical Model (Expected Results)
 CS G525 Advanced Computer Networks - Research Project SA7
 
 Topic: Empirical Evaluation of Reactive vs. Proactive Flow Installation in OpenFlow SDN
+
+NOTE: this script does NOT measure a network. It generates expected values from a
+parametric model (normal distributions around assumed controller/switch latencies,
+k(k-1) rule counts, per-message byte sizes) to state the hypothesis quantitatively.
+The measured counterpart is experiments/run_experiments.py (Mininet + POX).
 """
 
 import os
@@ -300,6 +305,7 @@ if __name__ == '__main__':
     print("="*70)
     
     out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
+    np.random.seed(42)   # reproducible model output
     
     exp1 = run_flow_setup_latency_experiment()
     exp2 = run_flow_table_occupancy_experiment()

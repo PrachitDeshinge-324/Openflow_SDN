@@ -1,67 +1,117 @@
 # SDN Project SA7: Reactive vs. Proactive Flow Installation
 
-This directory contains the entire suite of scripts, the POX controller, and the documentation for **CS G525 Advanced Computer Networks - Research Project SA7**.
+Scripts, controller modules and documentation for **CS G525 Advanced Computer Networks - Research Project SA7**:
+an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + Open vSwitch + POX.
 
 ## Project Contents
 
-- `pox/` : The customized POX controller repository (gar-experimental branch).
-  - Includes `pox/pox/forwarding/proactive_eval.py` (Static $O(N^2)$ flow installation).
-  - Includes `pox/pox/forwarding/reactive_eval.py` (Instrumented on-demand flow learning).
-  - Contains the **Python 3 compatibility patch** inside `pox/pox/lib/packet/dns.py` to prevent DNS parsing crashes during background Linux activity.
-- `smoke_test.py` : Automates the validation of Mininet, OVS, Python 3, and POX installations.
-- `sdn_benchmark_suite.py` : The mathematical model that evaluates the trade-offs (Latency, TCAM Memory, and CPU Churn), generating visualizations.
-- `results/` : Contains the high-resolution charts (`.png`) and raw metrics (`.json`) produced by the benchmark script.
-- `Project_SA7_Final_Report.md` : The formal, comprehensive markdown report of the project, detailing the architecture, tests, and data analysis.
+| Path | What it is |
+| --- | --- |
+| `controllers/reactive_eval.py` | POX module: reactive (on-demand) flow installation, instrumented |
+| `controllers/proactive_eval.py` | POX module: proactive flow installation from a known topology, instrumented |
+| `controllers/sa7_common.py` | Shared stats/topology helpers for both modules |
+| `experiments/run_experiments.py` | **Measured** evaluation: latency, flow-table occupancy, controller load under churn |
+| `experiments/plot_results.py` | Plots for a measured run |
+| `experiments/topologies/tree-d2-f2.json` | Topology file for running `proactive_eval` by hand on the 4-host tree |
+| `sdn_benchmark_suite.py` | **Analytical model** (expected values, not measurements); writes `results/*.png` |
+| `smoke_test.py` | Checks that Python 3, Mininet, Open vSwitch and POX are installed |
+| `run_live_pox_benchmark.py`, `run_pox_openflow_test.py` | Simulated OpenFlow 1.0 switch that handshakes with POX and times its reply to one PACKET_IN |
+| `results/` | Model charts; measured runs go to `results/measured/<timestamp>/` |
+| `docs/Progress_Review_1.md` | Progress Review I report (30 Sep 2026) |
+| `Project_SA7_Final_Report.md` | Report draft (Section 4 = analytical model) |
+| `pox/` | POX controller checkout (not stored in this repo, see setup) |
 
 ---
 
-## How to Install and Run
+## 1. Setup
 
-### 1. Prerequisites
-Ensure you have the following installed on your Ubuntu VM:
-- Python 3
-- Mininet (`sudo apt install mininet`)
-- Open vSwitch
-
-### 2. Running the Smoke Test
-The smoke test verifies that all tools exist and checks the POX environment:
+### Ubuntu (VM or WSL2 on Windows)
+Run everything inside the Ubuntu terminal, in the Linux home folder (not under `/mnt/c`):
 ```bash
-cd ~/Desktop/SDN_Project_SA7
+sudo apt update
+sudo apt install -y git mininet openvswitch-switch openvswitch-testcontroller \
+                    python3-numpy python3-matplotlib
+sudo systemctl enable --now openvswitch-switch
+sudo modprobe openvswitch        # if this fails, see "Userspace datapath" below
+
+cd ~
+git clone https://github.com/PrachitDeshinge-324/Openflow_SDN.git
+git clone https://github.com/noxrepo/pox.git Openflow_SDN/pox
+```
+The repo only records which POX commit to use; it does not contain POX's files, so the second clone is required.
+
+**Userspace datapath:** if the kernel has no `openvswitch` module, add `--switch ovs,datapath=user`
+to `mn` commands and `--datapath user` to `run_experiments.py`. Latencies are higher in that mode, so report which one you used.
+Run `sudo mn -c` to clean up after a crashed Mininet run.
+
+### Check the installation
+```bash
+cd ~/Openflow_SDN
 python3 smoke_test.py
 ```
 
-### 3. Running the Empirical Benchmark Suite
-This suite runs the comparative analysis across varying network topologies and generates the performance plots found in the `results/` folder:
+---
+
+## 2. Measured Evaluation (main experiment)
+
 ```bash
-cd ~/Desktop/SDN_Project_SA7
+cd ~/Openflow_SDN
+sudo python3 experiments/run_experiments.py --quick   # 4 hosts only, about 1-2 minutes
+sudo python3 experiments/run_experiments.py           # 4, 8 and 16 hosts, about 10-15 minutes
+```
+For each topology (trees with 4, 8 and 16 hosts) and each controller mode, the script starts POX and Mininet and measures:
+
+1. **Flow-setup latency:** ping RTT of packet 1, packet 2 and the steady state (packets 3..N) for sampled host pairs.
+2. **Flow-table occupancy:** rules actually present in every switch (`ovs-ofctl dump-flows`) with 25/50/100% of host pairs active.
+3. **Control-plane load under churn:** PACKET_IN/s, FLOW_MOD/s and POX CPU usage while new UDP flows arrive at 10-200 flows/s.
+
+The output goes to `results/measured/<timestamp>/`:
+- `results.md` has tables ready to paste into the report.
+- `summary.csv` and `results.json` hold the raw data.
+- `measured_*.png` are the plots.
+- POX logs and per-run controller statistics are saved alongside.
+
+Run `python3 experiments/run_experiments.py --help` for options (match granularity, timeouts, rates, number of pairs).
+
+Both modes run under identical conditions: static ARP entries on every host (ARP stays out of the measurement), IPv6 disabled on hosts, and a fixed random seed for pair selection.
+
+---
+
+## 3. Running the Controllers by Hand
+
+You need two terminals. POX finds the modules through `PYTHONPATH`.
+
+**Terminal 1, reactive controller:**
+```bash
+cd ~/Openflow_SDN/pox
+PYTHONPATH=../controllers python3 pox.py reactive_eval
+```
+**Or terminal 1, proactive controller** (it needs the topology in advance):
+```bash
+cd ~/Openflow_SDN/pox
+PYTHONPATH=../controllers python3 pox.py proactive_eval --topo=../experiments/topologies/tree-d2-f2.json
+```
+
+**Terminal 2, Mininet:**
+```bash
+sudo mn --topo=tree,depth=2,fanout=2 --mac --arp --controller=remote,ip=127.0.0.1,port=6633 --test=pingall
+```
+`--mac` gives hosts the MAC addresses listed in the topology file. `--arp` pre-fills ARP tables, which the proactive controller relies on because it drops unmatched broadcasts.
+Expect `0% dropped (12/12 received)`.
+
+Useful options:
+- `reactive_eval --match=exact|pair|dst --idle_timeout=10 --hard_timeout=30 --stats_file=/tmp/r.json`
+- `proactive_eval --granularity=pair|dst --miss=drop|controller --stats_file=/tmp/p.json`
+
+Inside the Mininet CLI, `h1 ping -c 10 h4` shows first-packet vs steady-state latency and `sh ovs-ofctl dump-flows s1` lists the installed rules.
+
+---
+
+## 4. Analytical Model
+
+```bash
+cd ~/Openflow_SDN
 python3 sdn_benchmark_suite.py
 ```
-*(The charts will be output into the `results/` directory.)*
-
-### 4. Running the Emulation with Mininet & POX
-
-To test the actual software-defined network, you need two terminals.
-
-#### Term 1: Start the POX Controller
-Navigate to the `pox` directory and launch either the reactive or proactive module:
-
-**To run the Reactive module:**
-```bash
-cd ~/Desktop/SDN_Project_SA7/pox
-python3 pox.py forwarding.reactive_eval
-```
-
-**To run the Proactive module:**
-```bash
-cd ~/Desktop/SDN_Project_SA7/pox
-python3 pox.py forwarding.proactive_eval
-```
-
-#### Term 2: Start the Mininet Topology
-In a separate terminal, launch Mininet to connect to your running controller:
-```bash
-sudo mn --topo=tree,depth=2,fanout=2 --controller=remote,ip=127.0.0.1,port=6633 --test=pingall
-```
-
-**What you will see:**
-Mininet will construct a tree topology with 3 switches and 4 hosts. It will run a `pingall` test. You will observe `0% packet loss`, proving full end-to-end routing. In Terminal 1, the POX controller will log the flow setup activity.
+Generates the expected-value charts in `results/` from a parametric model (seeded, so output is reproducible).
+These are **not measurements**; they state the hypothesis numerically for comparison with Section 2.
