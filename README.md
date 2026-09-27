@@ -14,6 +14,7 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `experiments/plot_results.py` | Plots for a measured run |
 | `experiments/topologies/tree-d2-f2.json` | Topology file for running `proactive_eval` by hand on the 4-host tree |
 | `sdn_benchmark_suite.py` | **Analytical model** (expected values, not measurements); writes `results/*.png` |
+| `setup.sh`, `INSTALL.md`, `requirements.txt` | First-time installation: script, guide, Python libraries |
 | `smoke_test.py` | Checks that Python 3, Mininet, Open vSwitch and POX are installed |
 | `run_live_pox_benchmark.py`, `run_pox_openflow_test.py` | Simulated OpenFlow 1.0 switch that handshakes with POX and times its reply to one PACKET_IN |
 | `results/` | Model charts; measured runs go to `results/measured/<timestamp>/` |
@@ -25,7 +26,14 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 
 ## 1. Setup
 
-### Ubuntu (VM or WSL2 on Windows)
+**First time?** Follow [INSTALL.md](INSTALL.md): requirements, installing Ubuntu/WSL2, and troubleshooting. The short version:
+```bash
+git clone https://github.com/PrachitDeshinge-324/Openflow_SDN.git
+cd Openflow_SDN
+bash setup.sh        # installs Mininet, Open vSwitch, POX and Python libraries, then verifies them
+```
+
+### Manual setup (what `setup.sh` does)
 Run everything inside the Ubuntu terminal, in the Linux home folder (not under `/mnt/c`):
 ```bash
 sudo apt update

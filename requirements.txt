@@ -1,0 +1,11 @@
+# Python libraries used by this project (plots and the analytical model).
+#
+# On Ubuntu, install them with apt instead of pip (setup.sh does this):
+#   sudo apt install python3-numpy python3-matplotlib
+# Use pip only inside a virtual environment:
+#   pip install -r requirements.txt
+#
+# Mininet, Open vSwitch and POX are not pip packages. Install them with setup.sh
+# (see INSTALL.md): Mininet and Open vSwitch come from apt, and POX is cloned from GitHub.
+numpy>=1.21
+matplotlib>=3.5
