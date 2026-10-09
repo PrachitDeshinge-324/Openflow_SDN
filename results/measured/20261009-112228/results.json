@@ -1,0 +1,2536 @@
+{
+  "meta": {
+    "args": {
+      "topos": [
+        "tree-d2-f2",
+        "tree-d3-f2",
+        "tree-d2-f4"
+      ],
+      "modes": [
+        "reactive",
+        "proactive"
+      ],
+      "pairs": 20,
+      "count": 10,
+      "interval": "0.1",
+      "fractions": [
+        0.25,
+        0.5,
+        1.0
+      ],
+      "rates": [
+        10,
+        50,
+        100,
+        200
+      ],
+      "churn_duration": 5,
+      "reactive_match": "exact",
+      "granularity": "pair",
+      "idle_timeout": 10,
+      "hard_timeout": 30,
+      "datapath": "kernel",
+      "seed": 7,
+      "quick": false,
+      "out": null
+    },
+    "started_by": "Nisarg",
+    "uname": "Linux Nisarg 6.18.40.1-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Fri Jul 31 22:12:15 UTC 2026 x86_64",
+    "python": "3.14.4",
+    "ovs": "ovs-vsctl (Open vSwitch) 3.7.1"
+  },
+  "results": [
+    {
+      "topology": "tree-d2-f2",
+      "mode": "reactive",
+      "hosts": 4,
+      "switches": 3,
+      "latency": {
+        "pairs": [
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              7.12,
+              1.52,
+              0.113,
+              0.114,
+              0.103,
+              0.075,
+              0.142,
+              0.072,
+              0.121,
+              0.139
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              8.28,
+              1.06,
+              0.081,
+              0.097,
+              0.109,
+              0.128,
+              0.112,
+              0.119,
+              0.071,
+              0.088
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h3",
+            "rtts_ms": [
+              10.9,
+              1.22,
+              0.1,
+              0.082,
+              0.114,
+              0.095,
+              0.148,
+              0.108,
+              0.119,
+              0.129
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              4.81,
+              0.779,
+              0.082,
+              0.106,
+              0.098,
+              0.058,
+              0.087,
+              0.109,
+              0.116,
+              0.083
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              2.7,
+              0.418,
+              0.066,
+              0.068,
+              0.089,
+              0.064,
+              0.085,
+              0.095,
+              0.146,
+              0.106
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h4",
+            "rtts_ms": [
+              9.46,
+              1.09,
+              0.059,
+              0.108,
+              0.117,
+              0.143,
+              0.071,
+              0.08,
+              0.091,
+              0.068
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 34,
+        "flow_mod": 28,
+        "pkt1_mean_ms": 7.211666666666667,
+        "pkt1_std_ms": 3.0308970069381553,
+        "pkt2_mean_ms": 1.0145,
+        "pkt2_std_ms": 0.37863003050471317,
+        "steady_mean_ms": 0.09875,
+        "steady_std_ms": 0.012152160301773513
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 2,
+          "total_rules": 8,
+          "max_rules_per_switch": 4,
+          "per_switch": {
+            "s1": 2,
+            "s2": 4,
+            "s3": 2
+          }
+        },
+        "0.5": {
+          "active_pairs": 3,
+          "total_rules": 14,
+          "max_rules_per_switch": 6,
+          "per_switch": {
+            "s1": 4,
+            "s2": 6,
+            "s3": 4
+          }
+        },
+        "1.0": {
+          "active_pairs": 6,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.90029239654541,
+          "packet_in_per_s": 26.937168094919574,
+          "flow_mod_per_s": 26.120890273861406,
+          "controller_cpu_pct": 2.361872908784238,
+          "rules_after": 128
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980347633361816,
+          "packet_in_per_s": 121.67825312847489,
+          "flow_mod_per_s": 115.65457723102564,
+          "controller_cpu_pct": 11.847885998844589,
+          "rules_after": 576
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990328311920166,
+          "packet_in_per_s": 229.4438218152885,
+          "flow_mod_per_s": 225.83684470378176,
+          "controller_cpu_pct": 18.28535515289975,
+          "rules_after": 1127
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995241403579712,
+          "packet_in_per_s": 476.65364046144344,
+          "flow_mod_per_s": 476.25325941107684,
+          "controller_cpu_pct": 30.592971828536516,
+          "rules_after": 2379
+        }
+      ],
+      "controller": {
+        "mode": "reactive",
+        "config": {
+          "match": "exact",
+          "idle_timeout": 10,
+          "hard_timeout": 30
+        },
+        "pid": 30517,
+        "uptime_s": 63.61939835548401,
+        "written_at": 1791545014.6905646,
+        "totals": {
+          "packet_in": 4445,
+          "flow_mod": 4288,
+          "packet_out": 109,
+          "rules_installed": 0
+        },
+        "switches": {
+          "2": {
+            "packet_in": 1875,
+            "flow_mod": 1822,
+            "packet_out": 37,
+            "connected_at": 1791544951.210139,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "1": {
+            "packet_in": 1267,
+            "flow_mod": 1231,
+            "packet_out": 36,
+            "connected_at": 1791544951.2293339,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "3": {
+            "packet_in": 1303,
+            "flow_mod": 1235,
+            "packet_out": 36,
+            "connected_at": 1791544951.2374527,
+            "rules_installed": 0,
+            "install_ms": null
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 4397,
+          "mean": 243.58716079198348,
+          "p50": 217.01199966628337,
+          "p95": 422.6830005791271,
+          "max": 2404.8730001595686
+        }
+      }
+    },
+    {
+      "topology": "tree-d2-f2",
+      "mode": "proactive",
+      "hosts": 4,
+      "switches": 3,
+      "proactive_install": {
+        "1": {
+          "rules": 8,
+          "install_ms": 43.73764991760254
+        },
+        "2": {
+          "rules": 10,
+          "install_ms": 44.35229301452637
+        },
+        "3": {
+          "rules": 10,
+          "install_ms": 43.771982192993164
+        }
+      },
+      "latency": {
+        "pairs": [
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              1.4,
+              0.094,
+              0.119,
+              0.091,
+              0.098,
+              0.121,
+              0.109,
+              0.112,
+              0.07,
+              0.091
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              0.883,
+              0.071,
+              0.079,
+              0.128,
+              0.119,
+              0.086,
+              0.09,
+              0.138,
+              0.094,
+              0.079
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h3",
+            "rtts_ms": [
+              0.994,
+              0.095,
+              0.061,
+              0.132,
+              0.165,
+              0.08,
+              0.111,
+              0.125,
+              0.119,
+              0.097
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              0.679,
+              0.072,
+              0.16,
+              0.077,
+              0.143,
+              0.107,
+              0.096,
+              0.085,
+              0.082,
+              0.084
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              0.625,
+              0.132,
+              0.085,
+              0.092,
+              0.093,
+              0.122,
+              0.072,
+              0.112,
+              0.124,
+              0.07
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h4",
+            "rtts_ms": [
+              1.45,
+              0.191,
+              0.1,
+              0.094,
+              0.093,
+              0.12,
+              0.087,
+              0.083,
+              0.077,
+              0.155
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 0,
+        "flow_mod": 0,
+        "pkt1_mean_ms": 1.0051666666666668,
+        "pkt1_std_ms": 0.3520598907383041,
+        "pkt2_mean_ms": 0.10916666666666666,
+        "pkt2_std_ms": 0.04579701591443123,
+        "steady_mean_ms": 0.09783333333333333,
+        "steady_std_ms": 0.009610757861202551
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 2,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        },
+        "0.5": {
+          "active_pairs": 3,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        },
+        "1.0": {
+          "active_pairs": 6,
+          "total_rules": 28,
+          "max_rules_per_switch": 10,
+          "per_switch": {
+            "s1": 8,
+            "s2": 10,
+            "s3": 10
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.900353670120239,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.0,
+          "rules_after": 28
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.9803807735443115,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09984929182249538,
+          "rules_after": 28
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990295171737671,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.19934885519717047,
+          "rules_after": 28
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995359659194946,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09973082712759618,
+          "rules_after": 28
+        }
+      ],
+      "controller": {
+        "mode": "proactive",
+        "config": {
+          "granularity": "pair",
+          "miss": "drop",
+          "topo": "/home/Nisarg/Openflow_SDN/results/measured/20261009-112228/tree-d2-f2-topo.json"
+        },
+        "pid": 31536,
+        "uptime_s": 82.73018264770508,
+        "written_at": 1791545100.529223,
+        "totals": {
+          "packet_in": 0,
+          "flow_mod": 31,
+          "packet_out": 0,
+          "rules_installed": 28
+        },
+        "switches": {
+          "1": {
+            "packet_in": 0,
+            "flow_mod": 9,
+            "packet_out": 0,
+            "connected_at": 1791545017.9653504,
+            "rules_installed": 8,
+            "install_ms": 43.73764991760254
+          },
+          "2": {
+            "packet_in": 0,
+            "flow_mod": 11,
+            "packet_out": 0,
+            "connected_at": 1791545017.977261,
+            "rules_installed": 10,
+            "install_ms": 44.35229301452637
+          },
+          "3": {
+            "packet_in": 0,
+            "flow_mod": 11,
+            "packet_out": 0,
+            "connected_at": 1791545017.99344,
+            "rules_installed": 10,
+            "install_ms": 43.771982192993164
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 0
+        }
+      }
+    },
+    {
+      "topology": "tree-d3-f2",
+      "mode": "reactive",
+      "hosts": 8,
+      "switches": 7,
+      "latency": {
+        "pairs": [
+          {
+            "src": "h2",
+            "dst": "h6",
+            "rtts_ms": [
+              15.9,
+              1.66,
+              0.078,
+              0.088,
+              0.114,
+              0.106,
+              0.143,
+              0.156,
+              0.073,
+              0.112
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              12.2,
+              1.61,
+              0.131,
+              0.114,
+              0.105,
+              0.095,
+              1.5,
+              0.101,
+              0.137,
+              0.091
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h8",
+            "rtts_ms": [
+              14.0,
+              1.78,
+              0.101,
+              0.091,
+              0.111,
+              0.075,
+              0.121,
+              0.151,
+              0.104,
+              0.097
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h7",
+            "rtts_ms": [
+              13.6,
+              1.19,
+              0.085,
+              0.092,
+              0.105,
+              0.106,
+              0.13,
+              0.086,
+              0.141,
+              0.115
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              8.49,
+              0.993,
+              0.099,
+              0.118,
+              0.091,
+              0.124,
+              0.112,
+              0.091,
+              0.093,
+              0.213
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              7.88,
+              1.49,
+              0.11,
+              0.079,
+              0.087,
+              0.093,
+              0.099,
+              0.148,
+              0.094,
+              0.106
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h8",
+            "rtts_ms": [
+              16.1,
+              2.76,
+              0.159,
+              0.074,
+              0.112,
+              0.092,
+              0.091,
+              0.098,
+              0.098,
+              0.1
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h5",
+            "rtts_ms": [
+              16.2,
+              1.71,
+              0.079,
+              0.076,
+              0.125,
+              0.11,
+              0.093,
+              0.14,
+              0.093,
+              0.169
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              12.4,
+              1.26,
+              0.083,
+              0.121,
+              0.107,
+              0.068,
+              0.205,
+              0.08,
+              0.122,
+              0.109
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h5",
+            "rtts_ms": [
+              12.0,
+              1.73,
+              0.223,
+              0.07,
+              0.125,
+              0.088,
+              0.113,
+              0.073,
+              0.13,
+              0.111
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              9.96,
+              1.28,
+              0.16,
+              0.086,
+              0.082,
+              0.169,
+              0.067,
+              0.1,
+              0.133,
+              0.111
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h7",
+            "rtts_ms": [
+              13.0,
+              2.47,
+              0.124,
+              0.101,
+              0.149,
+              0.145,
+              0.163,
+              0.114,
+              0.101,
+              0.151
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              16.6,
+              1.25,
+              0.108,
+              0.119,
+              0.143,
+              0.085,
+              0.134,
+              0.156,
+              0.112,
+              0.143
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              3.02,
+              0.529,
+              0.148,
+              0.08,
+              0.08,
+              0.084,
+              0.087,
+              0.082,
+              0.101,
+              0.108
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h8",
+            "rtts_ms": [
+              19.6,
+              2.12,
+              0.097,
+              0.114,
+              0.107,
+              0.096,
+              0.105,
+              0.096,
+              0.14,
+              0.091
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h6",
+            "rtts_ms": [
+              15.6,
+              1.64,
+              0.116,
+              0.097,
+              0.116,
+              0.105,
+              0.099,
+              0.134,
+              0.102,
+              0.088
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h7",
+            "rtts_ms": [
+              7.66,
+              0.933,
+              0.079,
+              0.2,
+              0.075,
+              0.066,
+              0.076,
+              0.112,
+              0.13,
+              0.064
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              2.64,
+              0.468,
+              0.149,
+              0.201,
+              0.079,
+              0.072,
+              0.066,
+              0.08,
+              0.064,
+              0.078
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h8",
+            "rtts_ms": [
+              8.46,
+              0.977,
+              0.149,
+              0.092,
+              0.103,
+              0.377,
+              0.112,
+              0.085,
+              0.073,
+              0.101
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h8",
+            "rtts_ms": [
+              2.77,
+              0.415,
+              0.075,
+              0.075,
+              0.12,
+              0.084,
+              0.072,
+              0.093,
+              0.081,
+              0.111
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 229,
+        "flow_mod": 156,
+        "pkt1_mean_ms": 11.404,
+        "pkt1_std_ms": 4.922888967818966,
+        "pkt2_mean_ms": 1.41325,
+        "pkt2_std_ms": 0.6197174971838293,
+        "steady_mean_ms": 0.10225000000000001,
+        "steady_std_ms": 0.014120254209728962
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 7,
+          "total_rules": 54,
+          "max_rules_per_switch": 12,
+          "per_switch": {
+            "s1": 8,
+            "s2": 12,
+            "s3": 6,
+            "s4": 12,
+            "s5": 8,
+            "s6": 4,
+            "s7": 4
+          }
+        },
+        "0.5": {
+          "active_pairs": 14,
+          "total_rules": 108,
+          "max_rules_per_switch": 20,
+          "per_switch": {
+            "s1": 14,
+            "s2": 20,
+            "s3": 12,
+            "s4": 16,
+            "s5": 20,
+            "s6": 12,
+            "s7": 14
+          }
+        },
+        "1.0": {
+          "active_pairs": 28,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.900319337844849,
+          "packet_in_per_s": 39.793324997011446,
+          "flow_mod_per_s": 38.77298333042141,
+          "controller_cpu_pct": 3.4913439010001897,
+          "rules_after": 190
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980662822723389,
+          "packet_in_per_s": 207.60289078043164,
+          "flow_mod_per_s": 200.37493713623866,
+          "controller_cpu_pct": 17.93674561102517,
+          "rules_after": 998
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990256309509277,
+          "packet_in_per_s": 373.7282985737855,
+          "flow_mod_per_s": 372.32556501345493,
+          "controller_cpu_pct": 25.913172861924334,
+          "rules_after": 1858
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.99521017074585,
+          "packet_in_per_s": 782.3494640699943,
+          "flow_mod_per_s": 768.3360396879831,
+          "controller_cpu_pct": 45.03844240177631,
+          "rules_after": 3838
+        }
+      ],
+      "controller": {
+        "mode": "reactive",
+        "config": {
+          "match": "exact",
+          "idle_timeout": 10,
+          "hard_timeout": 30
+        },
+        "pid": 32703,
+        "uptime_s": 78.42604804039001,
+        "written_at": 1791545183.890078,
+        "totals": {
+          "packet_in": 8154,
+          "flow_mod": 7418,
+          "packet_out": 635,
+          "rules_installed": 0
+        },
+        "switches": {
+          "1": {
+            "packet_in": 1181,
+            "flow_mod": 1089,
+            "packet_out": 92,
+            "connected_at": 1791545105.6368115,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "2": {
+            "packet_in": 1723,
+            "flow_mod": 1632,
+            "packet_out": 91,
+            "connected_at": 1791545105.650457,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "3": {
+            "packet_in": 1965,
+            "flow_mod": 1860,
+            "packet_out": 91,
+            "connected_at": 1791545105.664167,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "4": {
+            "packet_in": 711,
+            "flow_mod": 593,
+            "packet_out": 90,
+            "connected_at": 1791545105.6701803,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "5": {
+            "packet_in": 1200,
+            "flow_mod": 1109,
+            "packet_out": 91,
+            "connected_at": 1791545105.6935165,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "7": {
+            "packet_in": 674,
+            "flow_mod": 554,
+            "packet_out": 90,
+            "connected_at": 1791545105.708357,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "6": {
+            "packet_in": 700,
+            "flow_mod": 581,
+            "packet_out": 90,
+            "connected_at": 1791545105.7087886,
+            "rules_installed": 0,
+            "install_ms": null
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 8053,
+          "mean": 225.62874480941466,
+          "p50": 202.69499964342685,
+          "p95": 373.3989997272147,
+          "max": 3572.1040003409144
+        }
+      }
+    },
+    {
+      "topology": "tree-d3-f2",
+      "mode": "proactive",
+      "hosts": 8,
+      "switches": 7,
+      "proactive_install": {
+        "2": {
+          "rules": 40,
+          "install_ms": 54.685115814208984
+        },
+        "1": {
+          "rules": 32,
+          "install_ms": 43.129682540893555
+        },
+        "3": {
+          "rules": 26,
+          "install_ms": 50.406694412231445
+        },
+        "4": {
+          "rules": 26,
+          "install_ms": 50.055503845214844
+        },
+        "5": {
+          "rules": 40,
+          "install_ms": 51.61476135253906
+        },
+        "6": {
+          "rules": 26,
+          "install_ms": 20.342350006103516
+        },
+        "7": {
+          "rules": 26,
+          "install_ms": 44.13580894470215
+        }
+      },
+      "latency": {
+        "pairs": [
+          {
+            "src": "h2",
+            "dst": "h6",
+            "rtts_ms": [
+              1.64,
+              0.084,
+              0.106,
+              0.116,
+              0.109,
+              0.098,
+              0.111,
+              0.084,
+              0.137,
+              0.095
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              1.56,
+              0.087,
+              0.113,
+              0.098,
+              0.099,
+              0.183,
+              0.109,
+              0.085,
+              0.105,
+              0.085
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h8",
+            "rtts_ms": [
+              2.03,
+              0.093,
+              0.101,
+              0.104,
+              0.076,
+              0.137,
+              0.11,
+              0.102,
+              0.097,
+              0.109
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h7",
+            "rtts_ms": [
+              1.62,
+              0.111,
+              0.105,
+              0.115,
+              0.122,
+              0.147,
+              0.099,
+              0.096,
+              0.098,
+              0.143
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h3",
+            "rtts_ms": [
+              1.18,
+              0.089,
+              0.092,
+              0.126,
+              0.113,
+              0.08,
+              0.08,
+              0.101,
+              0.099,
+              0.111
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h4",
+            "rtts_ms": [
+              1.29,
+              0.127,
+              0.13,
+              0.087,
+              0.089,
+              0.134,
+              0.126,
+              0.087,
+              0.214,
+              0.095
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h8",
+            "rtts_ms": [
+              1.76,
+              0.079,
+              0.129,
+              0.101,
+              0.123,
+              0.109,
+              0.12,
+              0.093,
+              0.117,
+              0.11
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h5",
+            "rtts_ms": [
+              1.77,
+              0.103,
+              0.119,
+              0.119,
+              0.084,
+              0.12,
+              0.11,
+              0.097,
+              0.157,
+              0.155
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              1.39,
+              0.103,
+              0.101,
+              0.097,
+              0.134,
+              0.153,
+              0.108,
+              0.129,
+              0.102,
+              0.102
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h5",
+            "rtts_ms": [
+              1.96,
+              0.087,
+              0.073,
+              0.085,
+              0.104,
+              0.186,
+              0.114,
+              0.121,
+              0.107,
+              0.089
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              1.45,
+              0.078,
+              0.095,
+              0.115,
+              0.094,
+              0.085,
+              0.093,
+              0.128,
+              0.103,
+              0.1
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h7",
+            "rtts_ms": [
+              1.49,
+              0.098,
+              0.14,
+              0.083,
+              0.109,
+              0.13,
+              0.113,
+              0.183,
+              0.121,
+              0.134
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              1.69,
+              0.113,
+              0.13,
+              0.094,
+              0.129,
+              0.105,
+              0.126,
+              0.149,
+              0.123,
+              0.1
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h2",
+            "rtts_ms": [
+              0.663,
+              0.079,
+              0.076,
+              0.16,
+              0.078,
+              0.23,
+              0.107,
+              0.099,
+              0.104,
+              0.07
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h8",
+            "rtts_ms": [
+              1.72,
+              0.206,
+              0.091,
+              0.099,
+              0.081,
+              0.117,
+              0.134,
+              0.122,
+              0.092,
+              0.101
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h6",
+            "rtts_ms": [
+              1.83,
+              0.109,
+              0.126,
+              0.092,
+              0.131,
+              0.125,
+              0.099,
+              0.119,
+              0.086,
+              0.1
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h7",
+            "rtts_ms": [
+              1.14,
+              0.084,
+              0.073,
+              0.101,
+              0.099,
+              0.103,
+              0.073,
+              0.128,
+              0.099,
+              0.067
+            ]
+          },
+          {
+            "src": "h3",
+            "dst": "h4",
+            "rtts_ms": [
+              0.955,
+              0.065,
+              0.069,
+              0.129,
+              0.08,
+              0.118,
+              0.101,
+              0.073,
+              0.086,
+              0.093
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h8",
+            "rtts_ms": [
+              1.97,
+              0.152,
+              0.072,
+              0.109,
+              0.088,
+              0.105,
+              0.104,
+              0.097,
+              0.119,
+              0.122
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h8",
+            "rtts_ms": [
+              0.805,
+              0.145,
+              0.069,
+              0.075,
+              0.155,
+              0.075,
+              0.086,
+              0.087,
+              0.084,
+              0.158
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 0,
+        "flow_mod": 0,
+        "pkt1_mean_ms": 1.49565,
+        "pkt1_std_ms": 0.38770176750476104,
+        "pkt2_mean_ms": 0.1046,
+        "pkt2_std_ms": 0.03266641603913881,
+        "steady_mean_ms": 0.105625,
+        "steady_std_ms": 0.01013315948027226
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 7,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        },
+        "0.5": {
+          "active_pairs": 14,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        },
+        "1.0": {
+          "active_pairs": 28,
+          "total_rules": 216,
+          "max_rules_per_switch": 40,
+          "per_switch": {
+            "s1": 32,
+            "s2": 40,
+            "s3": 26,
+            "s4": 26,
+            "s5": 40,
+            "s6": 26,
+            "s7": 26
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.900530576705933,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.10062729879765553,
+          "rules_after": 216
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980276107788086,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.199751029388562,
+          "rules_after": 216
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990357160568237,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.0,
+          "rules_after": 216
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995313405990601,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09970443367552971,
+          "rules_after": 216
+        }
+      ],
+      "controller": {
+        "mode": "proactive",
+        "config": {
+          "granularity": "pair",
+          "miss": "drop",
+          "topo": "/home/Nisarg/Openflow_SDN/results/measured/20261009-112228/tree-d3-f2-topo.json"
+        },
+        "pid": 34546,
+        "uptime_s": 96.50961709022522,
+        "written_at": 1791545285.3272166,
+        "totals": {
+          "packet_in": 2,
+          "flow_mod": 223,
+          "packet_out": 0,
+          "rules_installed": 216
+        },
+        "switches": {
+          "2": {
+            "packet_in": 0,
+            "flow_mod": 41,
+            "packet_out": 0,
+            "connected_at": 1791545188.9739559,
+            "rules_installed": 40,
+            "install_ms": 54.685115814208984
+          },
+          "1": {
+            "packet_in": 0,
+            "flow_mod": 33,
+            "packet_out": 0,
+            "connected_at": 1791545188.9876873,
+            "rules_installed": 32,
+            "install_ms": 43.129682540893555
+          },
+          "3": {
+            "packet_in": 0,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1791545189.025857,
+            "rules_installed": 26,
+            "install_ms": 50.406694412231445
+          },
+          "4": {
+            "packet_in": 0,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1791545189.042514,
+            "rules_installed": 26,
+            "install_ms": 50.055503845214844
+          },
+          "5": {
+            "packet_in": 1,
+            "flow_mod": 41,
+            "packet_out": 0,
+            "connected_at": 1791545189.0574162,
+            "rules_installed": 40,
+            "install_ms": 51.61476135253906
+          },
+          "6": {
+            "packet_in": 1,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1791545189.073348,
+            "rules_installed": 26,
+            "install_ms": 20.342350006103516
+          },
+          "7": {
+            "packet_in": 0,
+            "flow_mod": 27,
+            "packet_out": 0,
+            "connected_at": 1791545189.0892684,
+            "rules_installed": 26,
+            "install_ms": 44.13580894470215
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 0
+        }
+      }
+    },
+    {
+      "topology": "tree-d2-f4",
+      "mode": "reactive",
+      "hosts": 16,
+      "switches": 5,
+      "latency": {
+        "pairs": [
+          {
+            "src": "h3",
+            "dst": "h16",
+            "rtts_ms": [
+              7.67,
+              1.22,
+              0.095,
+              0.112,
+              0.086,
+              0.084,
+              0.113,
+              0.131,
+              0.078,
+              0.136
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              8.89,
+              1.27,
+              0.076,
+              0.103,
+              0.108,
+              0.084,
+              0.092,
+              0.079,
+              0.126,
+              0.097
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h13",
+            "rtts_ms": [
+              7.85,
+              1.53,
+              0.077,
+              0.084,
+              0.084,
+              0.086,
+              0.109,
+              0.109,
+              0.078,
+              0.126
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h16",
+            "rtts_ms": [
+              10.4,
+              1.34,
+              0.082,
+              0.15,
+              0.101,
+              0.096,
+              0.101,
+              0.062,
+              0.142,
+              0.124
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              10.6,
+              1.38,
+              0.124,
+              0.098,
+              0.117,
+              0.127,
+              0.128,
+              0.096,
+              0.101,
+              0.081
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h11",
+            "rtts_ms": [
+              7.62,
+              1.16,
+              0.123,
+              0.104,
+              0.221,
+              0.07,
+              0.123,
+              0.104,
+              0.117,
+              0.134
+            ]
+          },
+          {
+            "src": "h11",
+            "dst": "h12",
+            "rtts_ms": [
+              2.58,
+              0.691,
+              0.154,
+              0.094,
+              0.072,
+              0.144,
+              0.08,
+              0.085,
+              0.075,
+              0.09
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h10",
+            "rtts_ms": [
+              6.55,
+              1.27,
+              0.068,
+              0.11,
+              0.87,
+              0.086,
+              0.117,
+              0.078,
+              0.112,
+              0.092
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h14",
+            "rtts_ms": [
+              9.78,
+              0.905,
+              0.087,
+              0.115,
+              0.129,
+              0.144,
+              0.181,
+              0.062,
+              0.121,
+              0.147
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h9",
+            "rtts_ms": [
+              10.3,
+              1.4,
+              0.125,
+              0.063,
+              0.092,
+              0.064,
+              0.112,
+              0.169,
+              0.133,
+              0.105
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h16",
+            "rtts_ms": [
+              7.53,
+              1.07,
+              0.158,
+              0.129,
+              0.153,
+              0.129,
+              0.089,
+              0.09,
+              0.074,
+              0.106
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h9",
+            "rtts_ms": [
+              12.2,
+              1.35,
+              0.129,
+              0.099,
+              0.1,
+              0.122,
+              0.081,
+              0.104,
+              0.104,
+              0.09
+            ]
+          },
+          {
+            "src": "h13",
+            "dst": "h16",
+            "rtts_ms": [
+              3.3,
+              0.435,
+              0.124,
+              0.128,
+              0.113,
+              0.054,
+              0.078,
+              0.09,
+              0.084,
+              0.113
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h16",
+            "rtts_ms": [
+              10.1,
+              1.13,
+              0.133,
+              0.134,
+              0.113,
+              0.101,
+              0.191,
+              0.132,
+              0.162,
+              0.086
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h15",
+            "rtts_ms": [
+              11.4,
+              1.46,
+              0.114,
+              0.106,
+              0.176,
+              0.15,
+              0.138,
+              0.079,
+              0.125,
+              0.141
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              14.3,
+              1.24,
+              0.098,
+              0.085,
+              0.117,
+              0.116,
+              0.125,
+              0.135,
+              0.166,
+              0.073
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h13",
+            "rtts_ms": [
+              9.5,
+              1.02,
+              0.07,
+              0.114,
+              0.196,
+              0.116,
+              0.155,
+              0.116,
+              0.137,
+              0.124
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              3.21,
+              0.69,
+              0.095,
+              0.082,
+              0.094,
+              0.124,
+              0.084,
+              0.115,
+              0.114,
+              0.117
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h16",
+            "rtts_ms": [
+              9.55,
+              0.972,
+              0.09,
+              0.088,
+              0.096,
+              0.083,
+              0.111,
+              0.095,
+              0.116,
+              0.13
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h10",
+            "rtts_ms": [
+              10.3,
+              1.11,
+              0.117,
+              0.094,
+              0.141,
+              0.079,
+              0.075,
+              0.078,
+              0.085,
+              0.105
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 128,
+        "flow_mod": 108,
+        "pkt1_mean_ms": 8.6815,
+        "pkt1_std_ms": 3.0151708950432297,
+        "pkt2_mean_ms": 1.13215,
+        "pkt2_std_ms": 0.2826605319385596,
+        "steady_mean_ms": 0.1073,
+        "steady_std_ms": 0.013996616132404816
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 30,
+          "total_rules": 160,
+          "max_rules_per_switch": 50,
+          "per_switch": {
+            "s1": 50,
+            "s2": 26,
+            "s3": 28,
+            "s4": 24,
+            "s5": 32
+          }
+        },
+        "0.5": {
+          "active_pairs": 60,
+          "total_rules": 312,
+          "max_rules_per_switch": 96,
+          "per_switch": {
+            "s1": 96,
+            "s2": 50,
+            "s3": 62,
+            "s4": 58,
+            "s5": 46
+          }
+        },
+        "1.0": {
+          "active_pairs": 120,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.9004151821136475,
+          "packet_in_per_s": 30.201522626122596,
+          "flow_mod_per_s": 26.528364468891468,
+          "controller_cpu_pct": 5.231595538623114,
+          "rules_after": 130
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.98044228553772,
+          "packet_in_per_s": 130.10892664727223,
+          "flow_mod_per_s": 129.90814126664372,
+          "controller_cpu_pct": 21.63935958289874,
+          "rules_after": 647
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.99043607711792,
+          "packet_in_per_s": 287.7504045356533,
+          "flow_mod_per_s": 257.69291102566166,
+          "controller_cpu_pct": 43.1218180173215,
+          "rules_after": 1286
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.99533748626709,
+          "packet_in_per_s": 535.2991679443512,
+          "flow_mod_per_s": 518.4834872759423,
+          "controller_cpu_pct": 73.43832672465054,
+          "rules_after": 2590
+        }
+      ],
+      "controller": {
+        "mode": "reactive",
+        "config": {
+          "match": "exact",
+          "idle_timeout": 10,
+          "hard_timeout": 30
+        },
+        "pid": 36517,
+        "uptime_s": 89.75462484359741,
+        "written_at": 1791545381.3649442,
+        "totals": {
+          "packet_in": 6671,
+          "flow_mod": 5857,
+          "packet_out": 575,
+          "rules_installed": 0
+        },
+        "switches": {
+          "2": {
+            "packet_in": 2175,
+            "flow_mod": 2009,
+            "packet_out": 116,
+            "connected_at": 1791545291.7495081,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "1": {
+            "packet_in": 1915,
+            "flow_mod": 1799,
+            "packet_out": 116,
+            "connected_at": 1791545291.7736776,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "3": {
+            "packet_in": 871,
+            "flow_mod": 693,
+            "packet_out": 115,
+            "connected_at": 1791545291.8013208,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "4": {
+            "packet_in": 850,
+            "flow_mod": 671,
+            "packet_out": 115,
+            "connected_at": 1791545291.8015776,
+            "rules_installed": 0,
+            "install_ms": null
+          },
+          "5": {
+            "packet_in": 860,
+            "flow_mod": 685,
+            "packet_out": 113,
+            "connected_at": 1791545291.8043468,
+            "rules_installed": 0,
+            "install_ms": null
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 6432,
+          "mean": 385.2164549162022,
+          "p50": 375.31299949478125,
+          "p95": 670.921000164526,
+          "max": 8706.886999789276
+        }
+      }
+    },
+    {
+      "topology": "tree-d2-f4",
+      "mode": "proactive",
+      "hosts": 16,
+      "switches": 5,
+      "proactive_install": {
+        "2": {
+          "rules": 108,
+          "install_ms": 57.65199661254883
+        },
+        "1": {
+          "rules": 192,
+          "install_ms": 64.45455551147461
+        },
+        "3": {
+          "rules": 108,
+          "install_ms": 46.10943794250488
+        },
+        "4": {
+          "rules": 108,
+          "install_ms": 49.295902252197266
+        },
+        "5": {
+          "rules": 108,
+          "install_ms": 44.78263854980469
+        }
+      },
+      "latency": {
+        "pairs": [
+          {
+            "src": "h3",
+            "dst": "h16",
+            "rtts_ms": [
+              1.01,
+              0.075,
+              0.095,
+              0.077,
+              0.111,
+              0.087,
+              0.095,
+              0.12,
+              0.102,
+              0.076
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h7",
+            "rtts_ms": [
+              1.14,
+              0.081,
+              0.082,
+              0.141,
+              0.093,
+              0.088,
+              0.081,
+              0.118,
+              0.083,
+              0.074
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h13",
+            "rtts_ms": [
+              0.619,
+              0.083,
+              0.089,
+              0.085,
+              0.094,
+              0.09,
+              0.213,
+              0.08,
+              0.089,
+              0.106
+            ]
+          },
+          {
+            "src": "h7",
+            "dst": "h16",
+            "rtts_ms": [
+              1.13,
+              0.077,
+              0.115,
+              0.081,
+              0.13,
+              0.088,
+              0.139,
+              0.094,
+              0.131,
+              0.094
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h8",
+            "rtts_ms": [
+              1.17,
+              0.085,
+              0.073,
+              0.067,
+              0.086,
+              0.116,
+              0.114,
+              0.103,
+              0.085,
+              0.105
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h11",
+            "rtts_ms": [
+              1.31,
+              0.149,
+              0.12,
+              0.094,
+              0.131,
+              0.108,
+              0.088,
+              0.092,
+              0.094,
+              0.142
+            ]
+          },
+          {
+            "src": "h11",
+            "dst": "h12",
+            "rtts_ms": [
+              0.377,
+              0.099,
+              0.074,
+              0.084,
+              0.092,
+              0.091,
+              0.096,
+              0.115,
+              0.104,
+              0.096
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h10",
+            "rtts_ms": [
+              1.39,
+              0.114,
+              0.094,
+              0.096,
+              0.073,
+              0.12,
+              0.089,
+              0.079,
+              0.08,
+              0.089
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h14",
+            "rtts_ms": [
+              0.942,
+              0.076,
+              0.095,
+              0.084,
+              0.115,
+              0.084,
+              0.091,
+              0.071,
+              0.129,
+              0.119
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h9",
+            "rtts_ms": [
+              0.821,
+              0.12,
+              0.204,
+              0.099,
+              0.09,
+              0.081,
+              0.111,
+              0.084,
+              0.205,
+              0.136
+            ]
+          },
+          {
+            "src": "h6",
+            "dst": "h16",
+            "rtts_ms": [
+              0.968,
+              0.131,
+              0.077,
+              0.143,
+              0.108,
+              0.079,
+              0.106,
+              0.089,
+              0.148,
+              0.081
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h9",
+            "rtts_ms": [
+              1.2,
+              0.114,
+              0.117,
+              0.103,
+              0.111,
+              0.123,
+              0.087,
+              0.164,
+              0.158,
+              0.166
+            ]
+          },
+          {
+            "src": "h13",
+            "dst": "h16",
+            "rtts_ms": [
+              0.355,
+              0.072,
+              0.084,
+              0.097,
+              0.079,
+              0.102,
+              0.083,
+              0.084,
+              0.068,
+              0.074
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h16",
+            "rtts_ms": [
+              0.877,
+              0.095,
+              0.126,
+              0.108,
+              0.079,
+              0.11,
+              0.152,
+              0.111,
+              0.085,
+              0.099
+            ]
+          },
+          {
+            "src": "h2",
+            "dst": "h15",
+            "rtts_ms": [
+              1.09,
+              0.107,
+              0.104,
+              0.116,
+              0.095,
+              0.105,
+              0.118,
+              0.075,
+              0.111,
+              0.122
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h6",
+            "rtts_ms": [
+              0.793,
+              0.081,
+              0.137,
+              0.108,
+              0.233,
+              0.074,
+              0.111,
+              0.083,
+              0.079,
+              0.1
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h13",
+            "rtts_ms": [
+              0.934,
+              0.25,
+              0.082,
+              0.092,
+              0.109,
+              0.108,
+              0.15,
+              0.097,
+              0.076,
+              0.089
+            ]
+          },
+          {
+            "src": "h5",
+            "dst": "h7",
+            "rtts_ms": [
+              0.308,
+              0.149,
+              0.11,
+              0.146,
+              0.122,
+              0.105,
+              0.095,
+              0.084,
+              0.067,
+              0.084
+            ]
+          },
+          {
+            "src": "h4",
+            "dst": "h16",
+            "rtts_ms": [
+              1.29,
+              0.116,
+              0.141,
+              0.12,
+              0.243,
+              0.155,
+              0.104,
+              0.081,
+              0.108,
+              0.09
+            ]
+          },
+          {
+            "src": "h1",
+            "dst": "h10",
+            "rtts_ms": [
+              1.33,
+              0.117,
+              0.144,
+              0.163,
+              0.13,
+              0.077,
+              0.097,
+              0.143,
+              0.153,
+              0.181
+            ]
+          }
+        ],
+        "lost_packets": 0,
+        "packet_in": 0,
+        "flow_mod": 0,
+        "pkt1_mean_ms": 0.9527,
+        "pkt1_std_ms": 0.32742987999843487,
+        "pkt2_mean_ms": 0.10955,
+        "pkt2_std_ms": 0.04078244591410429,
+        "steady_mean_ms": 0.10125,
+        "steady_std_ms": 0.013678161618549397
+      },
+      "occupancy": {
+        "0.25": {
+          "active_pairs": 30,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        },
+        "0.5": {
+          "active_pairs": 60,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        },
+        "1.0": {
+          "active_pairs": 120,
+          "total_rules": 624,
+          "max_rules_per_switch": 192,
+          "per_switch": {
+            "s1": 192,
+            "s2": 108,
+            "s3": 108,
+            "s4": 108,
+            "s5": 108
+          }
+        }
+      },
+      "churn": [
+        {
+          "rate_flows_per_s": 10,
+          "flows_sent": 50,
+          "send_duration_s": 4.9003472328186035,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.201308187600257,
+          "rules_after": 624
+        },
+        {
+          "rate_flows_per_s": 50,
+          "flows_sent": 250,
+          "send_duration_s": 4.980332851409912,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09984236571074183,
+          "rules_after": 624
+        },
+        {
+          "rate_flows_per_s": 100,
+          "flows_sent": 500,
+          "send_duration_s": 4.990250587463379,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.09971795463295006,
+          "rules_after": 624
+        },
+        {
+          "rate_flows_per_s": 200,
+          "flows_sent": 1000,
+          "send_duration_s": 4.995379209518433,
+          "packet_in_per_s": 0.0,
+          "flow_mod_per_s": 0.0,
+          "controller_cpu_pct": 0.199452045935318,
+          "rules_after": 624
+        }
+      ],
+      "controller": {
+        "mode": "proactive",
+        "config": {
+          "granularity": "pair",
+          "miss": "drop",
+          "topo": "/home/Nisarg/Openflow_SDN/results/measured/20261009-112228/tree-d2-f4-topo.json"
+        },
+        "pid": 39144,
+        "uptime_s": 97.3367018699646,
+        "written_at": 1791545485.6379526,
+        "totals": {
+          "packet_in": 2,
+          "flow_mod": 629,
+          "packet_out": 0,
+          "rules_installed": 624
+        },
+        "switches": {
+          "2": {
+            "packet_in": 1,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1791545388.3969054,
+            "rules_installed": 108,
+            "install_ms": 57.65199661254883
+          },
+          "1": {
+            "packet_in": 1,
+            "flow_mod": 193,
+            "packet_out": 0,
+            "connected_at": 1791545388.4116683,
+            "rules_installed": 192,
+            "install_ms": 64.45455551147461
+          },
+          "3": {
+            "packet_in": 0,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1791545388.4570215,
+            "rules_installed": 108,
+            "install_ms": 46.10943794250488
+          },
+          "4": {
+            "packet_in": 0,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1791545388.4896193,
+            "rules_installed": 108,
+            "install_ms": 49.295902252197266
+          },
+          "5": {
+            "packet_in": 0,
+            "flow_mod": 109,
+            "packet_out": 0,
+            "connected_at": 1791545388.526347,
+            "rules_installed": 108,
+            "install_ms": 44.78263854980469
+          }
+        },
+        "packet_in_processing_us": {
+          "count": 0
+        }
+      }
+    }
+  ]
+}

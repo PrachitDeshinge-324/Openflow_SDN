@@ -1,0 +1,78 @@
+{
+  "mode": "proactive",
+  "config": {
+    "granularity": "pair",
+    "miss": "drop",
+    "topo": "/home/Nisarg/Openflow_SDN/results/measured/20261009-112228/tree-d3-f2-topo.json"
+  },
+  "pid": 34546,
+  "uptime_s": 96.50961709022522,
+  "written_at": 1791545285.3272166,
+  "totals": {
+    "packet_in": 2,
+    "flow_mod": 223,
+    "packet_out": 0,
+    "rules_installed": 216
+  },
+  "switches": {
+    "2": {
+      "packet_in": 0,
+      "flow_mod": 41,
+      "packet_out": 0,
+      "connected_at": 1791545188.9739559,
+      "rules_installed": 40,
+      "install_ms": 54.685115814208984
+    },
+    "1": {
+      "packet_in": 0,
+      "flow_mod": 33,
+      "packet_out": 0,
+      "connected_at": 1791545188.9876873,
+      "rules_installed": 32,
+      "install_ms": 43.129682540893555
+    },
+    "3": {
+      "packet_in": 0,
+      "flow_mod": 27,
+      "packet_out": 0,
+      "connected_at": 1791545189.025857,
+      "rules_installed": 26,
+      "install_ms": 50.406694412231445
+    },
+    "4": {
+      "packet_in": 0,
+      "flow_mod": 27,
+      "packet_out": 0,
+      "connected_at": 1791545189.042514,
+      "rules_installed": 26,
+      "install_ms": 50.055503845214844
+    },
+    "5": {
+      "packet_in": 1,
+      "flow_mod": 41,
+      "packet_out": 0,
+      "connected_at": 1791545189.0574162,
+      "rules_installed": 40,
+      "install_ms": 51.61476135253906
+    },
+    "6": {
+      "packet_in": 1,
+      "flow_mod": 27,
+      "packet_out": 0,
+      "connected_at": 1791545189.073348,
+      "rules_installed": 26,
+      "install_ms": 20.342350006103516
+    },
+    "7": {
+      "packet_in": 0,
+      "flow_mod": 27,
+      "packet_out": 0,
+      "connected_at": 1791545189.0892684,
+      "rules_installed": 26,
+      "install_ms": 44.13580894470215
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 0
+  }
+}
