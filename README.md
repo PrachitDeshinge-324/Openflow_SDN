@@ -14,6 +14,7 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `experiments/plot_results.py` | Plots for a measured run |
 | `experiments/run_path_experiments.py` | **Path quality** (Review II): path stretch, throughput and link balance on a fat-tree and the Abilene ISP map |
 | `experiments/path_topologies.py`, `experiments/plot_paths.py` | Multi-path networks (fat-tree, Abilene, any Topology Zoo `.gml`) and plots for the path experiment |
+| `experiments/run_traffic_experiments.py`, `experiments/workloads.py`, `experiments/plot_traffic.py` | **Realistic traffic** (Step 2): university, data-centre web search and data mining workloads from published measurements |
 | `experiments/topologies/tree-d2-f2.json` | Topology file for running `proactive_eval` by hand on the 4-host tree |
 | `sdn_benchmark_suite.py` | **Analytical model** (expected values, not measurements); writes `results/*.png` |
 | `setup.sh`, `INSTALL.md`, `requirements.txt` | First-time installation: script, guide, Python libraries |
@@ -22,6 +23,8 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `results/` | Model charts; measured runs go to `results/measured/<timestamp>/` |
 | `docs/Progress_Review_1.md` | Progress Review I report (30 Sep 2026) |
 | `docs/Path_Quality_Experiment.md` | Path-quality experiment: why, how, metrics, results |
+| `docs/Realism_Sources.md` | The paper behind every network, traffic pattern and parameter we use |
+| `docs/Realistic_Traffic_Experiment.md` | Realistic-traffic experiment: workloads, metrics, results |
 | `Project_SA7_Final_Report.md` | Report draft (Section 4 = analytical model) |
 | `pox/` | POX controller checkout (not stored in this repo, see setup) |
 
@@ -94,6 +97,18 @@ sudo python3 experiments/run_path_experiments.py           # fat-tree + Abilene,
 sudo python3 experiments/run_path_experiments.py --gml ~/Downloads/Geant2012.gml   # add a Topology Zoo map
 ```
 Trees have only one path between two hosts, so this experiment uses networks with many paths: a k=4 fat-tree (data centre) and the Abilene backbone (ISP, link delays from city distances). It compares the reactive learning switch (over POX's spanning tree), proactive with one shortest path, and proactive with ECMP. It measures path stretch (path used compared with the best path), throughput with every host sending at once, and how evenly the links are loaded. Output goes to `results/measured/paths-<timestamp>/` (`paths.md`, `paths.json`, `paths_*.png`). The details are in [docs/Path_Quality_Experiment.md](docs/Path_Quality_Experiment.md).
+
+### Realistic traffic: university, data centre (and ISP next)
+
+```bash
+sudo python3 experiments/run_traffic_experiments.py --quick   # university traffic only, about 2 minutes
+sudo python3 experiments/run_traffic_experiments.py           # 3 scenarios, about 10 minutes
+```
+This experiment pairs each network with traffic measured in that kind of network:
+- university traffic (Benson et al., IMC 2010) on the campus tree;
+- web search (DCTCP) and data mining (VL2) traffic on the fat-tree, using the published pFabric/PIAS flow-size tables.
+
+Every controller gets exactly the same flows. The script measures flow completion times (small and large flows), failed flows, controller load and flow-table size. Output goes to `results/measured/traffic-<timestamp>/`. The details are in [docs/Realistic_Traffic_Experiment.md](docs/Realistic_Traffic_Experiment.md).
 
 ---
 
