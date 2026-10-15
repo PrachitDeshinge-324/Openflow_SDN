@@ -6,8 +6,11 @@ CS G525 Advanced Computer Networks - Project SA7
   them to a JSON file so the experiment harness can read them.
 - load_topology / next_hop_ports / switch_path: static topology description
   (written by experiments/run_experiments.py) used by the proactive controller.
+- load_link_weights / shortest_paths: link costs (delay in ms, or 1 per hop)
+  and every equal-cost shortest path, for networks with more than one path.
 """
 
+import heapq
 import json
 import os
 import time
@@ -24,6 +27,7 @@ class ControllerStats(object):
     self.started = time.time()
     self.switches = {}          # dpid -> per-switch counters
     self.proc_us = []           # PacketIn handler processing time (microseconds)
+    self.extra = {}             # free-form values, e.g. links found by discovery
     self.dirty = True
 
   def switch(self, dpid):
@@ -65,6 +69,7 @@ class ControllerStats(object):
       'totals': self.totals(),
       'switches': {str(d): s for d, s in self.switches.items()},
       'packet_in_processing_us': summary,
+      'extra': self.extra,
     }
 
   def dump(self, force=False):
@@ -83,7 +88,8 @@ def load_topology(path):
     {"switches": [1, 2, 3],
      "hosts": [{"name": "h1", "mac": "00:00:00:00:00:01", "ip": "10.0.0.1",
                 "dpid": 2, "port": 1}, ...],
-     "links": [{"dpid1": 1, "port1": 1, "dpid2": 2, "port2": 3}, ...]}
+     "links": [{"dpid1": 1, "port1": 1, "dpid2": 2, "port2": 3,
+                "delay_ms": 5.6}, ...]}         # delay_ms is optional
   """
   with open(path) as f:
     topo = json.load(f)
@@ -127,3 +133,51 @@ def next_hop_ports(adj, dpid):
     if path:
       ports[dst] = adj[dpid][path[1]]
   return ports
+
+
+def load_link_weights(path):
+  """{(dpid1, dpid2): cost} for both directions: the link's delay_ms, or 1 (one hop)."""
+  with open(path) as f:
+    topo = json.load(f)
+  w = {}
+  for l in topo['links']:
+    a, b = int(l['dpid1']), int(l['dpid2'])
+    w[(a, b)] = w[(b, a)] = float(l.get('delay_ms', 1))
+  return w
+
+
+def shortest_paths(adj, weights, src, dst, limit=64):
+  """
+  Every lowest-cost switch path src -> dst (lists of dpids), in sorted order,
+  so paths[0] is the same every time. weights=None counts hops.
+  """
+  cost = lambda a, b: weights.get((a, b), 1) if weights else 1
+  dist = {src: 0.0}
+  preds = {src: []}
+  heap = [(0.0, src)]
+  while heap:
+    d, u = heapq.heappop(heap)
+    if d > dist[u]:
+      continue
+    for v in adj[u]:
+      nd = d + cost(u, v)
+      if v not in dist or nd < dist[v] - 1e-9:
+        dist[v], preds[v] = nd, [u]
+        heapq.heappush(heap, (nd, v))
+      elif abs(nd - dist[v]) <= 1e-9 and u not in preds[v]:
+        preds[v].append(u)
+  if dst not in dist:
+    return []
+  paths = []
+
+  def walk(node, tail):
+    if len(paths) >= limit:
+      return
+    if node == src:
+      paths.append([src] + tail)
+      return
+    for p in sorted(preds[node]):
+      walk(p, [node] + tail)
+
+  walk(dst, [])
+  return sorted(paths)

@@ -133,7 +133,9 @@ def cpu_seconds(pid):
 
 # ---------------------------------------------------------------- topology / controller
 
-def write_topology(net, path):
+def write_topology(net, path, delays=None):
+  """delays: optional {(switch name, switch name): one-way delay in ms} for each link."""
+  delays = delays or {}
   switches = {sw.name: int(sw.dpid, 16) for sw in net.switches}
   hosts, links = [], []
   for h in net.hosts:
@@ -145,8 +147,12 @@ def write_topology(net, path):
   for link in net.links:
     n1, n2 = link.intf1.node, link.intf2.node
     if n1.name in switches and n2.name in switches:
-      links.append({'dpid1': switches[n1.name], 'port1': n1.ports[link.intf1],
-                    'dpid2': switches[n2.name], 'port2': n2.ports[link.intf2]})
+      l = {'dpid1': switches[n1.name], 'port1': n1.ports[link.intf1],
+           'dpid2': switches[n2.name], 'port2': n2.ports[link.intf2]}
+      d = delays.get((n1.name, n2.name), delays.get((n2.name, n1.name)))
+      if d is not None:
+        l['delay_ms'] = d
+      links.append(l)
   with open(path, 'w') as f:
     json.dump({'switches': sorted(switches.values()), 'hosts': hosts, 'links': links}, f, indent=2)
 
