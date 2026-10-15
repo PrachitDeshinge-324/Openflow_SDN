@@ -272,7 +272,7 @@ The plot is `traffic_budget.png` in the same folder.
      - **churn at the cut-off:** with 24 slots, many pairs have similar
        scores.
 
-     Run B in Section 5 separates the two.
+     Section 4.4 measures both: each explains about half of the gap.
 5. **Proactive is still best on this network.** It is the fastest (1.7 ms)
    and has the fewest rules of all (624 = 240 pairs × about 2.6 switches).
    With 16 hosts, every pair fits easily. A rule budget only pays off when
@@ -295,13 +295,198 @@ the same.
   be active in each second), so single runs of it are noisy. This is why the
   final numbers need `--repeats 5`.
 
+### 4.3 Control: uniform pairs (`--pair-zipf 0`)
+
+Same network, workload and duration; every destination equally likely, as in
+pFabric. 6,102 flows, 0 failed. Raw data:
+`results/measured/traffic-20261015-210056/`.
+
+| Controller | Hit rate | Small-flow FCT median / p99 (ms) | PACKET_IN/s | CPU % | Peak rules | Pair installs (wasted) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 63.6 / 217.4 | 2,329 | 88.2 | 10,898 | - |
+| Reactive, long timeouts | - | 68.2 / 180.1 | 2,294 | 86.5 | 31,852 | - |
+| Reactive on shortest paths (0%) | 0% | 62.2 / 185.0 | 2,327 | 86.9 | 10,984 | - |
+| Counter 10% | 9.7% | 52.4 / 133.8 | 2,176 | 84.0 | 9,898 | 78 (50) |
+| Counter 25% | 24.5% | 43.1 / 158.3 | 1,902 | 82.1 | 8,494 | 167 (100) |
+| Counter 50% | 47.7% | 21.8 / 86.5 | 1,275 | 65.9 | 5,949 | 244 (86) |
+| Oracle 10% | 12.7% | 50.1 / 143.9 | 2,051 | 82.2 | 9,631 | 24 (0) |
+| Oracle 25% | 29.9% | 33.1 / 93.6 | 1,625 | 72.8 | 7,812 | 60 (0) |
+| Oracle 50% | 56.0% | 11.4 / 62.5 | 928 | 52.1 | 4,993 | 120 (0) |
+| Proactive | 100% | 1.3 / 38.8 | 0 | 0.1 | 624 | - |
+
+What the control shows:
+
+- **Without popular pairs, a budget of B% buys about B% hit rate** (9.7 /
+  24.5 / 47.7% for 10 / 25 / 50%). That is what pre-installing a random B%
+  of the pairs would give. There is nothing for the counter to learn.
+- **With Zipf pairs, the same budgets bought 24.5 / 62.3 / 80.5%.** So the
+  extra hit rate in Section 4.1 comes from traffic skew, not from the
+  mechanism itself. The hybrid is only worth having if real traffic is
+  skewed; CacheFlow's measurements say it is.
+- **The oracle still beats its budget share here** (12.7 / 29.9 / 56.0%). In
+  a 30 s sample some pairs get more flows than others by pure chance, and
+  the oracle knows which ones. No real predictor can learn chance, so with
+  uniform traffic the counter-to-oracle gap is not something ML could
+  close.
+- **Without real popularity the counter churns:** 100 of 167 installs at 25%
+  were wasted.
+- **Long timeouts again change nothing** except 2.9× the rules.
+
+### 4.4 Warm-up check: 120 s instead of 30 s (10% budget, Zipf 1)
+
+24,457 flows, 0 failed. Raw data: `results/measured/traffic-20261015-211130/`.
+
+| Controller | Hit rate (30 s run) | Hit rate (120 s run) | Small-flow median, 120 s (ms) | PACKET_IN/s, 120 s | Peak rules, 120 s |
+| --- | --- | --- | --- | --- | --- |
+| Reactive on shortest paths (0%) | 0% | 0% | 69.8 | 2,439 | 11,525 |
+| Counter 10% | 24.5% | **38.1%** | 33.9 | 1,620 | 8,377 |
+| Oracle 10% | 51.6% | 51.5% | 17.1 | 1,112 | 5,576 |
+
+Counter ÷ oracle rose from 0.47 to 0.74. So:
+
+- **Warm-up explains about half of the 10% gap** (27 points → 13 points). The
+  counter starts empty and needs tens of seconds to learn, and a 30 s run is
+  mostly learning. The 120 s hit rate still includes the first minute, so
+  its steady-state hit rate is higher than 38%.
+- **The other half (13 points) is how the counter ranks pairs.** Each second
+  it scores a pair 1 if the pair was used and 0 if not; it does not count
+  how many flows the pair had.
+  - The 24th busiest pair has about 1.4 flows/s and is "used" in about 75%
+    of seconds; the 40th has about 0.8 flows/s and is "used" in about 55%.
+  - So their scores are close, noise decides which one is kept, and the
+    hysteresis then keeps it.
+  - The 0/1 score was chosen because pre-installed pairs no longer reach the
+    controller: their flows cannot be counted, only seen as a packet counter
+    that went up.
+  - Counting flows instead (the "weighted count" in the original idea) would
+    separate these pairs better. That is the obvious next version of the
+    counter.
+
+### 4.5 Data centre: fat-tree, web search traffic (Zipf 1)
+
+`fattree-k4`, 20 switches, 16 hosts, 240 pairs. Hybrid, oracle and proactive
+use ECMP paths. 1,156 flows, 0 failed. Raw data:
+`results/measured/traffic-20261015-213728/`.
+
+| Controller | Hit rate | Small median / p99 (ms) | Large flows > 10 MB, mean (s) | PACKET_IN/s | CPU % | Peak rules |
+| --- | --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 142.7 / 552.2 | 14.7 | 509 | 44.2 | 4,398 |
+| Reactive, long timeouts | - | 141.5 / 617.6 | 15.5 | 468 | 41.2 | 10,912 |
+| Reactive on shortest paths (0%) | 0% | 103.9 / 347.1 | 8.1 | 514 | 42.4 | 3,843 |
+| Counter 10% | 51.5% | 64.9 / 315.7 | 8.3 | 288 | 29.8 | 1,865 |
+| Counter 25% | 67.6% | 55.4 / 297.9 | 7.8 | 180 | 21.4 | 1,525 |
+| Counter 50% | 78.5% | 46.6 / 306.6 | 8.2 | 127 | 17.2 | 1,624 |
+| Oracle 10% | 57.2% | 61.8 / 332.9 | 7.8 | 226 | 25.7 | 1,610 |
+| Oracle 25% | 74.7% | 50.3 / 306.4 | 7.7 | 132 | 15.5 | 1,214 |
+| Oracle 50% | 88.8% | 37.4 / 318.2 | 8.1 | 60 | 7.7 | 972 |
+| Proactive (ECMP) | 100% | 26.3 / 295.8 | 7.4 | 0 | 0.4 | 1,072 |
+
+- **The spanning tree is half of reactive's problem here.** The same reactive
+  logic on shortest paths cuts the small-flow median from 142.7 to 103.9 ms
+  and large flows from 14.7 to 8.1 s. On a tree this made no difference
+  (Section 4.1), because a tree has only one path. This is the Step 1
+  path-quality result, now under real traffic.
+- **The counter is close to the oracle at every budget:** 0.90 / 0.90 / 0.88
+  of its hit rate, even at 10%, where it only reached 0.47 on university
+  traffic. Here each pair has far fewer new flows per second (38.5 flows/s
+  in total instead of 203), so "used in this second: yes or no" still tells
+  busy pairs apart. Section 4.4 explains why it does not at university
+  rates.
+- **Large flows do not care about rule installation** (7.4–8.3 s for every
+  controller on shortest paths). Their time is set by the path and the
+  bandwidth, not by the first packet.
+- **Long timeouts: no gain again, 2.5× the rules.**
+
+### 4.6 ISP: Abilene, real traffic matrices
+
+11 cities, 110 pairs, real link speeds and city-to-city delays. Pair
+popularity comes from the real Abilene matrices. The header of `traffic.md`
+says "uniform" because the ISP workload ignores `--pair-zipf`. 1,761 flows,
+0 failed. Raw data: `results/measured/traffic-20261015-215331/`.
+
+| Controller | Hit rate | Small median / p99 (ms) | PACKET_IN/s | CPU % | Peak rules |
+| --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 117.5 / 402.1 | 619 | 44.3 | 7,167 |
+| Reactive, long timeouts | - | 116.6 / 410.0 | 603 | 43.4 | 16,440 |
+| Reactive on shortest paths (0%) | 0% | 73.4 / 242.4 | 484 | 37.1 | 5,331 |
+| Counter 10% (11 pairs) | 28.3% | 68.5 / 232.1 | 321 | 28.3 | 3,798 |
+| Counter 25% (28) | 52.2% | 62.7 / 217.7 | 207 | 20.8 | 2,628 |
+| Counter 50% (55) | 78.1% | 52.3 / 206.2 | 84 | 10.1 | 1,147 |
+| Oracle 10% | 33.3% | 67.2 / 231.8 | 300 | 26.7 | 3,759 |
+| Oracle 25% | 59.1% | 60.5 / 202.8 | 172 | 16.1 | 2,386 |
+| Oracle 50% | 83.2% | 50.1 / 194.3 | 64 | 6.4 | 1,115 |
+| Proactive | 100% | 47.8 / 191.4 | 0 | 0.2 | 386 |
+
+- **Real ISP traffic is skewed:** the busiest 10% of city pairs carry a third
+  of the flows, and the busiest half carry 83%. This is measured data, not
+  our Zipf assumption.
+- **The counter reaches 0.85 / 0.88 / 0.94 of the oracle.**
+- **The spanning tree again costs more than the reactivity itself.** The
+  small-flow median goes:
+  - 117.5 ms with reactive (spanning tree);
+  - 73.4 ms with reactive on shortest paths: **−44 ms, from the path**;
+  - 47.8 ms with proactive: **−26 ms, from not asking the controller**.
+
+  The spanning tree sends traffic between cities the long way round.
+- **At 50% the hybrid is within 4.5 ms of proactive** (52.3 vs 47.8 ms).
+  Propagation delay dominates in a backbone, so the setup time matters
+  less.
+- **Long timeouts: no gain, 2.3× the rules.**
+
+### 4.7 All scenarios together
+
+Counter hit rate ÷ oracle hit rate (1.0 = as good as a perfect predictor):
+
+| Scenario | 10% | 25% | 50% |
+| --- | --- | --- | --- |
+| University tree, Zipf 1 (30 s) | 0.47 (0.74 in 120 s) | 0.88 | 0.94 |
+| Fat-tree, web search, Zipf 1 | 0.90 | 0.90 | 0.88 |
+| Abilene, real traffic matrices | 0.85 | 0.88 | 0.94 |
+| University tree, uniform (control) | 0.76 | 0.82 | 0.85 |
+
+Where the small-flow time goes. Medians in ms; "path" = the cost of the
+spanning tree, "setup" = the cost of asking the controller:
+
+| Scenario | Reactive (spanning tree) | Reactive, shortest paths | Proactive | Path | Setup |
+| --- | --- | --- | --- | --- | --- |
+| University tree | 53.4 | 53.7 | 1.7 | 0 | 52 |
+| Fat-tree, web search | 142.7 | 103.9 | 26.3 (ECMP) | 39 | 78 (incl. ECMP) |
+| Abilene ISP | 117.5 | 73.4 | 47.8 | 44 | 26 |
+
+Conclusions so far (one run each; confidence intervals still to come):
+
+1. **Long timeouts never help:** 4 of 4 scenarios. The rules grow 2.3–2.9×
+   and the delay does not improve, because exact-match rules are never
+   reused by new connections.
+2. **Step 2's "reactive vs proactive" gap was two effects mixed together.**
+   On networks with several paths, a large part (Abilene: most) comes from
+   the spanning tree that reactive forwarding needs, not from asking the
+   controller. A reactive controller that knows the topology removes that
+   part. On a tree there is only the setup cost.
+3. **A small budget of pre-installed pair rules removes most of the setup
+   cost when traffic is skewed.** That holds for university and data-centre
+   traffic with Zipf pairs, and for real ISP traffic. 25% of pairs gives a
+   52–68% hit rate and 2.3–2.9× fewer PACKET_INs, with fewer rules than
+   reactive.
+4. **The simple counter is within 6–12% of a perfect predictor at 25–50% of
+   pairs everywhere.** So ML could add at most 5–10 points of hit rate there.
+   The one place where it could add more is a small budget with many flows
+   per pair: university at 10%. The cheaper fix there is a counter that
+   counts flows rather than seconds.
+5. **With uniform traffic the budget buys only its own share.** The hybrid's
+   value depends on skew.
+6. **On our small networks, proactive is still the best choice**: fastest,
+   no controller load, and the fewest or nearly the fewest rules. The budget
+   matters only when all pairs do not fit in the switches, as in large
+   networks.
+
 ## 5. Runs still to do
 
 | Run | Command (add `sudo python3 experiments/run_traffic_experiments.py`) | Question it answers | Status |
 | --- | --- | --- | --- |
-| A | `--scenarios tree-d2-f4:university --budget-sweep --pair-zipf 0` | Control: with no popular pairs, the counter should gain only about its budget share | running |
-| B | `--scenarios tree-d2-f4:university --pair-zipf 1 --duration 120 --modes reactive-sp hybrid-10 oracle-10` | Is the counter's 10% gap warm-up (it closes in 120 s) or ranking (it stays)? | running |
-| C1 | `--scenarios fattree-k4:websearch --budget-sweep --pair-zipf 1` | Data centre: fewer, bigger flows, many paths (ECMP) | running |
-| C2 | `--scenarios abilene:isp --budget-sweep` | ISP: real traffic matrices, which are skewed on their own | running |
+| A | `--scenarios tree-d2-f4:university --budget-sweep --pair-zipf 0` | Control: with no popular pairs, the counter should gain only about its budget share | **done**, Section 4.3 |
+| B | `--scenarios tree-d2-f4:university --pair-zipf 1 --duration 120 --modes reactive-sp hybrid-10 oracle-10` | Is the counter's 10% gap warm-up (it closes in 120 s) or ranking (it stays)? | **done**, Section 4.4: half and half |
+| C1 | `--scenarios fattree-k4:websearch --budget-sweep --pair-zipf 1` | Data centre: fewer, bigger flows, many paths (ECMP) | **done**, Section 4.5 |
+| C2 | `--scenarios abilene:isp --budget-sweep` | ISP: real traffic matrices, which are skewed on their own | **done**, Section 4.6 |
 | D | Section 4.1 again with `--repeats 5` (about 2 h) | Confidence intervals for the main table | to do |
 | E | Any of the above with `--controller-host` (two PCs) | Point 9: does a separate controller PC change the result? | to do (needs a second laptop) |
