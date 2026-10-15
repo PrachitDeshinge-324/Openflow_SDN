@@ -39,6 +39,9 @@ Every network, traffic pattern and parameter in our experiments should come from
 | Link bandwidth in Step 2 | 100 Mbit/s on every link | Benson [1] found link utilisation low everywhere except the core. At 100 Mbit/s our university traffic loads the hosts' links by about 5%, close to that; at 10 Mbit/s it would overload them. | Used | PDF [1] |
 | Largest flow (Step 2) | Flows above 20 MB are cut to 20 MB | Not from a paper: it keeps one run to minutes on a laptop. It affects 0% of university flows, about 1% of web search flows and about 4% of data mining flows; all the small flows the controller has to set up are unchanged. | Used | Our choice |
 | Flow arrivals (web search, data mining) | Poisson, random source and destination, rate set by the target load (30%) | pFabric [8] Sec. 5: "flows arrive according to a Poisson process and the source and destination for each flow is chosen uniformly at random" | Used | Online |
+| Host-pair popularity (Step 4, `--pair-zipf 1`) | Zipf with exponent 1 over the 240 (source, destination) pairs: the pair ranked r is chosen with weight 1/r; which pair gets which rank is random but fixed by the seed. Flow sizes and arrival times are unchanged. | CacheFlow, Katta et al. 2016 [17]: "traffic tends to follow a Zipf distribution" [p.1]; it is also the traffic CacheFlow evaluates its rule cache with. With exponent 1, the busiest 10% of pairs carry about 60% of the flows in our schedule. Without it (`--pair-zipf 0`, pFabric's uniform choice) no pair is more popular than another and no rule cache can help, so we run both. | Used | Full text (our survey, `docs/literature/ML_Rule_Prediction_Survey.md`) |
+| Long timeouts (Step 4, `reactive-long`) | idle 60 s, hard 300 s (instead of 10 s / 30 s) | Our choice: the simplest form of "keep rules longer", the idea that SmartTime [18] makes adaptive. 60 s is longer than one run's traffic gaps for a busy pair; 300 s is longer than the whole run, so a rule is never removed by its hard timeout. | Used | Our choice |
+| Hybrid counter (Step 4) | decay 0.97 per second, hysteresis 1.5, one update per second; budgets of 10%, 25% and 50% of all host pairs | Our choice. Decay 0.97 = a memory of about 33 s (1 / (1 − 0.97)), about one run. Hysteresis 1.5 stopped pairs near the cut-off from being swapped in and out every second: in a test run, it cut installs from 186 to 133 and wasted installs from 97 to 55 at the same hit rate. The budgets bracket CacheFlow's [17] "under 5% / 10% of rules" results. | Used | Our choice (tuned once, then fixed) |
 
 ---
 
@@ -127,6 +130,8 @@ Every network, traffic pattern and parameter in our experiments should come from
 14. A. Botta, A. Dainotti, A. Pescapè. *A Tool for the Generation of Realistic Network Workload for Emerging Networking Scenarios.* Computer Networks 56(15), 2012.
 15. W. Bai, L. Chen, K. Chen, D. Han, C. Tian, H. Wang. *Information-Agnostic Flow Scheduling for Commodity Data Centers (PIAS).* USENIX NSDI 2015. Simulator and workload files: <https://github.com/HKUST-SING/PIAS-NS2> (`scripts/CDF_dctcp.tcl`, `scripts/CDF_vl2.tcl`)
 16. P. Barford, M. Crovella. *Generating Representative Web Workloads for Network and Server Performance Evaluation (SURGE).* ACM SIGMETRICS / Performance 1998.
+17. N. Katta, O. Alipourfard, J. Rexford, D. Walker. *CacheFlow: Dependency-Aware Rule-Caching for Software-Defined Networks.* ACM SOSR 2016.
+18. A. Vishnoi, R. Poddar, V. Mann, S. Bhattacharya. *Effective Switch Memory Management in OpenFlow Networks (SmartTime).* ACM DEBS 2014.
 
 ---
 
@@ -137,3 +142,4 @@ Every network, traffic pattern and parameter in our experiments should come from
 | 15 Oct 2026 | Created. Networks and traffic for Review I and Step 1 (used); data-centre, university and ISP traffic sources for Step 2 (planned). |
 | 15 Oct 2026 | Step 2: university, web search and data mining traffic now used. Added the PIAS table files [15], the 100 Mbit/s and 20 MB-cap choices, and the Poisson arrivals. |
 | 15 Oct 2026 | Step 2 (ISP): Abilene traffic matrices used (data in `data/abilene/`), the real Abilene link speeds, and SURGE flow sizes (to check). The Abilene map is confirmed by the dataset's topology file. |
+| 15 Oct 2026 | Step 4: Zipf host-pair popularity (CacheFlow [17]), long reactive timeouts (SmartTime [18] idea), and the hybrid counter's parameters and budgets (our choices). |

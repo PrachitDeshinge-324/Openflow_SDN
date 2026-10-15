@@ -9,12 +9,15 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | --- | --- |
 | `controllers/reactive_eval.py` | POX module: reactive (on-demand) flow installation, instrumented |
 | `controllers/proactive_eval.py` | POX module: proactive flow installation from a known topology, instrumented |
-| `controllers/sa7_common.py` | Shared stats/topology helpers for both modules |
+| `controllers/hybrid_eval.py` | POX module: budgeted hybrid (Step 4). Reactive on shortest paths, plus pair rules for the top K host pairs chosen by a weighted counter; or a fixed "oracle" list of pairs |
+| `controllers/sa7_common.py` | Shared stats/topology helpers for the modules |
 | `experiments/run_experiments.py` | **Measured** evaluation: latency, flow-table occupancy, controller load under churn |
 | `experiments/plot_results.py` | Plots for a measured run |
 | `experiments/run_path_experiments.py` | **Path quality** (Review II): path stretch, throughput and link balance on a fat-tree and the Abilene ISP map |
 | `experiments/path_topologies.py`, `experiments/plot_paths.py` | Multi-path networks (fat-tree, Abilene, any Topology Zoo `.gml`) and plots for the path experiment |
 | `experiments/run_traffic_experiments.py`, `experiments/workloads.py`, `experiments/plot_traffic.py` | **Realistic traffic** (Step 2): university, data-centre web search and data mining workloads from published measurements, and real Abilene ISP traffic |
+| `experiments/repeats.py` | Mean and 95% confidence interval over repeated runs (`--repeats`) |
+| `experiments/controller_agent.py` | Runs POX on a second PC for the traffic experiment (`--controller-host`) |
 | `experiments/abilene_tm.py`, `data/abilene/` | Real Abilene traffic matrices (Zhang et al., IMC 2005) turned into hourly city-to-city traffic |
 | `experiments/topologies/tree-d2-f2.json` | Topology file for running `proactive_eval` by hand on the 4-host tree |
 | `sdn_benchmark_suite.py` | **Analytical model** (expected values, not measurements); writes `results/*.png` |
@@ -23,12 +26,13 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `run_live_pox_benchmark.py`, `run_pox_openflow_test.py` | Simulated OpenFlow 1.0 switch that handshakes with POX and times its reply to one PACKET_IN |
 | `results/` | Model charts; measured runs go to `results/measured/<timestamp>/` |
 | `docs/Progress_Review_1.md` | Progress Review I report (30 Sep 2026) |
-| `docs/Progress_Review_2.md` (+ `.pdf`) | **Progress Review II report (30 Oct 2026)**: everything since Review I with all measurements |
 | `docs/Path_Quality_Experiment.md` | Path-quality experiment: why, how, metrics, results |
 | `docs/Realism_Sources.md` | The paper behind every network, traffic pattern and parameter we use |
 | `docs/Realistic_Traffic_Experiment.md` | Realistic-traffic experiment: workloads, metrics, results |
+| `docs/Budgeted_Hybrid_Experiment.md` | Step 4: long timeouts, budgeted hybrid vs oracle, repeats with confidence intervals |
+| `docs/Controller_On_Second_PC.md` | Step 4: how to run the controller on a second PC (incl. WSL2 networking) |
 | `Project_SA7_Final_Report.md` | Report draft (Section 4 = analytical model) |
-| `pox/` | POX 0.7.0 (`gar`, commit 5f82461), stored in this repo (Apache 2.0 licence, see `pox/LICENSE`) |
+| `pox/` | POX controller checkout (not stored in this repo, see setup) |
 
 ---
 
@@ -113,6 +117,16 @@ This experiment pairs each network with traffic measured in that kind of network
 
 Every controller gets exactly the same flows. The script measures flow completion times (small and large flows), failed flows, controller load and flow-table size. Output goes to `results/measured/traffic-<timestamp>/`. The details are in [docs/Realistic_Traffic_Experiment.md](docs/Realistic_Traffic_Experiment.md).
 
+### Rule budget, repeats and a second PC (Step 4)
+
+```bash
+# reactive, reactive with long timeouts, hybrid and oracle at 10/25/50% of host pairs, proactive
+sudo python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university --budget-sweep --pair-zipf 1
+sudo python3 experiments/run_traffic_experiments.py --repeats 5          # mean +- 95% confidence interval
+sudo python3 experiments/run_traffic_experiments.py --controller-host 192.168.1.20   # POX on another PC
+```
+The budget sweep asks how much a fixed budget of pre-installed pair rules buys when a simple weighted counter picks them, and how far that is from an oracle that knows the busiest pairs in advance. The details are in [docs/Budgeted_Hybrid_Experiment.md](docs/Budgeted_Hybrid_Experiment.md). For the second PC, first start `python3 experiments/controller_agent.py` on that PC, as described in [docs/Controller_On_Second_PC.md](docs/Controller_On_Second_PC.md).
+
 ---
 
 ## 3. Running the Controllers by Hand
@@ -140,6 +154,7 @@ Expect `0% dropped (12/12 received)`.
 Useful options:
 - `reactive_eval --match=exact|pair|dst --idle_timeout=10 --hard_timeout=30 --stats_file=/tmp/r.json`
 - `proactive_eval --granularity=pair|dst --miss=drop|controller --stats_file=/tmp/p.json`
+- `hybrid_eval --topo=<file> --budget=0.25 --decay=0.97 --hysteresis=1.5 --paths=shortest|ecmp --stats_file=/tmp/h.json`
 
 Inside the Mininet CLI, `h1 ping -c 10 h4` shows first-packet vs steady-state latency and `sh ovs-ofctl dump-flows s1` lists the installed rules.
 
