@@ -31,6 +31,9 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `docs/Realism_Sources.md` | The paper behind every network, traffic pattern and parameter we use |
 | `docs/Realistic_Traffic_Experiment.md` | Realistic-traffic experiment: workloads, metrics, results |
 | `docs/Budgeted_Hybrid_Experiment.md` | Step 4: long timeouts, budgeted hybrid vs oracle, repeats with confidence intervals |
+| `docs/Evaluation_Plan.md` | Every comparison we make, next to the closest paper and what that paper misses, with status and results |
+| `docs/literature/` | Literature review (14 papers, PDFs in `papers/`) and the survey of 28 prediction/ML rule papers |
+| `docs/figures/` | Summary figures for the reports, and the script that makes them from the measured tables |
 | `docs/Controller_On_Second_PC.md` | Step 4: how to run the controller on a second PC (incl. WSL2 networking) |
 | `Project_SA7_Final_Report.md` | Report draft (Section 4 = analytical model) |
 | `pox/` | POX 0.7.0 (`gar`, commit 5f82461), stored in this repo (Apache 2.0 licence, see `pox/LICENSE`) |

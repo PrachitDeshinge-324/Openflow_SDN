@@ -4,9 +4,12 @@ CS G525, Project SA7, Group 2.
 
 **Our contribution is evidence, not a new algorithm.** The main rule-installation strategies are compared side by side, on the same testbed, the same realistic traffic and the same networks. Setup cost and path quality are measured together.
 
-**Status:**
+**Status (15 Oct 2026):**
 - **Done:** measured on the laptop testbed.
+- **Tool ready:** implemented and tested; the measurement itself is still to run.
 - **Planned:** for the final submission (20 Nov).
+
+Results so far are summarised in Section 3; details are in `docs/Progress_Review_2.md` and `docs/Budgeted_Hybrid_Experiment.md`.
 
 **What the paper gives / misses** describes the paper as we read it: full text where we have it, otherwise its abstract (marked *abstract*).
 
@@ -21,11 +24,12 @@ CS G525, Project SA7, Group 2.
 | 3 | Controller load under realistic flow arrivals | Done | **Tootoonchian et al.** (Hot-ICE 2012, cbench) | Maximum flows/s of several controllers under **synthetic** load from emulated switches | Realistic traffic; how load changes requests per flow | Load under university, data-centre and ISP traffic, plus the **amplification effect**: 7.4 → ~12 requests per flow as POX CPU rose from 54% to 86% |
 | 4 | Path quality: reactive vs proactive shortest path vs ECMP | Done | **Al-Fares** (SIGCOMM 2008); **Hedera** (NSDI 2010) | Fat-tree design; ECMP and flow scheduling for throughput | Not about how rules are installed. The reactive-vs-proactive papers do not measure paths | **Links installation mode to path quality**: stretch, delay, throughput, link balance, on a fat-tree and the real Abilene map |
 | 5 | Flow completion time under realistic traffic | Done | **pFabric** (SIGCOMM 2013) / **PIAS** (NSDI 2015) workloads; **Batista et al.** 2024 | pFabric/PIAS: published web-search and data-mining workloads, used to test transport protocols. Batista: response time, reactive vs LSTM pre-install, on IoT | These workloads never used to compare rule-installation strategies; Batista only on periodic IoT | Reactive vs proactive vs ECMP under university, web-search, data-mining and **real Abilene ISP** traffic |
-| 6 | Reactive with long timeouts | Planned | **SmartTime** (DEBS 2014); **AH-IHTA** (*Electronics* 2020) | Adaptive vs fixed timeouts: fewer misses and less controller load. SmartTime on Benson's real university traces | No comparison against proactive or a hybrid on the same traffic; no flow completion times or path quality | Long timeouts vs proactive vs hybrid on the same workloads and networks, with all metrics |
-| 7 | **Budgeted hybrid**: a counter keeps the top-K pairs pre-installed. Budget 10 / 25 / 50 / 100% | Planned | **CacheFlow** (SOSR 2016); **PARD** (*JNSM* 2020, abstract); **Kim et al.** (*Electronics* 2022) | CacheFlow: hit rate of caching popular rules. PARD: hybrid that cuts first-packet latency. Kim: per-flow hybrid choice, in simulation | How much of proactive's benefit a **fraction of its rules** buys; realistic traffic in emulation | Flow completion time, PACKET_IN and hit rate against the rule budget, on realistic traffic and three networks |
-| 8 | *(Optional)* ML predictor vs counter at the same budget | Optional | **Batista et al.** 2024; **Rouf & Yuksel** (arXiv 2025, abstract) | Batista: LSTM pre-install, 51% faster than reactive (IoT). Rouf & Yuksel: DQN eviction, ~8% better than LFU (IoT traces) | Batista compares only with reactive. Rouf & Yuksel do eviction, not pre-installation | Pre-installation: ML **vs a simple counter** at the same budget, on non-IoT realistic traffic |
-| 9 | Controller on a separate PC | Planned | **Kandoo** (HotSDN 2012); most papers above | Emulation or simulation on one machine | The effect of a real network between controller and switches | Measured effect of control-channel delay on reactive's cost |
+| 6 | Reactive with long timeouts | **Done** (4 scenarios) | **SmartTime** (DEBS 2014); **AH-IHTA** (*Electronics* 2020) | Adaptive vs fixed timeouts: fewer misses and less controller load. SmartTime on Benson's real university traces | No comparison against proactive or a hybrid on the same traffic; no flow completion times or path quality | Long timeouts vs proactive vs hybrid on the same workloads and networks, with all metrics |
+| 7 | **Budgeted hybrid**: a counter keeps the top-K pairs pre-installed, budget 10 / 25 / 50%, plus an **oracle** upper bound and a uniform-traffic control | **Done** (4 scenarios) | **CacheFlow** (SOSR 2016); **PARD** (*JNSM* 2020, abstract); **Kim et al.** (*Electronics* 2022) | CacheFlow: hit rate of caching popular rules. PARD: hybrid that cuts first-packet latency. Kim: per-flow hybrid choice, in simulation | How much of proactive's benefit a **fraction of its rules** buys; realistic traffic in emulation | Flow completion time, PACKET_IN and hit rate against the rule budget, on realistic traffic and three networks |
+| 8 | *(Optional)* ML predictor vs counter at the same budget | Optional; bounded by the oracle (Section 3) | **Batista et al.** 2024; **Rouf & Yuksel** (arXiv 2025, abstract) | Batista: LSTM pre-install, 51% faster than reactive (IoT). Rouf & Yuksel: DQN eviction, ~8% better than LFU (IoT traces) | Batista compares only with reactive. Rouf & Yuksel do eviction, not pre-installation | Pre-installation: ML **vs a simple counter** at the same budget, on non-IoT realistic traffic |
+| 9 | Controller on a separate PC | **Tool ready** (run needs a second laptop) | **Kandoo** (HotSDN 2012); most papers above | Emulation or simulation on one machine | The effect of a real network between controller and switches | Measured effect of control-channel delay on reactive's cost |
 | 10 | Reproducibility on several machines | Done | Most papers above | Results from one testbed | Repeats on different machines | The same patterns on 2 laptops and a cloud VM; identical paths and rule counts |
+| 11 | Reactive's cost split into **path** (spanning tree) and **setup** (controller) | **Done** (3 networks) | **Path quality** papers (Al-Fares, Hedera) and **setup cost** papers (DIFANE, DevoFlow) | Each side measured separately | No paper separates the two for the same reactive controller and traffic | Reactive with and without the spanning tree on the same traffic. On Abilene, 44 ms of reactive's extra delay is path and 26 ms is setup |
 
 ## 2. Measurements (metrics)
 
@@ -40,15 +44,28 @@ CS G525, Project SA7, Group 2.
 | Paths | Hop stretch, delay stretch, % of pairs on a longer path, path RTT | 4 |
 | Throughput | Total throughput vs ideal; slowest flow; busiest link; Jain index over links; % of links unused | 4 |
 | Control channel | Effect of controller-to-switch delay on all of the above | 9 |
-| Rigour | 5 repeats, mean and 95% confidence interval (final runs) | All |
+| Rigour | 5 repeats, mean and 95% confidence interval (`--repeats 5`: tool ready, runs pending) | All |
 
 ---
 
-## 3. How to state the contribution
+## 3. Results so far (laptop, 15 Oct 2026, one run each)
+
+| # | Result |
+| --- | --- |
+| 6 | Long timeouts (60 s / 300 s) gave **no fewer controller requests and no faster flows** in 4 of 4 scenarios, with 2.3–2.9× the rules. Exact-match rules are never reused by new connections. |
+| 7 | 25% of host pairs pre-installed: **52–68% hit rate**, 2.3–2.9× fewer PACKET_INs, 2.0–2.5× fewer rules than reactive on shortest paths. With uniform pairs, a budget buys only its own share. |
+| 7 (oracle) | The counter reaches **0.88–0.94 of the oracle's hit rate** at 25–50% budgets, and 0.47–0.90 at 10% (0.74 on university traffic in a 120 s run). |
+| 8 | Not built. The oracle shows how much any predictor, ML included, could add: at most 5–10 points of hit rate at 25–50% budgets; more only at a 10% budget with many flows per pair. |
+| 11 | Path vs setup, small-flow median: university 0 / 52 ms, fat-tree 39 / 78 ms (setup bar includes ECMP), Abilene 44 / 26 ms. |
+
+---
+
+## 4. How to state the contribution
 
 > "Each rule-installation idea has been tested on its own, on its own traffic and setup: timeouts on university traces (SmartTime), hybrids in simulation (PARD, Kim), predictors on IoT traffic (Batista), and ECMP without considering how rules are installed (Al-Fares, Hedera). We compare reactive, long-timeout reactive, proactive, proactive ECMP and a budgeted popularity hybrid side by side, on one testbed, with university, data-centre and ISP traffic from published measurements, on tree, fat-tree and Abilene networks. We measure both flow-setup cost and path quality."
 
 **Limits to state:**
 - the testbed is emulated (no hardware switch);
 - POX is single-threaded;
-- the budgeted hybrid is not a new algorithm (it is close to CacheFlow and PARD); the contribution is the comparison.
+- the budgeted hybrid is not a new algorithm (it is close to CacheFlow and PARD); the contribution is the comparison;
+- our networks are small (11–16 hosts), so proactive's rules always fit and proactive stays the best choice; a rule budget matters only for larger networks.

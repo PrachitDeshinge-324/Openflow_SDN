@@ -1,5 +1,11 @@
 # CS G525 Research Project SA7: Comprehensive Report
 
+> **Status: early draft (September 2026), kept for the analytical model in Section 4.** The measured results replace the modelled numbers:
+> - `docs/Progress_Review_1.md`: Review I;
+> - `docs/Progress_Review_2.md`: Review II, including the Step 4 hybrid results.
+>
+> The final report (20 Nov) will be written from those, not from this file.
+
 **Project Title:** Empirical Evaluation of Reactive vs. Proactive Flow Installation in OpenFlow SDN
 **Group Number:** 2
 **Members:** N. NISARG VAGH, D. DHADUK MRUDUL HITESHBHAI, PRACHIT SURESH DESHINGE, Mukul Saini

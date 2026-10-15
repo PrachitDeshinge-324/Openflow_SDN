@@ -88,6 +88,13 @@ Abbreviations:
 5. **How to word our gap safely:**
    > "Prediction-based pre-installation has been shown to beat reactive mode, mainly on periodic IoT and mobility traffic. In the papers we reviewed, it was not compared with a simple frequency-count predictor under the same rule budget, nor evaluated on data-centre, campus or ISP traffic. In the related eviction problem, where LFU baselines are used, ML gains can be small (≈ 8%)."
 
+6. **What our measurements add (Step 4, 15 Oct 2026).** We ran the weighted counter against an **oracle**, which pre-installs the pairs that really carry the most flows, at the same budget (`docs/Budgeted_Hybrid_Experiment.md`):
+   - at 25–50% of host pairs the counter reached **0.88–0.94 of the oracle's hit rate** on university, data-centre and real ISP traffic;
+   - so no predictor, ML or otherwise, could add more than 5–10 points of hit rate there;
+   - the gap is larger only at a 10% budget with many flows per pair (0.47 of the oracle in 30 s, 0.74 in 120 s), and part of that is our counter's design.
+
+   This supports point 3, and it narrows where an ML comparison (Evaluation Plan #8) could show anything.
+
 **Caveat.** Most rows were checked from abstracts only. Before the final report:
 - read the full text of **A6, A8, A9, B1, B2, B7 and B8**, the most relevant ones;
 - run one Google Scholar search: "flow rule pre-installation" + "LFU" / "frequency".

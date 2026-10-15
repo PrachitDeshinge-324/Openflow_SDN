@@ -3,6 +3,13 @@
 **CS G525 Advanced Computer Networks · Research Project SA7 · Group 2**
 Review for our extension, the **idle-time hybrid controller**.
 
+> **Status (15 Oct 2026).**
+> - **Built and measured (Step 4):** the popularity part of this design, a hybrid that keeps the busiest host pairs pre-installed within a rule budget, with a weighted counter, an oracle upper bound and a long-timeout baseline. See `docs/Budgeted_Hybrid_Experiment.md` and Section 6 of `docs/Progress_Review_2.md`.
+> - **Not built:** the idle-time scheduling (installing only when the controller is quiet).
+> - **Why the plan changed:** this review and `ML_Rule_Prediction_Survey.md` showed that the in-between ideas had never been compared side by side, so the project's contribution became that comparison (`docs/Evaluation_Plan.md`).
+>
+> The review below is unchanged, apart from the measured rows in Section 4.
+
 ---
 
 ## 0. Our idea in one paragraph
@@ -200,8 +207,8 @@ Reactive controllers make the first packet of every new flow wait for the contro
 | Delay of later packets | 0.3 ms, equal in both modes (DIFANE p.9) | **0.06–0.09 ms**, equal in both modes |
 | Controller capacity | NOX ≈30k flows/s; NOX-MT 1.6M/s (Tootoonchian p.1, p.6); Ethane ≈10k/s (p.9) | POX: 786 PACKET_IN/s used **36%** of one core |
 | Switch → controller capacity | 275 setups/s (DevoFlow p.4); 60–330 flows/s (DIFANE p.9) | Not a limit for software Open vSwitch in our tests |
-| Small rule budget covers most traffic | 90% hits with < 5% of rules; 84% with 2% (CacheFlow p.2, p.9) | To be tested: our budget sweep (10–100% of proactive) |
-| Effect of timeouts | Up to 58% lower cost (SmartTime p.1); 28% fewer setups (AH-IHTA p.1) | Our 10 s idle timeout left **2,321 rules** after 5 s at 200 new flows/s; the long-timeout baseline will measure this |
+| Small rule budget covers most traffic | 90% hits with < 5% of rules; 84% with 2% (CacheFlow p.2, p.9) | **Measured (Step 4):** 52–68% of new connections hit with 25% of host pairs, 24–52% with 10% (skewed traffic). With uniform traffic, only the budget share |
+| Effect of timeouts | Up to 58% lower cost (SmartTime p.1); 28% fewer setups (AH-IHTA p.1) | Our 10 s idle timeout left **2,321 rules** after 5 s at 200 new flows/s. **Measured (Step 4):** 60 s / 300 s timeouts gave no fewer controller requests under realistic traffic, and 2.3–2.9× more rules |
 
 Numbers from different papers are **not directly comparable**: different hardware, controllers and years. The table shows that our results are **in the same range and show the same trends** as published work.
 

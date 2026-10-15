@@ -185,15 +185,15 @@ The Review I experiment (`run_experiments.py --quick`) was re-run after these ch
 - **"Isn't this unfair to reactive?"**
   - This is how a plain reactive learning switch behaves on a network with loops; the spanning tree is required to stop broadcast storms.
   - A reactive controller can route on shortest paths if it is given the map (POX `l2_multi`), but then it still pays the first-packet delay measured in Review I.
-  - Getting both, good paths and on-demand rules, is the aim of our idle-time hybrid extension.
+  - Step 4 measured exactly this. Our `hybrid_eval` with budget 0 is reactive on shortest paths. Under real traffic, the spanning tree cost reactive 39 ms (fat-tree) and 44 ms (Abilene) of small-flow median, on top of the setup cost (`docs/Budgeted_Hybrid_Experiment.md`).
 - **"Why 10 Mbit/s links?"** So the links are the bottleneck, not the laptop's CPU. Every run had its busiest link at 100%, so the results depend on path choice only.
 - **"Why doesn't ECMP reach the ideal 160 Mbit/s?"** Hash collisions: two flows land on the same link. Hedera (NSDI 2010) fixes this by moving large flows.
 - **"Why straight-line delays?"** Topology Zoo gives city coordinates, not cable routes. Real routes are longer, so our delays and the reactive penalty are conservative.
 - **"Why ECMP per host pair, not per flow?"** Our rules match MAC pairs. Per-flow hashing (on the 5-tuple) would spread load more evenly.
 - **"Is it reproducible?"** Yes. A fixed seed gives the same pairs and permutations for every controller. Part A gave identical paths on two different machines (laptop and cloud VM).
 
-## 11. Not covered yet
+## 11. Follow-ups (status 15 Oct 2026)
 
-- **Realistic traffic** (university, data-centre and ISP traffic profiles): Step 2.
-- **Several PCs in the lab** (controller and switches on different machines): Step 3.
-- **Comparison with published systems** (SmartTime, a PARD-style hybrid, the LSTM predictor): Step 4.
+- **Realistic traffic** (university, data-centre and ISP traffic profiles): done, `docs/Realistic_Traffic_Experiment.md`.
+- **Comparison with published ideas** (long timeouts, a budgeted popular-rule hybrid, an oracle bound): done, `docs/Budgeted_Hybrid_Experiment.md`.
+- **Several PCs** (controller and switches on different machines): tool ready, run pending, `docs/Controller_On_Second_PC.md`.

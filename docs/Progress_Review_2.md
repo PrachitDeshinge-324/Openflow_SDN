@@ -5,6 +5,7 @@
 **Members:** N. NISARG VAGH, D. DHADUK MRUDUL HITESHBHAI, PRACHIT SURESH DESHINGE, Mukul Saini
 **Review date:** 30 October 2026 (Progress Review II: working implementation, full experiments, preliminary analysis)
 **Code and raw data:** <https://github.com/PrachitDeshinge-324/Openflow_SDN>
+**Version:** 15 October 2026, with the Step 4 results (budgeted hybrid, long timeouts, oracle)
 
 ---
 
@@ -24,10 +25,12 @@ Which is better, by how much, and when?
 | **Load balancing** (ECMP) as a third controller | In the fat-tree, ECMP carries **50% more traffic** than reactive (95 vs 64 Mbit/s) and leaves only 16% of links idle (reactive leaves 59%). |
 | **University traffic** (Benson et al., IMC 2010) | Small flows: **median 55.7 ms reactive vs 1.3 ms proactive (44×)**. The controller ran at **86% CPU** with 2,379 requests/s. |
 | **Data-centre traffic** (DCTCP web search, VL2 data mining) | Small flows are **8–10× faster with proactive ECMP**, and large flows **3–3.6× faster**. |
-| **Real ISP traffic** (Abilene traffic matrices, 2004) | Small flows: **median 120 vs 48 ms (2.5×)**, of which ~27 ms is longer paths and ~40 ms is controller set-up. |
+| **Real ISP traffic** (Abilene traffic matrices, 2004) | Small flows: **median 120 vs 48 ms (2.5×)**. Measured split (Section 6): **44 ms from the spanning tree's detours, 26 ms from asking the controller**. |
+| **Budgeted hybrid** (new controller): a weighted counter keeps the busiest host pairs pre-installed, within a rule budget | With 25% of pairs pre-installed: **52–68% of new connections skip the controller**, 2.3–2.9× fewer controller requests and 2.0–2.5× fewer rules than reactive. The simple counter gets **within 6–12% of an oracle** that knows the future traffic (25–50% budgets). |
+| **Long timeouts** (60 s / 300 s; the SmartTime idea in its simplest form) | **No gain in 4 of 4 scenarios**, and 2.3–2.9× more rules. |
 | Review I **reproduced on a second laptop** | Same patterns, identical rule counts. |
 
-**Every flow finished in every run (0 failures)**, and every controller got exactly the same traffic.
+**Every flow finished in every run (0 failures)**, and every controller got exactly the same traffic. Step 4 numbers are from one run per configuration; repeats with 95% confidence intervals are the next step (Section 9).
 
 ---
 
@@ -37,11 +40,11 @@ Review I score: 7.5 / 10. The feedback, and what we did:
 
 | Feedback | What we did | Where |
 | --- | --- | --- |
-| "Previous eval done and improvements done" | This report: Review I recap (Section 2), all new work (Sections 4–6), reproduced on a second laptop | Sections 2, 4, 5 |
+| "Previous eval done and improvements done" | This report: Review I recap (Section 2), all new work (Sections 4–7), reproduced on a second laptop | Sections 2, 4–7 |
 | "Increase the traffic like uni traffic, data centre, ISP" | Four realistic workloads, each from a published measurement: university, data-centre web search, data-centre data mining, and real Abilene ISP traffic matrices | Section 5 |
 | "Parameters for evaluation: optimal path vs haphazard path" | New networks with many paths. We measured path stretch, delay, throughput and link balance for reactive (haphazard), proactive (optimal) and proactive ECMP | Section 4 |
-| "Cmp with previous works / papers which already has predictor, traffic gen, emulator, etc." | Literature review of 14 papers (11 checked in full text). Our numbers are set next to theirs, and every network and traffic choice is traced to a paper. Re-implementing their methods as baselines is planned for the final submission. | Section 6, `docs/literature/`, `docs/Realism_Sources.md` |
-| "Run on multiple comps using distributed switches in lab" | Not yet. Planned next: controller on one PC, Mininet on another (real control-channel delay), then Mininet cluster mode across lab PCs | Section 8 |
+| "Cmp with previous works / papers which already has predictor, traffic gen, emulator, etc." | Literature review of 14 papers (11 checked in full text), plus a survey of 28 prediction/ML rule papers and what they compare against. Our numbers are set next to theirs, and every network and traffic choice is traced to a paper. **Two published ideas now run as baselines on our testbed**: long timeouts (SmartTime / AH-IHTA) and a budgeted cache of popular rules (CacheFlow / PARD), plus an **oracle** that bounds what any predictor, ML included, could gain. | Sections 6, 7, `docs/literature/`, `docs/Evaluation_Plan.md` |
+| "Run on multiple comps using distributed switches in lab" | **Tool ready, run pending.** POX can now run on a second PC (`controller_agent.py` + `--controller-host`), with the WSL2 networking steps documented. It is tested end to end on one machine; the two-PC run needs a second laptop. | Section 9, `docs/Controller_On_Second_PC.md` |
 
 ---
 
@@ -81,10 +84,10 @@ Review I score: 7.5 / 10. The feedback, and what we did:
 | --- | --- |
 | Emulator / switch / controller | Mininet 2.3.0, Open vSwitch 3.7.1 (kernel datapath), POX 0.7.0 (`gar`), OpenFlow 1.0 |
 | Machine | Laptops with Windows 11 + WSL2 (Ubuntu, kernel 6.18), Python 3.14 |
-| Controllers | **Reactive:** learning switch, exact-match rules, idle 10 s / hard 30 s. In networks with loops it runs over POX `openflow.discovery` + `openflow.spanning_tree`. **Proactive:** one rule per host pair on the lowest-cost path, plus a table-miss drop rule. **Proactive ECMP:** host pairs hashed (CRC32 of the MACs) across equal-cost paths. |
+| Controllers | **Reactive:** learning switch, exact-match rules, idle 10 s / hard 30 s. In networks with loops it runs over POX `openflow.discovery` + `openflow.spanning_tree`. **Proactive:** one rule per host pair on the lowest-cost path, plus a table-miss drop rule. **Proactive ECMP:** host pairs hashed (CRC32 of the MACs) across equal-cost paths. **Budgeted hybrid** (Section 6): reactive on shortest paths, plus pre-installed rules for the busiest host pairs within a budget. |
 | Same conditions | Static ARP, IPv6 off, fixed random seed. **Every controller gets exactly the same pairs, traffic permutations and flow schedules.** |
 | Measured, not modelled | Paths are read from the switches' flow tables (`ovs-ofctl dump-flows`); latency with ping / TCP flow completion times; controller load from counters inside our controllers; link loads from interface byte counters |
-| Realism | Every network, traffic pattern and parameter is traced to a paper in `docs/Realism_Sources.md` (16 references) |
+| Realism | Every network, traffic pattern and parameter is traced to a paper in `docs/Realism_Sources.md` (18 references) |
 
 ---
 
@@ -197,15 +200,110 @@ Flows completed: 6,102 university, 1,159 web search, 1,707 data mining and 1,761
    - Small flows are **8–10× faster with proactive ECMP than with reactive** (web search 19 vs 155 ms; data mining 11.5 vs 113 ms).
    - Large flows depend on load balance, not on the controller: ~11–13 s with reactive or one shortest path, **3.5 s with ECMP**.
 5. **ISP: reactive pays twice.**
-   - Small flows are 2.5× slower (120 vs 48 ms). A small flow needs about two round trips.
-   - **About 27 ms comes from reactive's longer paths:** 2 × 39.3 against 2 × 25.7 ms, using the round trips measured in Experiment A.
-   - **About 40 ms comes from waiting for the controller** at each of the up-to-5 switches on the path.
+   - Small flows are 2.5× slower (120 vs 48 ms).
+   - Both reactive's longer paths and waiting for the controller add time. Our first estimate from the ping round trips of Experiment A was ~27 ms for the paths and ~40 ms for the controller.
+   - **Section 6 measures the split directly** by running reactive on shortest paths: **44 ms from the paths, 26 ms from the controller**. The estimate had the two the wrong way round, so we use the measured split from now on.
 
 ---
 
-## 6. Comparison with previous work
+## 6. Experiment C: how much does a rule budget buy? (Step 4)
 
-### 6.1 Our measurements next to published numbers
+**Why.** Sections 4 and 5 compare the two extremes: no rules in advance (reactive) and every rule in advance (proactive). Published work proposes things in between:
+- keeping rules longer (SmartTime, AH-IHTA);
+- caching only the popular rules (CacheFlow);
+- hybrids that pre-install some flows (PARD);
+- predictors that guess which flows will come (Batista 2024, mostly on IoT traffic).
+
+We ran the simplest version of each idea on our testbed, with the same traffic as Section 5. All details are in `docs/Budgeted_Hybrid_Experiment.md`.
+
+**Controllers added.**
+
+| Mode | What it does | What it tests |
+| --- | --- | --- |
+| Reactive, long timeouts | Reactive, idle 60 s / hard 300 s instead of 10 s / 30 s | "Keep rules longer" (SmartTime, AH-IHTA) |
+| Reactive on shortest paths | Our new `hybrid_eval` with budget 0: reactive, but it knows the map, so it uses shortest paths instead of the spanning tree | Separates the **setup cost** from the **path cost** |
+| Hybrid, counter, 10 / 25 / 50% | Reactive on shortest paths, **plus** pair rules (source MAC + destination MAC) for the busiest host pairs, at most 10 / 25 / 50% of all pairs | A budget of popular rules (CacheFlow, PARD) |
+| Oracle, 10 / 25 / 50% | Pre-installs the pairs that **really** carry the most flows in the run (read from the flow schedule), before the first flow | The best that **any** predictor (counter, ML, anything) can do with that budget |
+
+**The counter.** Every second, for each host pair: `score = 0.97 × score + (1 if the pair was used this second, else 0)`.
+- **How "used" is seen:** pre-installed pairs no longer reach the controller, so their use is read from the switch's packet counters.
+- **What is kept:** the top-K scores keep pair rules.
+- **Hysteresis:** a newcomer must score 1.5× the weakest kept pair to replace it, so pairs near the cut-off do not swap every second.
+
+**Hit rate** = the share of new TCP connections whose first packet found a rule (no trip to the controller).
+
+**Traffic.** Each scenario uses Section 5's traffic:
+- **university, fat-tree:** host pairs get Zipf popularity (exponent 1), as CacheFlow assumes ("traffic tends to follow a Zipf distribution");
+- **Abilene:** the real traffic matrices give the popularity;
+- **a control run** uses uniform pairs.
+
+### Results (laptop, 15 Oct; one run each; `results/measured/traffic-20261015-204208/`, `-210056/`, `-211130/`, `-213728/`, `-215331/`)
+
+![Hit rate against rule budget, four scenarios](figures/step4_hit_rate.png)
+
+| Scenario | Controller | Hit rate | Small flows: median FCT (ms) | PACKET_IN/s | Controller CPU | Peak rules |
+| --- | --- | --- | --- | --- | --- | --- |
+| University tree | Reactive | - | 53.4 | 2,371 | 83.6% | 11,170 |
+| | Reactive, long timeouts | - | 59.1 | 2,327 | 83.6% | **32,644** |
+| | Reactive, shortest paths | 0% | 53.7 | 2,329 | 82.7% | 11,159 |
+| | Hybrid counter, 25% | 62.3% | 12.8 | 861 | 48.2% | 5,010 |
+| | Hybrid counter, 50% | 80.5% | 4.1 | 365 | 28.3% | 2,340 |
+| | Oracle, 25% / 50% | 70.6 / 85.7% | 7.4 / 3.0 | 572 / 274 | 39.7 / 22.0% | 3,287 / 1,987 |
+| | Proactive | 100% | 1.7 | 0 | 0.1% | 624 |
+| Fat-tree, web search | Reactive | - | 142.7 | 509 | 44.2% | 4,398 |
+| | Reactive, long timeouts | - | 141.5 | 468 | 41.2% | **10,912** |
+| | Reactive, shortest paths | 0% | 103.9 | 514 | 42.4% | 3,843 |
+| | Hybrid counter, 25% | 67.6% | 55.4 | 180 | 21.4% | 1,525 |
+| | Hybrid counter, 50% | 78.5% | 46.6 | 127 | 17.2% | 1,624 |
+| | Oracle, 25% / 50% | 74.7 / 88.8% | 50.3 / 37.4 | 132 / 60 | 15.5 / 7.7% | 1,214 / 972 |
+| | Proactive ECMP | 100% | 26.3 | 0 | 0.4% | 1,072 |
+| Abilene ISP | Reactive | - | 117.5 | 619 | 44.3% | 7,167 |
+| | Reactive, long timeouts | - | 116.6 | 603 | 43.4% | **16,440** |
+| | Reactive, shortest paths | 0% | 73.4 | 484 | 37.1% | 5,331 |
+| | Hybrid counter, 25% | 52.2% | 62.7 | 207 | 20.8% | 2,628 |
+| | Hybrid counter, 50% | 78.1% | 52.3 | 84 | 10.1% | 1,147 |
+| | Oracle, 25% / 50% | 59.1 / 83.2% | 60.5 / 50.1 | 172 / 64 | 16.1 / 6.4% | 2,386 / 1,115 |
+| | Proactive | 100% | 47.8 | 0 | 0.2% | 386 |
+
+All runs: 6,088 university, 1,156 web search and 1,761 ISP flows, **0 failures**. The 10% budgets are in the figure and in the detailed document.
+
+![Where reactive's extra time goes](figures/step4_cost_split.png)
+
+**Two extra runs.**
+- **Control, uniform pairs** (university): the counter's hit rate is 9.7 / 24.5 / 47.7% at 10 / 25 / 50%, about the budget share itself. With no popular pairs there is nothing to learn.
+- **Warm-up, 120 s instead of 30 s** (university, 10%): the counter's hit rate rises from 24.5% to **38.1%**; the oracle stays at 51.5%. Half of the counter's gap at 10% was learning time; the other half is how it ranks pairs (below).
+
+### Findings
+
+1. **Long timeouts never help.**
+   - In all 4 scenarios: the same delay and the same controller load, with 2.3–2.9× the rules.
+   - Why: reactive rules are exact matches, and every new TCP connection has a new source port. A rule kept longer is never matched again.
+   - So "keep rules longer" does not help short-flow traffic unless the rules are coarser.
+2. **Part of reactive's cost is the spanning tree, not the controller.** Running reactive on shortest paths separates the two (figure above):
+   - **University tree:** all 52 ms of the gap is setup. A tree has one path, so the spanning tree costs nothing.
+   - **Fat-tree:** 39 ms is the spanning tree's path, 78 ms is setup plus ECMP's better load balance.
+   - **Abilene:** **44 ms is path and only 26 ms is setup.** Section 5's "reactive vs proactive" gap mixed two effects; the larger one in the ISP is the path.
+3. **A small budget removes most of the setup cost when traffic is skewed.** With 25% of pairs pre-installed, compared with reactive on shortest paths:
+   - 52–68% of new connections skip the controller;
+   - 2.3–2.9× fewer PACKET_INs;
+   - 2.0–2.5× **fewer** rules, because one pair rule replaces the many per-connection rules.
+
+   On the university tree, the small-flow median drops 4.2× (53.7 → 12.8 ms) and controller CPU drops from 83% to 48%.
+4. **The value of the budget comes from skew.**
+   - **Uniform pairs:** a budget of B% buys about B% hit rate, the same as picking pairs at random.
+   - **Zipf pairs, or real Abilene traffic:** 25% of pairs buys 52–68%.
+   - **Real ISP traffic is skewed on its own:** the busiest 10% of city pairs carry a third of the flows. That is measured, not assumed.
+5. **The simple counter is close to a perfect predictor.**
+   - At 25–50% budgets it reaches **0.88–0.94 of the oracle's hit rate** in every skewed scenario. So ML could add at most 5–10 points of hit rate there.
+   - **Weak spot:** a small budget (10%) with many flows per pair (university): 0.47 of the oracle in 30 s, 0.74 in 120 s.
+   - **The cause is our design:** the counter scores a pair 0 or 1 per second, so pairs with 1.4 and 0.8 flows/s look alike. Counting flows instead is the obvious fix.
+6. **On our small networks, proactive is still the best choice.** It is the fastest, has no controller load, and uses the fewest rules (or nearly). A rule budget only matters when all pairs do not fit in the switches, which happens in large networks, not in 11–16-host ones. **We do not claim the hybrid beats proactive here.**
+
+---
+
+## 7. Comparison with previous work
+
+### 7.1 Our measurements next to published numbers
 
 | What | Published | Ours |
 | --- | --- | --- |
@@ -214,27 +312,31 @@ Flows completed: 6,102 university, 1,159 web search, 1,707 data mining and 1,761
 | Controller capacity | NOX ≈ 30k flows/s, NOX-MT 1.6M/s (Tootoonchian 2012) | POX: 2,379 PACKET_IN/s at 86% CPU, near its limit |
 | Flow sizes in campus / enterprise data centres | 80% of flows < 10 KB (Benson 2010) | Our generator: 87% < 10 KB (uses Benson's curve) |
 | ECMP leaves throughput on the table | Hash collisions limit ECMP (Al-Fares 2008, Hedera 2010) | ECMP reached 95 of 160 Mbit/s (60%), with the busiest links at 100% |
-| Small rule budget serves most traffic | 90% hits with < 5% of rules (CacheFlow 2016) | To test in the extension: our rule-budget sweep |
-| Timeouts cut controller load | −58% cost (SmartTime 2014); −28% setups (AH-IHTA 2020) | To test: the long-timeout baseline in the extension |
+| Small rule budget serves most traffic | 90% hits with < 5% of rules (CacheFlow 2016) | Same direction, smaller effect: 52–68% hits with 25% of host pairs, 24–52% with 10% (Section 6). Our networks have only 110–240 pairs, and our hit rate counts connections, not packets |
+| Timeouts cut controller load | −58% cost (SmartTime 2014); −28% setups (AH-IHTA 2020) | **Not for short-flow traffic with exact-match rules:** 60 s / 300 s timeouts gave no fewer controller requests and 2.3–2.9× more rules (Section 6) |
+| ML predictors beat reactive | LSTM pre-install: −51% response time vs reactive (Batista 2024, IoT) | Beating reactive is easy: a plain counter cut controller requests 2.3–2.9×. The useful bound is the oracle: at 25–50% budgets the counter is within 6–12% of it, so ML could add at most 5–10 points of hit rate |
 
 Numbers from different papers are not directly comparable (different hardware, controllers and years). **The ranges and trends agree.**
 
-### 6.2 Realism: the paper behind every choice
+### 7.2 Realism: the paper behind every choice
 
-`docs/Realism_Sources.md` lists the source of every network, traffic pattern and parameter: 16 references, each marked "checked in PDF", "checked online", "data file" or "to check".
+`docs/Realism_Sources.md` lists the source of every network, traffic pattern and parameter: 18 references, each marked "checked in PDF", "checked online", "data file" or "to check".
 - **Networks:** Al-Fares 2008 (fat-tree); Topology Zoo and the Abilene dataset's own topology file (Abilene).
 - **Traffic:** Benson 2010 (university); DCTCP / VL2 through the exact pFabric/PIAS tables (data centre); the real Abilene traffic matrices of Zhang et al. 2005 (ISP).
 
-### 6.3 Still to do: re-implementing previous methods
+### 7.3 Previous methods run on our testbed
 
-For the final submission we will run published ideas as baselines on our testbed, with the same traffic:
-- **long / adaptive timeouts** (SmartTime, AH-IHTA);
-- **immediate hybrid installation** (PARD-style);
-- an **LSTM traffic predictor** (Batista 2024, which also used Mininet + POX).
+| Published idea | Our version | Status |
+| --- | --- | --- |
+| Longer timeouts (SmartTime, AH-IHTA) | Reactive with idle 60 s / hard 300 s | **Done** (Section 6). Adaptive timeouts are not implemented; fixed long ones already show the limit. |
+| Cache of popular rules within a budget (CacheFlow); hybrid installation (PARD) | Budgeted hybrid with a weighted counter, 10 / 25 / 50% of pairs | **Done** (Section 6) |
+| A predictor that knows which flows will come (Batista's LSTM, any ML) | The **oracle**: the best possible choice for a budget, used as the upper bound | **Done** (Section 6). A real ML model is optional (Section 9): the oracle already shows how little it could add at 25–50% budgets. |
+
+The full list of comparisons, each next to the closest paper and what that paper does not measure, is in `docs/Evaluation_Plan.md`.
 
 ---
 
-## 7. What we learned so far
+## 8. What we learned so far
 
 | Situation | What decides performance | Winner |
 | --- | --- | --- |
@@ -242,35 +344,39 @@ For the final submission we will run published ideas as baselines on our testbed
 | Heavy load (data centre) | Path choice and load balance | **Proactive ECMP**: 8–10× faster small flows, 3× faster large flows |
 | Wide-area network (ISP) | Both: longer paths **and** controller set-up | **Proactive**: 2.5× faster small flows |
 | Every pair active, no churn (Review I) | Nothing: same number of rules | Tie |
+| Skewed traffic, limited rule space (Section 6) | Which pairs get the scarce rules | **Budgeted hybrid**: 25% of pairs removes 52–68% of controller trips with fewer rules than reactive; a simple counter is close to the best possible choice |
+| Uniform traffic (Section 6, control) | Nothing to learn | A budget buys only its own share |
 
-**Reactive loses on both counts.** It pays a set-up cost for every new flow, and on networks with loops its paths are chosen by flooding, not by quality. Proactive's weak point is that it installs a rule for **every** pair, whether used or not; on larger networks this grows as N².
+**Reactive loses on both counts.** It pays a set-up cost for every new flow, and on networks with loops its paths are chosen by flooding, not by quality. Section 6 shows how much of each: on the ISP map the path costs more than the setup. Proactive's weak point is that it installs a rule for **every** pair, whether used or not; on larger networks this grows as N².
 
-This is what our extension targets, the **idle-time hybrid**:
-- pre-install rules only for the **popular** host pairs, on **balanced** paths, within a per-switch rule budget;
-- do that work only when the controller is **idle**;
-- handle the rest reactively.
+**What changed in our plan since Review I.** At Review I we planned an "idle-time hybrid": pre-install popular pairs only while the controller is quiet. Reading the literature (`docs/literature/`) showed that each in-between idea has been tested only on its own traffic and setup, and never side by side. So our contribution is the **measured comparison** (`docs/Evaluation_Plan.md`), not a new algorithm:
+- **Built:** the budgeted hybrid, which is the popularity part of the plan.
+- **Not built:** the idle-time scheduling. The counter's work (one statistics request per pre-installed pair per second) is small next to the PACKET_INs it saves.
 
-The design and its literature gap are in `docs/literature/Literature_Review_IdleHybrid.md`.
+**What we do not claim.** The budgeted hybrid is close to CacheFlow and PARD, and it does not beat proactive on our small networks.
 
 ---
 
-## 8. Plan to the final submission (20 Nov)
+## 9. Plan to the final submission (20 Nov)
 
 | When | Work |
 | --- | --- |
-| By 2 Nov | **Distributed setup (feedback point "multiple computers"):** POX on one PC, Mininet on another, to measure the effect of real control-channel delay. Then Mininet cluster mode across lab PCs. |
-| 3–10 Nov | **Idle-time hybrid controller** (`hybrid_eval.py`): popularity tracking (EWMA), busy/idle detection with hysteresis, budgeted pre-installation |
-| 10–15 Nov | **Baselines from previous work** (Section 6.3), all run on the same four realistic workloads |
-| 15–20 Nov | Final runs, repeated 5× with 95% confidence intervals; final report and demo |
+| By 2 Nov | **Repeats:** every Step 4 scenario 5× with different seeds, reported as mean ± 95% confidence interval (`--repeats 5`, already implemented; overnight runs) |
+| By 5 Nov | **Two PCs (feedback point "multiple computers"):** POX on one laptop, Mininet on another; same runs, to measure real control-channel delay and a controller with its own CPU (tool ready: `docs/Controller_On_Second_PC.md`) |
+| 5–12 Nov | **The counter's weak spot:** a counter that counts flows instead of busy seconds, and a shorter memory (decay 0.9), at the 10% budget. **Optional:** an ML predictor (e.g. logistic regression) against the counter and the oracle at the same budget |
+| 5–12 Nov | **A larger network** (fat-tree k = 6: 54 hosts, 2,862 pairs, if the laptop can run it), where proactive's N² rules start to matter |
+| 12–20 Nov | Read the remaining full texts (PARD, the ML papers), check SURGE's parameters; final runs, final report and demo |
 
 **Risks.**
 - **POX near saturation:** POX is single-threaded and was at 86% CPU under university traffic, which also tells us where reactive breaks.
-- **WSL2 timing noise:** repeats and a second laptop are used to control it.
+- **WSL2 timing noise:** repeats and a second laptop are used to control it. The counter is the noisiest result: its 10% hit rate was 24.5% on the laptop and 35.7% on a cloud test with the same traffic.
+- **Small networks:** with 11–16 hosts proactive's rules always fit, so the rule budget is never forced. A larger network is planned; it may not fit on a laptop.
 - **One unverified parameter:** SURGE's numbers (ISP flow sizes) are still to be checked against the paper. The ISP traffic *volumes* are real data.
+- **Second PC:** depends on borrowing a laptop and on WSL2 mirrored networking (Windows 11).
 
 ---
 
-## 9. How to reproduce
+## 10. How to reproduce
 
 ```bash
 git clone https://github.com/PrachitDeshinge-324/Openflow_SDN.git && cd Openflow_SDN
@@ -278,14 +384,21 @@ bash setup.sh                                                  # first time only
 sudo python3 experiments/run_experiments.py                    # Review I: latency, rules, churn (~15 min)
 sudo python3 experiments/run_path_experiments.py               # Section 4: path quality (~15 min)
 sudo python3 experiments/run_traffic_experiments.py            # Section 5: realistic traffic, 4 scenarios (~12 min)
+sudo python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university --budget-sweep --pair-zipf 1   # Section 6 (~15 min)
+sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k4:websearch --budget-sweep --pair-zipf 1
+sudo python3 experiments/run_traffic_experiments.py --scenarios abilene:isp --budget-sweep
+python3 docs/figures/make_step4_figures.py                     # Section 6 summary figures
 sudo python3 demo/run_demo.py                                  # live demo (reactive vs proactive)
 ```
 
 **Detailed documents:**
 - `docs/Path_Quality_Experiment.md`
 - `docs/Realistic_Traffic_Experiment.md`
+- `docs/Budgeted_Hybrid_Experiment.md` (Step 4)
+- `docs/Controller_On_Second_PC.md`
+- `docs/Evaluation_Plan.md`: every comparison next to the closest paper
 - `docs/Realism_Sources.md`
-- `docs/literature/Literature_Review_IdleHybrid.md`
+- `docs/literature/Literature_Review_IdleHybrid.md` and `docs/literature/ML_Rule_Prediction_Survey.md`
 - `docs/Progress_Review_1.md`
 
 **Raw data:** every run's raw data (each flow, each path, POX logs) is in `results/measured/`.

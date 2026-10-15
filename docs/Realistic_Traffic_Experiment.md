@@ -185,19 +185,24 @@ python3 experiments/abilene_tm.py X02.gz --day 3      # another day; then --tm d
    - **Controller set-up, about 40 ms:** the rest comes from waiting for the controller at up to 5 switches in a row, in both directions.
 
    So **in an ISP, reactive costs twice**: once for the longer paths and once for the controller.
+
+   **Correction (Step 4).** This split was an estimate. Step 4 measured it directly by running the same reactive logic on shortest paths, with the same traffic (`docs/Budgeted_Hybrid_Experiment.md`, Section 4.6):
+   - small-flow median 117.5 ms with reactive;
+   - 73.4 ms on shortest paths;
+   - 47.8 ms with proactive.
+
+   That is **about 44 ms from the paths and 26 ms from the controller**, so the estimate above had the two the wrong way round.
 3. **Controller load and flow tables grow the same way as in the data centre.**
    - **Requests:** 59 new flows/s cause 624 PACKET_INs/s, about 10.6 per flow, at 44% CPU.
    - **Rules:** 7,176 against proactive's 386, which is **19 times more**.
 
 **Reproducibility:** a cloud-VM validation run, without netem, gave the same ranking. There, small flows averaged 203 ms with reactive against 18 ms with proactive. Its files are in [`results/validation_traffic_cloud_userspace/isp-100M-no-netem/`](../results/validation_traffic_cloud_userspace/isp-100M-no-netem/).
 
-**Commit the laptop run:** add `results/measured/traffic-20261015-122618/` to the repo with this document.
-
 ## 9. Notes and limits
 
 - **The traffic is generated, not replayed.** It has the published statistics (sizes, arrival rates, burstiness through the arrival process), not real packets. This is the standard method in data-centre papers (pFabric, PIAS, and others).
 - **ON/OFF behaviour.** Benson also describes ON/OFF bursts with lognormal OFF periods, but gives the parameters only as plots. We model burstiness through the measured arrival gaps only.
 - **The university size curve was read by eye.** It comes from Benson's Fig. 4(a), which is a log-scale plot, so the points are approximate. They agree with the paper's text (80% of flows < 10 KB, most bytes in the largest 10%).
-- **The ISP controller is local.** In a real ISP the controller sits in one city, so its messages to distant switches take tens of ms. Here it is on the same machine. Step 3 (controller on a different PC) starts to add this.
+- **The ISP controller is local.** In a real ISP the controller sits in one city, so its messages to distant switches take tens of ms. Here it is on the same machine. Running the controller on a second PC (`docs/Controller_On_Second_PC.md`; tool ready, run pending) starts to add this.
 - **SURGE comes from web traffic.** Its flow sizes come from web workloads of the late 1990s and are only a stand-in for 2004 backbone flows. The traffic *volumes* between cities are real.
 - **Python adds overhead.** The traffic generator is Python, so very small FCTs include some scheduling delay. It is the same for every controller, so comparisons are fair.
