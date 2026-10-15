@@ -12,7 +12,7 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POX_URL="https://github.com/noxrepo/pox.git"
-POX_COMMIT="5f82461e01f8822bd7336603b361bff4ffbd2380"   # POX 0.7.0 (gar), same as the pox/ entry in git
+POX_COMMIT="5f82461e01f8822bd7336603b361bff4ffbd2380"   # POX 0.7.0 (gar), the version stored in pox/
 
 APT_PACKAGES=(
   git                          # clone this repo and POX
@@ -63,16 +63,18 @@ fi
 
 step 4/5 "Getting POX"
 if [ -f "$REPO/pox/pox.py" ]; then
+  # POX 0.7.0 (commit 5f82461) is stored in this repo, so nothing to download
   ok "POX already present in pox/"
 else
-  # pox/ is only a pointer in this repo, so a fresh clone leaves it empty
   rmdir "$REPO/pox" 2>/dev/null || true
   git clone -q "$POX_URL" "$REPO/pox"
   ok "cloned POX into pox/"
 fi
-git -C "$REPO/pox" checkout -q "$POX_COMMIT" 2>/dev/null \
-  && ok "POX at tested commit ${POX_COMMIT:0:7}" \
-  || warn "could not check out ${POX_COMMIT:0:7}; using POX's current version"
+if [ -d "$REPO/pox/.git" ]; then   # only for a separate POX clone, never the project repo
+  git -C "$REPO/pox" checkout -q "$POX_COMMIT" 2>/dev/null \
+    && ok "POX at tested commit ${POX_COMMIT:0:7}" \
+    || warn "could not check out ${POX_COMMIT:0:7}; using POX's current version"
+fi
 
 step 5/5 "Verifying the installation"
 python3 "$REPO/smoke_test.py"

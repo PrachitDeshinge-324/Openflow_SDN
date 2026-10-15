@@ -23,7 +23,7 @@ script in this repo. It takes about 15 minutes, most of it downloads.
 | numpy, matplotlib | distro versions | apt (`python3-numpy`, `python3-matplotlib`); also in `requirements.txt` |
 | Mininet | 2.3.0 | apt (`mininet`) |
 | Open vSwitch | 3.3.9, 3.7.1 | apt (`openvswitch-switch`, `openvswitch-testcontroller`) |
-| POX | 0.7.0 `gar`, commit `5f82461` | `git clone` from github.com/noxrepo/pox |
+| POX | 0.7.0 `gar`, commit `5f82461` | Included in this repo (`pox/`) |
 | git, ping, iproute2 | distro versions | apt |
 
 Our results were produced on Windows 11 + WSL2 with Ubuntu 26.04.1 (kernel 6.18 WSL2), Mininet 2.3.0,
@@ -71,8 +71,8 @@ In WSL no browser opens by itself. Open https://github.com/login/device in Windo
 ```bash
 bash setup.sh
 ```
-It installs the packages above, starts Open vSwitch, checks for the Open vSwitch kernel module, clones POX
-into `pox/` at the tested commit, and finishes with the smoke test and a 2-host ping test. It ends with
+It installs the packages above, starts Open vSwitch, checks for the Open vSwitch kernel module, checks POX
+in `pox/` (it clones POX only if that folder is empty), and finishes with the smoke test and a 2-host ping test. It ends with
 **Setup complete** and the command to run next. The script is safe to run again.
 
 ## Step 3: First run
@@ -101,5 +101,5 @@ project folder. Its built-in terminal (Ctrl+`) is an Ubuntu terminal.
 | Mininet errors like `RTNETLINK answers: File exists` | A previous run crashed. Clean up with `sudo mn -c`. |
 | POX prints `POX requires one of the following versions of Python: 3.6 ... 3.9` | Harmless warning; everything in this project works on newer Python. |
 | `pip install` says `externally-managed-environment` | Use the apt packages (`setup.sh` does), or a virtual environment: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`. |
-| `pox/` is empty after cloning | Expected: the repo only records which POX commit to use. `setup.sh` clones it; manually: `git clone https://github.com/noxrepo/pox.git pox`. |
+| `pox/` is empty after cloning | You have an old copy of the repo, from when it only recorded which POX commit to use. Run `git pull`, or let `setup.sh` clone it (manually: `git clone https://github.com/noxrepo/pox.git pox`). |
 | `git push` returns 403 or asks for a password | Run `gh auth login` (Step 1) with an account that has access to the repo. |

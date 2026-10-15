@@ -23,11 +23,12 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `run_live_pox_benchmark.py`, `run_pox_openflow_test.py` | Simulated OpenFlow 1.0 switch that handshakes with POX and times its reply to one PACKET_IN |
 | `results/` | Model charts; measured runs go to `results/measured/<timestamp>/` |
 | `docs/Progress_Review_1.md` | Progress Review I report (30 Sep 2026) |
+| `docs/Progress_Review_2.md` (+ `.pdf`) | **Progress Review II report (30 Oct 2026)**: everything since Review I with all measurements |
 | `docs/Path_Quality_Experiment.md` | Path-quality experiment: why, how, metrics, results |
 | `docs/Realism_Sources.md` | The paper behind every network, traffic pattern and parameter we use |
 | `docs/Realistic_Traffic_Experiment.md` | Realistic-traffic experiment: workloads, metrics, results |
 | `Project_SA7_Final_Report.md` | Report draft (Section 4 = analytical model) |
-| `pox/` | POX controller checkout (not stored in this repo, see setup) |
+| `pox/` | POX 0.7.0 (`gar`, commit 5f82461), stored in this repo (Apache 2.0 licence, see `pox/LICENSE`) |
 
 ---
 
