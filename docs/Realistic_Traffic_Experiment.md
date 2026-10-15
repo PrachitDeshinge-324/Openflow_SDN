@@ -20,7 +20,9 @@ Real networks look different. **Most flows are tiny, a few are huge, and new flo
 | Data centre, web search | `fattree-k4`: 20 switches, 16 hosts (as in Step 1) | `websearch` | DCTCP (SIGCOMM 2010) production search cluster, as the "web search" workload of pFabric (SIGCOMM 2013) |
 | Data centre, data mining | `fattree-k4` | `datamining` | VL2 (SIGCOMM 2009) data-mining cluster, as the "data mining" workload of pFabric |
 
-**ISP traffic** (real Abilene traffic matrices) is the next part of Step 2. It needs the public Abilene traffic-matrix dataset; see Section 8.
+| ISP backbone | `abilene`: the US Internet2 backbone, 11 cities, 14 links (as in Step 1), with the real link speeds and city-to-city delays | `isp` | The **real Abilene traffic matrices** (Zhang et al., IMC 2005), flow sizes from SURGE (Barford & Crovella, 1998) |
+
+The ISP scenario was added after the first laptop run below; its results are in Section 8.
 
 ## 3. How the traffic is made
 
@@ -61,7 +63,7 @@ These are the same as in Step 1:
 ```bash
 cd ~/Openflow_SDN
 sudo python3 experiments/run_traffic_experiments.py --quick   # university only, 10 s, about 2 minutes
-sudo python3 experiments/run_traffic_experiments.py           # all 3 scenarios, about 10 minutes
+sudo python3 experiments/run_traffic_experiments.py           # all 4 scenarios, about 12 minutes
 ```
 
 - **Output:** results go to `results/measured/traffic-<timestamp>/`: `traffic.md` (tables), `traffic.json` (every flow), `traffic_fct_cdf.png`, `traffic_small_fct.png`, `traffic_control.png`, and the POX logs.
@@ -141,15 +143,61 @@ sudo python3 experiments/run_traffic_experiments.py           # all 3 scenarios,
 
 **Commit the laptop run:** add `results/measured/traffic-20261015-113417/` to the repo with this document; the charts above link to it.
 
-## 8. Next: ISP traffic
+## 8. ISP traffic: real Abilene traffic matrices
 
-- **What we'll use:** the Abilene traffic matrices (Zhang et al., IMC 2005; also in SNDlib). These record how much traffic each Abilene city really sent to every other city, every 5 minutes, in 2004.
-- **Why they fit:** they match the Abilene map from Step 1 exactly.
-- **What is needed:** download the dataset in a browser, since the cloud machine cannot reach it. The script then makes flows between city pairs in proportion to the real matrix.
+**Data:** the public Abilene traffic matrices from <https://www.cs.utexas.edu/~yzhang/research/AbileneTM/> (Zhang et al., IMC 2005). They come from real NetFlow measurements, sampled 1 in 100, and record how much traffic each Abilene router sent to every other router every 5 minutes, March–September 2004. Our copy of the readme and the topology file is in `data/abilene/`.
+
+**How we turn it into traffic** (`experiments/abilene_tm.py`, then the `isp` workload):
+1. We take week X01, day 1 (**Monday 1 March 2004**) and average each hour, giving 24 hourly matrices for 110 city pairs.
+   - **Real values only:** the file also has 4 estimates per pair; we use the measured value.
+   - **One Atlanta:** the dataset has two Atlanta routers. We merge them; the second one, ATLA-M5, carries under 1% of the traffic.
+   - **Backbone traffic only:** traffic that enters and leaves at the same city is dropped, because it never crosses the backbone.
+2. **That day's real traffic:** it ranged from **2.3 Gbit/s (night) to 4.3 Gbit/s (US afternoon)**. The biggest pairs were Washington DC → New York and Los Angeles → Chicago, each 5.5% of the traffic at the evening peak.
+3. **The whole day is replayed in 30 s** (1.25 s per hour), so the run sees the real rise and fall during the day.
+4. **Volumes are scaled to our network:** our 100 Mbit/s links stand for Abilene's 9.92 Gbit/s links, so traffic is scaled by the same factor. **Every link is then as busy, relative to its speed, as it was in 2004**: about 31 Mbit/s on average.
+5. **Flows between city pairs** arrive at random (Poisson) at a rate proportional to the real volume of that pair in that hour. Flow sizes follow **SURGE** (lognormal body, Pareto tail): median 12 KB, mean 65 KB. This gives about **57 new flows/s**.
+6. **The network is as real as we can make it:**
+   - the 14 real links;
+   - the real link speeds, so Atlanta–Indianapolis is a quarter of the others, as in 2003;
+   - the city-to-city delays from Step 1, emulated with netem when the kernel has it.
+
+**Run it alone:**
+```bash
+sudo python3 experiments/run_traffic_experiments.py --scenarios abilene:isp
+python3 experiments/abilene_tm.py X02.gz --day 3      # another day; then --tm data/abilene/tm-<date>.json
+```
+
+**Report run:** laptop, WSL2, Open vSwitch kernel datapath, 100 Mbit/s links (Atlanta–Indianapolis 25 Mbit/s), **real city-to-city delays emulated with netem**. Run 15 Oct 2026; files are in [`results/measured/traffic-20261015-122618/`](../results/measured/traffic-20261015-122618/). 1,761 flows (59 new flows/s, 27.5 Mbit/s offered); **every flow finished with both controllers.**
+
+| Controller | Small flows < 100 KB: mean / median / p99 (ms) | Medium: mean (ms) | PACKET_IN/s | Controller CPU | Peak rules (all switches / one switch) |
+| --- | --- | --- | --- | --- | --- |
+| Reactive | **136.8 / 120.0 / 405.7** | 292.5 | **624** | 44.0% | **7,176 / 1,051** |
+| Proactive | **59.5 / 48.1 / 198.4** | 177.9 | 0 | 0.2% | 386 / 62 |
+
+![Small-flow FCT distribution](../results/measured/traffic-20261015-122618/traffic_fct_cdf.png)
+
+### What this shows
+
+1. **With real ISP traffic, reactive makes small flows about 2.5 times slower.** The median is 120 ms against 48 ms, and the slowest 1% take 406 ms against 198 ms.
+2. **Where the extra 72 ms goes.** This is a rough split, using the path delays measured in Step 1. A small flow needs about two round trips: the connection setup, then the data and the reply.
+   - **Proactive's 48 ms** is about two round trips on the best paths: Step 1 measured a 25.7 ms round trip on average, and 2 × 25.7 ≈ 51 ms.
+   - **Longer paths, about 27 ms:** reactive's spanning-tree paths have a 39.3 ms round trip (Step 1), so two round trips take about 79 ms, 27 ms more than proactive's best paths.
+   - **Controller set-up, about 40 ms:** the rest comes from waiting for the controller at up to 5 switches in a row, in both directions.
+
+   So **in an ISP, reactive costs twice**: once for the longer paths and once for the controller.
+3. **Controller load and flow tables grow the same way as in the data centre.**
+   - **Requests:** 59 new flows/s cause 624 PACKET_INs/s, about 10.6 per flow, at 44% CPU.
+   - **Rules:** 7,176 against proactive's 386, which is **19 times more**.
+
+**Reproducibility:** a cloud-VM validation run, without netem, gave the same ranking. There, small flows averaged 203 ms with reactive against 18 ms with proactive. Its files are in [`results/validation_traffic_cloud_userspace/isp-100M-no-netem/`](../results/validation_traffic_cloud_userspace/isp-100M-no-netem/).
+
+**Commit the laptop run:** add `results/measured/traffic-20261015-122618/` to the repo with this document.
 
 ## 9. Notes and limits
 
 - **The traffic is generated, not replayed.** It has the published statistics (sizes, arrival rates, burstiness through the arrival process), not real packets. This is the standard method in data-centre papers (pFabric, PIAS, and others).
 - **ON/OFF behaviour.** Benson also describes ON/OFF bursts with lognormal OFF periods, but gives the parameters only as plots. We model burstiness through the measured arrival gaps only.
 - **The university size curve was read by eye.** It comes from Benson's Fig. 4(a), which is a log-scale plot, so the points are approximate. They agree with the paper's text (80% of flows < 10 KB, most bytes in the largest 10%).
+- **The ISP controller is local.** In a real ISP the controller sits in one city, so its messages to distant switches take tens of ms. Here it is on the same machine. Step 3 (controller on a different PC) starts to add this.
+- **SURGE comes from web traffic.** Its flow sizes come from web workloads of the late 1990s and are only a stand-in for 2004 backbone flows. The traffic *volumes* between cities are real.
 - **Python adds overhead.** The traffic generator is Python, so very small FCTs include some scheduling delay. It is the same for every controller, so comparisons are fair.

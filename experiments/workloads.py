@@ -22,6 +22,15 @@ Sources are listed in docs/Realism_Sources.md.
               the "data mining" workload of pFabric. CDF file CDF_vl2.tcl
               from the same repository. Poisson arrivals.
 
+  isp         Real Abilene traffic matrices (Zhang et al., IMC 2005), one
+              day (data/abilene/tm-<date>.json, made by abilene_tm.py):
+              how much each city sent to every other city, hour by hour.
+              The 24 hours are replayed in --duration seconds. Volumes are
+              scaled by (our link speed / Abilene's 9.92 Gbit/s), so every
+              link is as busy, relative to its speed, as in the real network.
+              Flow sizes: the SURGE web-workload model (Barford & Crovella,
+              SIGMETRICS 1998): lognormal body, Pareto tail.
+
 For websearch/datamining the arrival rate is set by the offered load:
   flows/s = load x (hosts x link speed) / mean flow size
 Flows larger than max_bytes are capped so that a run on 10 Mbit/s links
@@ -31,6 +40,7 @@ sees, is unchanged below the cap.
 """
 
 import bisect
+import json
 import math
 import random
 
@@ -48,6 +58,10 @@ UNIVERSITY_BYTES = [(60, 0.0), (100, 0.05), (300, 0.25), (500, 0.35), (1000, 0.4
                     (10000000, 1.0)]
 
 UNIV_GAP_WEIBULL = (1.34, 0.0215)   # shape, scale (s): P10 = 4 ms, P90 = 40 ms
+
+# SURGE file sizes (Barford & Crovella 1998): body lognormal(mu, sigma) in bytes,
+# tail Pareto(k, alpha) above k; fraction of the tail. TO CHECK against the paper.
+SURGE = {'mu': 9.357, 'sigma': 1.318, 'k': 133000.0, 'alpha': 1.1, 'p_tail': 0.07}
 
 
 class EmpiricalCDF(object):
@@ -82,6 +96,26 @@ class EmpiricalCDF(object):
     return m
 
 
+class SurgeSizes(object):
+  """Lognormal body below k, Pareto tail above k (SURGE)."""
+
+  def __init__(self, p=SURGE):
+    self.p = p
+
+  def sample(self, rng):
+    p = self.p
+    if rng.random() < p['p_tail']:
+      return p['k'] * (1.0 - rng.random()) ** (-1.0 / p['alpha'])
+    while True:
+      x = rng.lognormvariate(p['mu'], p['sigma'])
+      if x < p['k']:
+        return x
+
+  def mean(self, cap=None, n=200000):
+    rng = random.Random(12345)
+    return sum(min(self.sample(rng), cap) if cap else self.sample(rng) for _ in range(n)) / n
+
+
 WORKLOADS = {
   'university': {'sizes': EmpiricalCDF(UNIVERSITY_BYTES, log=True), 'arrivals': 'benson-edge',
                  'source': 'Benson et al., IMC 2010 (university data centres)'},
@@ -89,13 +123,17 @@ WORKLOADS = {
                 'source': 'DCTCP, SIGCOMM 2010 / pFabric web search workload'},
   'datamining': {'sizes': EmpiricalCDF(DATAMINING_PKTS, unit=MSS), 'arrivals': 'poisson',
                  'source': 'VL2, SIGCOMM 2009 / pFabric data mining workload'},
+  'isp': {'sizes': SurgeSizes(), 'arrivals': 'traffic-matrix',
+          'source': 'Abilene traffic matrices (Zhang et al., IMC 2005) + SURGE flow sizes'},
 }
 
 
-def make_schedule(workload, hosts, edge_of, duration, load, bw_mbps, max_bytes, seed):
+def make_schedule(workload, hosts, edge_of, duration, load, bw_mbps, max_bytes, seed,
+                  city_of=None, tm_file=None):
   """
   hosts:   list of host names
   edge_of: {host: name of its edge switch}
+  city_of: {host: city name} and tm_file: hourly matrices, for the 'isp' workload
   Returns (flows, info): flows = [(start_s, src, dst, size_bytes)], sorted by start.
   The same seed gives the same flows for every controller.
   """
@@ -120,6 +158,28 @@ def make_schedule(workload, hosts, edge_of, duration, load, bw_mbps, max_bytes, 
       while t < duration:
         flow(t, rng.choice(under))
         t += rng.weibullvariate(scale, shape)
+    rate = len(flows) / duration
+  elif wl['arrivals'] == 'traffic-matrix':
+    if not tm_file or not city_of:
+      raise ValueError("the isp workload needs a traffic-matrix file and a host-to-city map")
+    with open(tm_file) as f:
+      tm = json.load(f)
+    host_of = {c: h for h, c in city_of.items()}
+    scale = bw_mbps * 1e6 / tm['backbone_link_bps']   # same utilisation as the real backbone
+    slot = duration / float(len(tm['hours']))         # one hour of the day per slot
+    for i, hour in enumerate(tm['hours']):
+      for pair, mbps in sorted(hour.items()):
+        src_city, dst_city = pair.split('>')
+        if src_city not in host_of or dst_city not in host_of:
+          continue
+        pair_rate = mbps * 1e6 * scale / 8 / mean_size   # flows per second
+        if pair_rate <= 0:
+          continue
+        t = i * slot + rng.expovariate(pair_rate)
+        while t < (i + 1) * slot:
+          size = max(1, int(min(wl['sizes'].sample(rng), max_bytes)))
+          flows.append((t, host_of[src_city], host_of[dst_city], size))
+          t += rng.expovariate(pair_rate)
     rate = len(flows) / duration
   else:
     rate = load * len(hosts) * bw_mbps * 1e6 / 8 / mean_size   # flows per second, whole network

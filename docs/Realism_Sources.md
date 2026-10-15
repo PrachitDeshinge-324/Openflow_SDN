@@ -25,13 +25,14 @@ Every network, traffic pattern and parameter in our experiments should come from
 | --- | --- | --- | --- | --- | --- | --- |
 | **Trees**: `tree-d2-f2` (4 hosts), `tree-d3-f2` (8), `tree-d2-f4` (16) | The classic tree-shaped (3-tier) data-centre and campus network | Benson et al. 2010 [1] show the "canonical 3-tier data center" (Fig. 1) and find the enterprise data centres follow it; Al-Fares et al. 2008 [2] describe it as the traditional design. Built with Mininet's `TreeTopo`. | The tree shape: one path between any two hosts | Review I (latency, rule count, churn) | Used | PDF [1] |
 | **Fat-tree, k = 4** (`fattree-k4`): 4 core, 8 aggregation, 8 edge switches, 16 hosts | A modern data-centre network with many equal paths | Al-Fares et al. 2008 [2], "A Scalable, Commodity Data Center Network Architecture" | The exact construction. With k pods, each pod has k/2 edge and k/2 aggregation switches; there are (k/2)² core switches and k³/4 hosts. That gives up to 4 equal paths between pods. | Step 1 (path quality) | Used | Standard design (paper not in our folder yet) |
-| **Abilene** (`abilene`): 11 cities, 14 links, 1 host per city | A real ISP / research backbone (Internet2, USA) | The Internet Topology Zoo, Knight et al. 2011 [3], file `Abilene.gml` | The cities and which cities are linked | Step 1 | Used | Online (paper). The 11 / 14 counts should be checked against `Abilene.gml` |
+| **Abilene** (`abilene`): 11 cities, 14 links, 1 host per city | A real ISP / research backbone (Internet2, USA) | The Internet Topology Zoo, Knight et al. 2011 [3], file `Abilene.gml` | The cities and which cities are linked | Step 1, Step 2 (ISP) | Used | **Data file**: the same 14 links appear in the traffic-matrix dataset's own topology file `data/abilene/topo-2003-04-10.txt` |
 | **GÉANT** (`--gml Geant2012.gml`) | The European research backbone, bigger (about 40 cities) | Internet Topology Zoo [3] | Cities and links, loaded by our GML reader | Step 1 (optional) | Option | To check (node count) |
 
 ### Parameters of the networks
 
 | Parameter | Our value | Where it comes from | Status | Verified |
 | --- | --- | --- | --- | --- |
+| Abilene link speeds (Step 2, ISP) | All links `--bw`, except Atlanta–Indianapolis at a quarter of it | `data/abilene/topo-2003-04-10.txt` (from the traffic-matrix dataset): every link 9.92 Gbit/s except Atlanta–Indianapolis at 2.48 Gbit/s (April 2003) | Used | Data file |
 | Abilene link delay | Straight-line distance between the cities ÷ 200 km per ms | Physics: light in optical fibre travels at about 2/3 of its speed in vacuum, about 200,000 km/s. City coordinates as in the Topology Zoo [3]. Real cables are longer, so our delays are a **lower bound**. | Used | Standard physics |
 | Link bandwidth | 10 Mbit/s on every link | A scaled-down speed so that a laptop can emulate it faithfully. Handigol et al. 2012 [4] show that Mininet reproduces published results when link rates are scaled to what the machine can handle. Same speed everywhere, so only path choice matters. | Used | To check (exact wording in [4]) |
 | Rule timeouts (reactive) | idle 10 s, hard 30 s, exact match | The defaults of POX's own `forwarding.l2_learning` module, which our reactive controller copies | Used | POX source code |
@@ -51,8 +52,9 @@ Every network, traffic pattern and parameter in our experiments should come from
 | **University / enterprise data-centre traffic** | Many small, short flows, arriving in ON/OFF bursts | **Benson et al. 2010 [1]**, "Network Traffic Characteristics of Data Centers in the Wild". They measured 10 data centres: 3 university, 2 private enterprise and 5 cloud. | See the Benson list below. Flow sizes read off Fig. 4(a) (curves EDU1/EDU3); arrivals per edge switch from a Weibull fitted to Benson's "80% of gaps 4–40 ms" (Weibull, as in Table 4) | Step 2 | Used | **PDF** |
 | **Data-centre "web search" traffic** | Production search cluster: mostly small queries plus large background flows | **DCTCP, Alizadeh et al. 2010 [7]** (about 6,000 servers, more than 150 TB of traces over a month). The flow-size distribution was published as the "web search" workload in **pFabric, Alizadeh et al. 2013 [8]**. | See the DCTCP / pFabric list below. Exact table `CDF_dctcp.tcl` from the PIAS simulator [15] | Step 2 | Used | Online + table file |
 | **Data-centre "data mining" traffic** | Big-data cluster: very skewed, a few giant flows | **VL2, Greenberg et al. 2009 [9]**. The distribution was published as the "data mining" workload in **pFabric [8]**. | See the VL2 / pFabric list below. Exact table `CDF_vl2.tcl` from the PIAS simulator [15] | Step 2 | Used | Online + table file |
-| **ISP traffic between cities** (traffic matrix) | How much traffic each city sends to every other city, every 5 minutes | **Abilene traffic matrices**, Zhang et al. 2005 [10] (real NetFlow data, 2004). They are also in SNDlib [11]. | Real city-to-city traffic volumes on the same Abilene map we use | Step 2 | Planned | Online. The weeks covered and the node list are still to check. That dataset has 12 nodes (Atlanta appears to have two routers), so we may need to merge them. |
+| **ISP traffic between cities** (traffic matrix) | How much traffic each city sends to every other city, every 5 minutes | **Abilene traffic matrices**, Zhang et al. 2005 [10] (real NetFlow data, 2004). They are also in SNDlib [11]. | Real city-to-city traffic volumes on the same Abilene map we use. We use week X01, day 1 (Monday 1 March 2004), averaged per hour. Only the real measured values are used, not the 4 estimates. The two Atlanta routers are merged (ATLA-M5 carries under 1% of traffic), and traffic that enters and leaves at the same city is dropped. Volumes are scaled by our link speed ÷ 9.92 Gbit/s, so links are as busy as in the real network. | Step 2 (ISP) | Used | **Data file + readme** (`data/abilene/`) |
 | **GÉANT traffic matrices** | The same for the European backbone | Uhlig et al. 2006 [12]: one matrix every 15 minutes over several months | City-to-city volumes for GÉANT | Step 2 (if we use GÉANT) | Option | Online |
+| **ISP flow sizes** | How big individual flows are (the traffic matrix only gives volumes per city pair) | **SURGE**, Barford & Crovella 1998 [16]: a lognormal body (μ = 9.357, σ = 1.318, in bytes) and a Pareto tail above 133 KB (α = 1.1), with 7% of flows in the tail | Median 12 KB, mean 65 KB (capped at 20 MB) | Step 2 (ISP) | Used | **To check** (parameters from memory; verify in the paper) |
 | **ISP backbone packet traces** | Real packets on a backbone link (Japan, WIDE) | **MAWI archive**, Cho et al. 2000 [13]. Daily traces from "samplepoint-F", a 1 Gbit/s transit link in Tokyo; IP addresses are anonymised. | Flow sizes and the mix of protocols on a real backbone, if we need them | Step 2 | Option | Online |
 
 ### Key numbers, written out
@@ -95,8 +97,9 @@ Every network, traffic pattern and parameter in our experiments should come from
 
 ## 4. Still to check (open items)
 
-- [ ] Abilene in Topology Zoo: confirm 11 nodes and 14 links in `Abilene.gml`.
-- [ ] Abilene traffic matrices [10]: the exact weeks covered, the 12-node list, and the download location.
+- [x] Abilene: 11 cities and 14 links, confirmed by the traffic-matrix dataset's topology file `data/abilene/topo-2003-04-10.txt`.
+- [x] Abilene traffic matrices [10]: 24 weekly files X01–X24 (March–September 2004), 12 routers (two in Atlanta), format in `data/abilene/readme-AbileneTM.txt`. Downloaded from <https://www.cs.utexas.edu/~yzhang/research/AbileneTM/>.
+- [ ] SURGE [16]: check the lognormal and Pareto parameters and the 7% tail share against the paper (Table 2 / the "file sizes" model).
 - [x] pFabric [8] CDF points: the exact tables are `CDF_dctcp.tcl` (web search) and `CDF_vl2.tcl` (data mining) from the PIAS simulator [15], in 1460-byte packets. Their means are 1.67 MB and 7.47 MB.
 - [ ] pFabric [8]: confirm the two workload descriptions in its own evaluation section.
 - [ ] Hedera [6]: confirm the name "random bijective" for permutation traffic.
@@ -123,6 +126,7 @@ Every network, traffic pattern and parameter in our experiments should come from
 13. K. Cho, K. Mitsuya, A. Kato. *Traffic Data Repository at the WIDE Project.* USENIX ATC 2000, FREENIX Track. Data: <https://mawi.wide.ad.jp/mawi/>
 14. A. Botta, A. Dainotti, A. Pescapè. *A Tool for the Generation of Realistic Network Workload for Emerging Networking Scenarios.* Computer Networks 56(15), 2012.
 15. W. Bai, L. Chen, K. Chen, D. Han, C. Tian, H. Wang. *Information-Agnostic Flow Scheduling for Commodity Data Centers (PIAS).* USENIX NSDI 2015. Simulator and workload files: <https://github.com/HKUST-SING/PIAS-NS2> (`scripts/CDF_dctcp.tcl`, `scripts/CDF_vl2.tcl`)
+16. P. Barford, M. Crovella. *Generating Representative Web Workloads for Network and Server Performance Evaluation (SURGE).* ACM SIGMETRICS / Performance 1998.
 
 ---
 
@@ -132,3 +136,4 @@ Every network, traffic pattern and parameter in our experiments should come from
 | --- | --- |
 | 15 Oct 2026 | Created. Networks and traffic for Review I and Step 1 (used); data-centre, university and ISP traffic sources for Step 2 (planned). |
 | 15 Oct 2026 | Step 2: university, web search and data mining traffic now used. Added the PIAS table files [15], the 100 Mbit/s and 20 MB-cap choices, and the Poisson arrivals. |
+| 15 Oct 2026 | Step 2 (ISP): Abilene traffic matrices used (data in `data/abilene/`), the real Abilene link speeds, and SURGE flow sizes (to check). The Abilene map is confirmed by the dataset's topology file. |

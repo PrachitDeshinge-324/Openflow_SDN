@@ -9,6 +9,10 @@ network (sources in docs/Realism_Sources.md and experiments/workloads.py):
   tree-d2-f4 : university  - campus / enterprise tree, Benson et al. IMC 2010
   fattree-k4 : websearch   - data centre, DCTCP (SIGCOMM 2010) via pFabric
   fattree-k4 : datamining  - data centre, VL2 (SIGCOMM 2009) via pFabric
+  abilene    : isp         - ISP backbone, real Abilene traffic matrices
+                             (Zhang et al. IMC 2005), one day replayed;
+                             real link speeds (Atlanta-Indianapolis is a
+                             quarter of the others) and city-to-city delays
 
 Every host runs a TCP server; flows follow a schedule computed in advance from
 the workload (same seed, so every controller gets exactly the same flows). Each
@@ -21,7 +25,7 @@ Measured per run:
   - rules in the switches during the run (peak total, peak in one switch)
 
 Usage (Mininet needs root):
-  sudo python3 experiments/run_traffic_experiments.py            # 3 scenarios, ~10 min
+  sudo python3 experiments/run_traffic_experiments.py            # 4 scenarios, ~12 min
   sudo python3 experiments/run_traffic_experiments.py --quick    # university only, ~2 min
   sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k4:university
 Output: results/measured/traffic-<timestamp>/ (traffic.md, traffic.json, plots).
@@ -51,14 +55,21 @@ import path_topologies as pt
 import workloads as wl
 from run_experiments import (OF_PORT, POX_DIR, REPO, LateStartController, cpu_seconds,
                              fresh_stats, log, read_stats, stop_pox, wait_for, write_topology)
-from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, start_pox, wait_for_spanning_tree
+from run_path_experiments import (MODE_LABEL, TX_CSUM_OFF, netem_available, start_pox,
+                                  wait_for_spanning_tree)
 
 NETWORKS = {
   'tree-d2-f4': lambda: (TreeTopo(depth=2, fanout=4), {}, {}),
   'tree-d3-f2': lambda: (TreeTopo(depth=3, fanout=2), {}, {}),
   'fattree-k4': pt.BUILTIN['fattree-k4'],
+  'abilene': pt.BUILTIN['abilene'],
 }
-DEFAULT_SCENARIOS = ['tree-d2-f4:university', 'fattree-k4:websearch', 'fattree-k4:datamining']
+# Real Abilene link speeds (data/abilene/topo-2003-04-10.txt): all 9.92 Gbit/s except
+# Atlanta-Indianapolis at 2.48 Gbit/s, so that link gets a quarter of --bw
+LINK_SPEED_FACTOR = {'abilene': {frozenset(('Atlanta', 'Indianapolis')): 0.25}}
+DEFAULT_TM = os.path.join(REPO, 'data', 'abilene', 'tm-2004-03-01.json')
+DEFAULT_SCENARIOS = ['tree-d2-f4:university', 'fattree-k4:websearch', 'fattree-k4:datamining',
+                     'abilene:isp']
 FLOW_PORT = 5001
 SMALL, LARGE = 100 * 1000, 10 * 1000 * 1000
 
@@ -162,8 +173,12 @@ def run_one(net_name, workload, mode, args, run_dir):
 
   cleanup()
   topo, delays, labels = NETWORKS[net_name]()
+  factors = LINK_SPEED_FACTOR.get(net_name, {})
   for a, b, info in topo.links(withInfo=True):
-    info['bw'] = args.bw
+    info['bw'] = args.bw * factors.get(frozenset((labels.get(a), labels.get(b))), 1.0)
+    d = delays.get((a, b), delays.get((b, a)))
+    if d is not None and args.netem:
+      info['delay'] = '%.2fms' % d
   switch = partial(OVSSwitch, datapath=args.datapath, protocols='OpenFlow10')
   net = Mininet(topo=topo, switch=switch, link=TCLink,
                 controller=partial(LateStartController, ip='127.0.0.1', port=OF_PORT),
@@ -178,9 +193,11 @@ def run_one(net_name, workload, mode, args, run_dir):
   ip_of = {h['name']: h['ip'] for h in topo_json['hosts']}
 
   # Same schedule for every controller: the seed depends only on network + workload
+  city_of = {h: labels[e] for h, e in edge_of.items() if e in labels}
   flows, info = wl.make_schedule(workload, sorted(edge_of, key=lambda n: int(n[1:])), edge_of,
                                  args.duration, args.load, args.bw, args.max_bytes,
-                                 '%s-%s-%d' % (net_name, workload, args.seed))
+                                 '%s-%s-%d' % (net_name, workload, args.seed),
+                                 city_of=city_of, tm_file=args.tm)
   log('    schedule: %d flows in %d s (%.1f flows/s), offered %.1f Mbit/s = %.0f%% of host capacity, '
       '%d capped at %d MB, %.0f%% leave the edge switch'
       % (info['flows'], args.duration, info['flows_per_s'], info['offered_mbps'],
@@ -188,7 +205,8 @@ def run_one(net_name, workload, mode, args, run_dir):
 
   proc, stats_file = start_pox(mode, run_dir, tag, topo_file)
   result = {'network': net_name, 'workload': workload, 'mode': mode, 'hosts': len(net.hosts),
-            'switches': len(net.switches), 'bw_mbps': args.bw, 'schedule': info}
+            'switches': len(net.switches), 'bw_mbps': args.bw, 'schedule': info,
+            'delay_emulated': bool(delays) and args.netem}
   try:
     net.start()
     connected_at = time.time()
@@ -345,6 +363,8 @@ def main():
   ap.add_argument('--load', type=float, default=0.3, help='offered load for websearch/datamining')
   ap.add_argument('--bw', type=int, default=100, help='bandwidth of every link, Mbit/s')
   ap.add_argument('--max-mb', type=int, default=20, help='cap on flow size, MB')
+  ap.add_argument('--tm', default=DEFAULT_TM, help='hourly traffic matrices for the isp workload '
+                  '(make others with experiments/abilene_tm.py)')
   ap.add_argument('--flow-timeout', type=int, default=30, help='seconds before a flow counts as failed')
   ap.add_argument('--datapath', default='kernel', choices=['kernel', 'user'])
   ap.add_argument('--seed', type=int, default=7)
@@ -359,6 +379,7 @@ def main():
   if args.quick:
     args.scenarios, args.duration = ['tree-d2-f4:university'], 10
   args.max_bytes = args.max_mb * 10**6
+  args.netem = netem_available()
   scenarios = []
   for s in args.scenarios:
     net_name, _, workload = s.partition(':')
