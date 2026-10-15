@@ -1,0 +1,82 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.25,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/traffic-20261015-204208/tree-d2-f4-topo.json",
+    "pairs_file": "/home/mrudul/Openflow_SDN/results/measured/traffic-20261015-204208/tree-d2-f4-university-oracle-10-pairs.txt"
+  },
+  "pid": 289428,
+  "uptime_s": 40.602707862854004,
+  "written_at": 1792097376.5372458,
+  "totals": {
+    "packet_in": 31123,
+    "flow_mod": 31096,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 8546,
+      "flow_mod": 8546,
+      "packet_out": 0,
+      "connected_at": 1792097336.2276273,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 5501,
+      "flow_mod": 5494,
+      "packet_out": 0,
+      "connected_at": 1792097336.28356,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 5654,
+      "flow_mod": 5645,
+      "packet_out": 0,
+      "connected_at": 1792097336.459563,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 5369,
+      "flow_mod": 5366,
+      "packet_out": 0,
+      "connected_at": 1792097336.548327,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 6053,
+      "flow_mod": 6045,
+      "packet_out": 0,
+      "connected_at": 1792097336.711807,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 31036,
+    "mean": 276.6433919042837,
+    "p50": 248.82100115064532,
+    "p95": 438.29299829667434,
+    "max": 16674.104997946415
+  },
+  "extra": {
+    "budget_pairs": 24,
+    "total_pairs": 240,
+    "pair_installs": 24,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 24,
+    "ingress_syn_misses": 2944,
+    "ingress_new_flows": 10901
+  }
+}

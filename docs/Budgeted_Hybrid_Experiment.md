@@ -56,6 +56,40 @@ Everything not pre-installed is handled reactively, on the shortest path,
 with exact-match rules. No flow is ever dropped because of the budget; a
 miss only costs a trip to the controller.
 
+Small example with a budget of 2 pairs (scores after each one-second tick):
+
+| Second | h1→h2 | h3→h4 | h5→h6 | Installed |
+| --- | --- | --- | --- | --- |
+| 1 | used: 1.00 | used: 1.00 | - | h1→h2, h3→h4 (free budget) |
+| 2 | used: 1.97 | idle: 0.97 | used: 1.00 | unchanged: h5→h6 needs more than 1.5 × 0.97 = 1.46 |
+| 3 | used: 2.91 | idle: 0.94 | used: 1.97 | h5→h6 replaces h3→h4 (1.97 > 1.5 × 0.94) |
+
+A pair used every second settles at a score of 1 / (1 − 0.97) ≈ 33. A pair
+that stops being used loses half its score in about 23 s.
+
+### The oracle: a controller that knows the future
+
+The oracle cannot exist in a real network; it is a measuring stick. The
+harness generates the whole flow schedule before the run, so it knows which
+host pairs will be busiest:
+
+1. It counts the flows of every pair in both directions, because the TCP
+   reply needs the reverse rule.
+2. It writes the K busiest pairs to a file.
+3. `hybrid_eval --pairs_file` installs exactly those pairs before the first
+   flow and never changes them.
+
+Its hit rate is the best that any method choosing K pairs can reach: a
+counter, logistic regression, XGBoost or anything else. So
+**oracle − counter** is the most a smarter predictor could ever add at that
+budget, measured without building one. This is the same idea as Belady's
+optimal algorithm in caching (1966), which knows all future requests and
+serves as the bound for real cache algorithms.
+
+Limit: it is the best *fixed* set of pairs. Here pair popularity does not
+change during a run, so a fixed set is the right bound. If popularity
+shifted over time, an oracle that swaps pairs could do better.
+
 **Hit rate** = the share of new TCP connections whose first packet (SYN)
 found a rule at the sender's switch, i.e. did not go to the controller.
 
@@ -167,4 +201,107 @@ intervals (`--repeats 5`).
 
 ## 4. Laptop results
 
-To be filled in from the laptop runs in Section 2.
+Setup:
+
+- **Machine:** Mrudul's laptop: WSL2, Open vSwitch 3.7.1 with the kernel
+  datapath, Python 3.14.
+- **Controller:** POX on the same PC as Mininet.
+- **Traffic:** university, `tree-d2-f4`, 16 hosts, 240 host pairs, every link
+  100 Mbit/s.
+- **Run:** 30 s of arrivals; host-pair popularity Zipf 1, so the busiest 10%
+  of pairs carry 60% of the flows; one run (seed 7).
+- **Result:** 6,088 flows, **0 failed in every run**.
+- **Raw data:** `results/measured/traffic-20261015-204208/`.
+
+### 4.1 University traffic, popular pairs (Zipf 1)
+
+| Controller | Hit rate | Small-flow FCT median / p99 (ms) | PACKET_IN/s | Controller CPU % | Peak rules (all switches) |
+| --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree, 10 s / 30 s) | - | 53.4 / 137.2 | 2,371 | 83.6 | 11,170 |
+| Reactive, long timeouts (60 s / 300 s) | - | 59.1 / 154.2 | 2,327 | 83.6 | **32,644** |
+| Reactive on shortest paths (budget 0%) | 0% | 53.7 / 169.0 | 2,329 | 82.7 | 11,159 |
+| Hybrid counter, 10% of pairs (24) | 24.5% | 32.5 / 99.4 | 1,685 | 74.4 | 7,588 |
+| Hybrid counter, 25% (60) | 62.3% | 12.8 / 76.6 | 861 | 48.2 | 5,010 |
+| Hybrid counter, 50% (120) | 80.5% | 4.1 / 61.9 | 365 | 28.3 | 2,340 |
+| Oracle, 10% | 51.6% | 16.7 / 67.7 | 1,022 | 55.1 | 5,312 |
+| Oracle, 25% | 70.6% | 7.4 / 67.6 | 572 | 39.7 | 3,287 |
+| Oracle, 50% | 85.7% | 3.0 / 52.8 | 274 | 22.0 | 1,987 |
+| Proactive (all 240 pairs) | 100% | 1.7 / 43.9 | 0 | 0.1 | 624 |
+
+Counter installs and waste per budget:
+
+| Budget | Pair installs | Wasted (removed without matching a packet) | Counter hit rate ÷ oracle hit rate |
+| --- | --- | --- | --- |
+| 10% | 80 | 53 (66%) | 0.47 |
+| 25% | 153 | 71 (46%) | 0.88 |
+| 50% | 206 | 55 (27%) | 0.94 |
+
+The plot is `traffic_budget.png` in the same folder.
+
+### 4.2 What the numbers say
+
+1. **Long timeouts make reactive worse, not better.**
+   - The small-flow median is 11% slower (59.1 vs 53.4 ms) and the tables
+     hold 2.9× the rules.
+   - The PACKET_IN rate is the same.
+   - Why: reactive rules are exact matches, and every new TCP connection
+     has a new source port. A rule that is kept longer is never matched
+     again; it only takes space.
+   - So "keep rules longer" (SmartTime-style timeout tuning) does not help
+     short-flow traffic unless the rules are coarser.
+2. **The 0% point equals normal reactive** (53.7 vs 53.4 ms, 2,329 vs
+   2,371 PACKET_IN/s). On a tree, the spanning tree is the shortest path.
+   So every gain in the hybrid rows comes from the pre-installed pair rules,
+   not from better routing.
+3. **A budget of 25% of pairs improves every metric at once** compared with
+   reactive:
+   - 4.2× faster small-flow median (12.8 vs 53.7 ms);
+   - 2.7× fewer controller requests;
+   - controller CPU down from 84% to 48%;
+   - **2.2× fewer rules** (5,010 vs 11,159). One pair rule replaces the many
+     exact rules its connections would otherwise create.
+
+   At 50%: 13× faster median and 4.8× fewer rules.
+4. **The counter is close to the oracle at 25–50%, far from it at 10%.**
+   - It reaches 88% and 94% of the oracle's hit rate at 25% and 50%, but
+     only 47% at 10%, wasting 66% of its installs.
+   - So a better predictor (ML or anything else) could add at most 5–8
+     points of hit rate at 25–50% of pairs, but up to 27 points at 10%.
+   - Two candidate causes for the 10% gap:
+     - **warm-up:** the counter's memory (about 33 s) is as long as the run;
+     - **churn at the cut-off:** with 24 slots, many pairs have similar
+       scores.
+
+     Run B in Section 5 separates the two.
+5. **Proactive is still best on this network.** It is the fastest (1.7 ms)
+   and has the fewest rules of all (624 = 240 pairs × about 2.6 switches).
+   With 16 hosts, every pair fits easily. A rule budget only pays off when
+   all pairs do not fit in the switches' tables, which is the case in large
+   networks, not in ours. **We must say this when we present the hybrid.**
+6. **Reactive's controller load grows faster than its traffic.** It needs
+   11.7 PACKET_INs per new flow (2,371/s for 203 flows/s). A connection
+   misses at up to 3 switches in each direction, which already gives up to
+   6. Under load, more packets of the same connection arrive before its
+   rules are in, and each of them goes to the controller too. This is the
+   same amplification as in Step 2.
+
+**Laptop vs cloud test (Section 3).** The ordering of all ten controllers is
+the same.
+
+- **Oracle hit rates are identical** (51.6 / 70.6 / 85.7%), as they should
+  be: the same schedule and the same pairs.
+- **The counter's hit rate at 10% differs a lot:** 24.5% on the laptop,
+  35.7% in the cloud. The counter depends on timing (which pairs happen to
+  be active in each second), so single runs of it are noisy. This is why the
+  final numbers need `--repeats 5`.
+
+## 5. Runs still to do
+
+| Run | Command (add `sudo python3 experiments/run_traffic_experiments.py`) | Question it answers | Status |
+| --- | --- | --- | --- |
+| A | `--scenarios tree-d2-f4:university --budget-sweep --pair-zipf 0` | Control: with no popular pairs, the counter should gain only about its budget share | running |
+| B | `--scenarios tree-d2-f4:university --pair-zipf 1 --duration 120 --modes reactive-sp hybrid-10 oracle-10` | Is the counter's 10% gap warm-up (it closes in 120 s) or ranking (it stays)? | running |
+| C1 | `--scenarios fattree-k4:websearch --budget-sweep --pair-zipf 1` | Data centre: fewer, bigger flows, many paths (ECMP) | running |
+| C2 | `--scenarios abilene:isp --budget-sweep` | ISP: real traffic matrices, which are skewed on their own | running |
+| D | Section 4.1 again with `--repeats 5` (about 2 h) | Confidence intervals for the main table | to do |
+| E | Any of the above with `--controller-host` (two PCs) | Point 9: does a separate controller PC change the result? | to do (needs a second laptop) |

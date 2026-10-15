@@ -38,6 +38,11 @@ What changes in the results:
   20 TCP handshakes with the agent. Windows drops ping by default, so ping is
   not used.
 
+**Status (15 Oct 2026):** tested with the agent on the same machine
+(`--controller-host 127.0.0.1`): starting and stopping POX, stats, CPU time,
+log copy-back and repeats all work. It has **not yet been run across two
+real PCs**, so the networking steps below are untested on our laptops.
+
 ## 1. Network between the two PCs
 
 - Put both PCs on the same LAN. Ethernet through one switch or router is
