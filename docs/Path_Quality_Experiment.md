@@ -20,6 +20,10 @@ This experiment uses both kinds of network and checks which path each controller
 | `abilene` | ISP: US Internet2/Abilene backbone (Internet Topology Zoo) | 11 cities | 11, one per city | 14 | Several, of different lengths |
 | `--gml file.gml` | Any Topology Zoo map, e.g. GÉANT (`Geant2012.gml`) | as in the file | one per city | as in the file | |
 
+**Fat-tree paths in detail.** The two hosts under one edge switch have 1 path. Hosts under different edge switches in the same pod have 2 paths, one through each aggregation switch. Hosts in different pods have 4 paths of 4 hops each, one through each core switch.
+
+**The 11 Abilene cities:** Seattle, Sunnyvale, Los Angeles, Denver, Kansas City, Houston, Chicago, Indianapolis, Atlanta, Washington DC, New York.
+
 - **Bandwidth:** every link has the same bandwidth (`--bw`, 10 Mbit/s by default), so only the choice of path makes a difference.
 - **Abilene link delays:** each delay is the straight-line distance between the two cities at the speed of light in fibre, about 200 km per ms. For example, Seattle–Denver is 1,640 km, so its delay is 8.2 ms. Real fibre routes are longer, so these delays are a lower bound.
 - **How the delays are applied:** the delays are emulated with Linux `netem` when the kernel has it. If it doesn't (the cloud VM used for the validation run doesn't), the script still computes each path's delay from the map. It says which case applied in `paths.md`.
@@ -30,11 +34,34 @@ This experiment uses both kinds of network and checks which path each controller
 | --- | --- | --- |
 | **Reactive** (learning + spanning tree) | `reactive_eval` (exact match, as in Review I) plus POX `openflow.discovery` and `openflow.spanning_tree`. In a network with loops, plain flooding would circulate forever (a broadcast storm), so floods are allowed only on a spanning tree. The learning switch then learns host locations from those floods, so traffic follows the tree. | The "haphazard" path. Nobody chose it for being short; it is whatever the tree, rooted at the lowest switch number, happens to give. This is how a plain reactive L2 network behaves. |
 | **Proactive** (one shortest path) | `proactive_eval --paths=shortest`. One rule per host pair along the lowest-cost path (cost = link delay, or 1 per hop). When paths tie, it always takes the same one (lowest switch numbers). | The optimal path, chosen in advance from the topology. |
-| **Proactive (ECMP)** | `proactive_eval --paths=ecmp`. The same lowest-cost paths, but each host pair is hashed onto one of the tied paths, like ECMP in real data centres. | Shows that "shortest" alone is not enough: the paths also have to be spread out. |
+| **Proactive (ECMP)** | `proactive_eval --paths=ecmp`. The same lowest-cost paths, but each host pair is hashed (CRC32 of the two MAC addresses) onto one of the tied paths, like ECMP in real data centres. | Shows that "shortest" alone is not enough: the paths also have to be spread out. |
+
+Common to all three:
+- **Same conditions.** Static ARP entries on every host, IPv6 off, random seed 7.
+- **Same test inputs.** The same host pairs and the same traffic permutations go to every controller.
+- **Proactive rules.** Each rule matches (source MAC, destination MAC), has priority 100 and never times out. The table-miss rule drops packets, so the controller sees no traffic.
+- **Reactive rules.** These are Review I's exact-match rules with idle timeout 10 s and hard timeout 30 s.
+
+### Which links the spanning tree switches off
+
+POX builds the tree starting from the lowest switch number. The list below is computed by running POX's tree algorithm on the same networks.
+
+- **Abilene keeps 10 of 14 links.** The 4 switched-off links are Sunnyvale–Denver, Denver–Kansas City, Indianapolis–Atlanta and Atlanta–Washington DC.
+  - *Example, from the map:* Atlanta → Washington DC has a direct 4.4 ms link. Reactive must go Atlanta → Houston → Kansas City → Indianapolis → Chicago → New York → Washington DC, which is about 23 ms, 5 times slower.
+- **The fat-tree keeps 19 of 32 links.** 13 links (26 link directions) never carry reactive traffic.
 
 ## 4. What is measured
 
-**Experiment A: path stretch and delay.** For 40 sampled host pairs (the same pairs for every controller), the script pings 6 times. It then follows the installed rules switch by switch (`ovs-ofctl dump-flows`) to find the path the packets actually took.
+**Experiment A: path stretch and delay.**
+- **Traffic:** ICMP ping. 40 randomly sampled ordered host pairs (the same pairs for every controller), 6 pings per pair, 0.1 s apart.
+- **Measured RTT:** the median of pings 3–6. Pings 1–2 include rule setup and the switch's cache warm-up, as found in Review I.
+- **How the real path is found.** Right after the pings, the script reads each switch's flow table (`ovs-ofctl dump-flows`).
+  1. Start at the source host's switch.
+  2. Take the rule for (source MAC → destination MAC). If several match, take the highest priority, then the one with the most packets.
+  3. Look up which switch is on the other side of that rule's output port, using the topology file.
+  4. Repeat until the destination host's port is reached.
+
+  So the path is read from the switches, not assumed.
 
 | Metric | Meaning |
 | --- | --- |
@@ -44,7 +71,11 @@ This experiment uses both kinds of network and checks which path each controller
 | Path RTT | round trip over the map's link delays along the path used |
 | Measured RTT | ping (it includes the link delays only when netem is available) |
 
-**Experiment B: throughput and link balance.** Every host sends one TCP flow to another host at the same time. The script uses a random permutation, so each host sends one flow and receives one, and repeats this for 3 permutations of 10 s each. Bytes are counted in the steady part of each run, from second 1 to second 9, both at the receivers and on every switch link.
+**Experiment B: throughput and link balance.**
+- **Traffic:** TCP, "permutation traffic". Every host sends one flow to another host at the same time, so each host sends one flow and receives one. There are 3 random permutations of 10 s each.
+- **Tools:** small Python sender and receiver scripts built into the experiment script, so no iperf is needed.
+- **Counting window:** bytes are counted in the steady part of each run, from second 1 to second 9. The counts come from the receivers and from every switch link (`/sys/class/net/<interface>/statistics/tx_bytes`).
+- **This is synthetic traffic**, the standard stress test in data-centre papers (Al-Fares 2008, Hedera 2010). Realistic university, data-centre and ISP traffic is the next step (Step 2).
 
 | Metric | Meaning |
 | --- | --- |
@@ -52,7 +83,7 @@ This experiment uses both kinds of network and checks which path each controller
 | Slowest flow | the worst flow: does someone starve? |
 | Busiest link | utilisation of the most loaded link |
 | Jain index over links | 1.0 = every link carries the same traffic; close to 1/n = everything on a few links |
-| Links unused | % of link directions carrying almost nothing (< 0.1 Mbit/s) |
+| Links unused | % of link directions carrying almost nothing (< 0.1 Mbit/s). Each direction counts separately: 64 in the fat-tree, 28 in Abilene |
 
 ## 5. How to run
 
@@ -121,3 +152,48 @@ The busiest link was at 100% in every run, so the links themselves are the bottl
 - **Proactive's advantage is the map.** The proactive controller is optimal because it knows the whole topology in advance. A reactive controller could also use shortest paths if it were given the map (as POX's `l2_multi` is), but it would still pay the first-packet cost measured in Review I.
 - **Real ECMP balances per flow.** ECMP here is per host pair, because our rules match MAC pairs. Real switches hash every TCP/UDP flow, which spreads load more evenly still.
 - **Commit the laptop run.** The report numbers come from the laptop run, so commit its folder `results/measured/paths-20261015-094800/` with the doc; the charts above link to it.
+
+## 8. Files (deliverables)
+
+| File | What it is |
+| --- | --- |
+| `experiments/run_path_experiments.py` | New. Builds the networks, runs experiments A and B for all three controllers, writes the results |
+| `experiments/path_topologies.py` | New. Fat-tree, Abilene, and a loader for any Internet Topology Zoo `.gml` file |
+| `experiments/plot_paths.py` | New. `paths_stretch.png`, `paths_throughput.png`, `paths_link_balance.png` |
+| `controllers/proactive_eval.py` | Changed. Path cost uses link delays (`delay_ms` in the topology file); new `--paths=shortest/ecmp` |
+| `controllers/reactive_eval.py` | Changed. Works with `openflow.discovery` + `openflow.spanning_tree`; LLDP probes are not counted as traffic; reports the links found |
+| `controllers/sa7_common.py` | Changed. `shortest_paths()` (Dijkstra returning every equal-cost path) and `load_link_weights()` |
+| `experiments/run_experiments.py` | Changed. `write_topology()` can store link delays |
+| `results/measured/paths-20261015-094800/` | Report run (laptop): `paths.md`, `paths.json`, charts, POX logs |
+| `results/validation_paths_cloud_userspace/` | Validation run (cloud VM) |
+| `README.md` | New "Path quality" section |
+
+The Review I experiment (`run_experiments.py --quick`) was re-run after these changes and gave the same results: proactive installs 28 rules, and reactive shows the same pattern.
+
+## 9. Problems found and fixed
+
+| Problem | Cause | Fix |
+| --- | --- | --- |
+| Broadcasts circling forever in the fat-tree and Abilene | Networks with loops; the learning switch floods on every port | POX `openflow.discovery` + `openflow.spanning_tree --no-flood --hold-down`; the script waits until every link is discovered and the tree is set |
+| TCP connections timing out (cloud VM) | With Open vSwitch's userspace datapath, packets whose checksum is left to the network card are dropped | The script turns off TX checksum offload on every host (`ethtool -K <if> tx off`, done with a small built-in helper); harmless on the kernel datapath |
+| Links shown as more than 100% busy | TCP keeps draining its socket buffers after the senders stop, so dividing by 10 s was wrong | Flows and links are counted over the same steady window (seconds 1 to 9) |
+| No link delay on the cloud VM | That kernel has no `netem` | The script checks for netem first; without it, it still computes path delay from the map and says so in `paths.md` |
+| Discovery's LLDP probes counted as PACKET_INs | They arrive at the controller like data packets | `reactive_eval` ignores LLDP before counting |
+
+## 10. Questions to expect
+
+- **"Isn't this unfair to reactive?"**
+  - This is how a plain reactive learning switch behaves on a network with loops; the spanning tree is required to stop broadcast storms.
+  - A reactive controller can route on shortest paths if it is given the map (POX `l2_multi`), but then it still pays the first-packet delay measured in Review I.
+  - Getting both, good paths and on-demand rules, is the aim of our idle-time hybrid extension.
+- **"Why 10 Mbit/s links?"** So the links are the bottleneck, not the laptop's CPU. Every run had its busiest link at 100%, so the results depend on path choice only.
+- **"Why doesn't ECMP reach the ideal 160 Mbit/s?"** Hash collisions: two flows land on the same link. Hedera (NSDI 2010) fixes this by moving large flows.
+- **"Why straight-line delays?"** Topology Zoo gives city coordinates, not cable routes. Real routes are longer, so our delays and the reactive penalty are conservative.
+- **"Why ECMP per host pair, not per flow?"** Our rules match MAC pairs. Per-flow hashing (on the 5-tuple) would spread load more evenly.
+- **"Is it reproducible?"** Yes. A fixed seed gives the same pairs and permutations for every controller. Part A gave identical paths on two different machines (laptop and cloud VM).
+
+## 11. Not covered yet
+
+- **Realistic traffic** (university, data-centre and ISP traffic profiles): Step 2.
+- **Several PCs in the lab** (controller and switches on different machines): Step 3.
+- **Comparison with published systems** (SmartTime, a PARD-style hybrid, the LSTM predictor): Step 4.
