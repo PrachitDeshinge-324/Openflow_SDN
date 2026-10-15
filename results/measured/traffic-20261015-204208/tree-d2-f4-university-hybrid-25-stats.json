@@ -1,0 +1,82 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.25,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/traffic-20261015-204208/tree-d2-f4-topo.json",
+    "pairs_file": null
+  },
+  "pid": 261578,
+  "uptime_s": 40.599130153656006,
+  "written_at": 1792097261.877232,
+  "totals": {
+    "packet_in": 27000,
+    "flow_mod": 27516,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 7452,
+      "flow_mod": 7610,
+      "packet_out": 0,
+      "connected_at": 1792097221.5558486,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 5126,
+      "flow_mod": 5220,
+      "packet_out": 0,
+      "connected_at": 1792097221.6323557,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 4659,
+      "flow_mod": 4748,
+      "packet_out": 0,
+      "connected_at": 1792097221.7553344,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 4471,
+      "flow_mod": 4555,
+      "packet_out": 0,
+      "connected_at": 1792097221.8832524,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 5292,
+      "flow_mod": 5383,
+      "packet_out": 0,
+      "connected_at": 1792097222.0073774,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 26906,
+    "mean": 265.81710000275535,
+    "p50": 241.7979994788766,
+    "p95": 412.96499693999067,
+    "max": 11257.892998401076
+  },
+  "extra": {
+    "budget_pairs": 60,
+    "total_pairs": 240,
+    "pair_installs": 153,
+    "pair_removals": 93,
+    "wasted_installs": 71,
+    "pairs_installed": 60,
+    "ingress_syn_misses": 2296,
+    "ingress_new_flows": 9513
+  }
+}

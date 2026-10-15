@@ -1,0 +1,43 @@
+INFO:hybrid_eval:Hybrid: 11 hosts, budget 55 of 110 pairs, decay 0.97, every 1.0 s
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:core:Going down...
+Traceback (most recent call last):
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 317, in cycle
+    rv = t.execute()
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 111, in execute
+    return self.gen.send(v)
+           ~~~~~~~~~~~~~^^^
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 1078, in run
+    rv = self._callback(*self._args,**self._kw)
+  File "/home/mrudul/Openflow_SDN/controllers/sa7_common.py", line 81, in dump
+    os.replace(tmp, self.stats_file)   # atomic, so readers never see half a file
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/mrudul/Openflow_SDN/results/measured/traffic-20261015-215331/abilene-isp-oracle-50-stats.json.tmp' -> '/home/mrudul/Openflow_SDN/results/measured/traffic-20261015-215331/abilene-isp-oracle-50-stats.json'
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.
+Task <Timer 6 tid:7> caused an exception and was de-scheduled

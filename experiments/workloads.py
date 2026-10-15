@@ -129,11 +129,15 @@ WORKLOADS = {
 
 
 def make_schedule(workload, hosts, edge_of, duration, load, bw_mbps, max_bytes, seed,
-                  city_of=None, tm_file=None):
+                  city_of=None, tm_file=None, pair_zipf=0.0):
   """
   hosts:   list of host names
   edge_of: {host: name of its edge switch}
   city_of: {host: city name} and tm_file: hourly matrices, for the 'isp' workload
+  pair_zipf: 0 = destinations chosen uniformly (pFabric's assumption). > 0 = host
+           pairs have Zipf popularity with this exponent (CacheFlow, SOSR 2016:
+           "traffic tends to follow a Zipf distribution"); the ranking of pairs is
+           random but fixed by the seed. Not used by 'isp' (real matrices).
   Returns (flows, info): flows = [(start_s, src, dst, size_bytes)], sorted by start.
   The same seed gives the same flows for every controller.
   """
@@ -141,8 +145,25 @@ def make_schedule(workload, hosts, edge_of, duration, load, bw_mbps, max_bytes, 
   rng = random.Random(seed)
   flows = []
 
+  pairs = [(a, b) for a in hosts for b in hosts if a != b]
+  rank = list(range(len(pairs)))
+  random.Random('%s-pair-ranking' % seed).shuffle(rank)
+  pair_weight = {p: 1.0 / (rank[i] + 1) ** pair_zipf for i, p in enumerate(pairs)}
+
+  def pick_dst(src):
+    if pair_zipf <= 0:
+      return rng.choice([h for h in hosts if h != src])   # uniform destination, as in pFabric
+    cands = [h for h in hosts if h != src]
+    return rng.choices(cands, weights=[pair_weight[(src, h)] for h in cands])[0]
+
+  def pick_src(choices):
+    if pair_zipf <= 0:
+      return rng.choice(choices)
+    tot = {h: sum(pair_weight[(h, d)] for d in hosts if d != h) for h in choices}
+    return rng.choices(choices, weights=[tot[h] for h in choices])[0]
+
   def flow(t, src):
-    dst = rng.choice([h for h in hosts if h != src])   # uniform destination, as in pFabric
+    dst = pick_dst(src)
     size = max(1, int(min(wl['sizes'].sample(rng), max_bytes)))
     flows.append((t, src, dst, size))
 
@@ -156,7 +177,7 @@ def make_schedule(workload, hosts, edge_of, duration, load, bw_mbps, max_bytes, 
       under = [h for h in hosts if edge_of[h] == e]
       t = rng.weibullvariate(scale, shape)
       while t < duration:
-        flow(t, rng.choice(under))
+        flow(t, pick_src(under))
         t += rng.weibullvariate(scale, shape)
     rate = len(flows) / duration
   elif wl['arrivals'] == 'traffic-matrix':
@@ -185,11 +206,17 @@ def make_schedule(workload, hosts, edge_of, duration, load, bw_mbps, max_bytes, 
     rate = load * len(hosts) * bw_mbps * 1e6 / 8 / mean_size   # flows per second, whole network
     t = rng.expovariate(rate)
     while t < duration:
-      flow(t, rng.choice(hosts))
+      flow(t, pick_src(hosts))
       t += rng.expovariate(rate)
   flows.sort()
   offered = sum(f[3] for f in flows) * 8 / duration / 1e6
-  info = {'workload': workload, 'source': wl['source'], 'flows': len(flows),
+  counts = {}
+  for f in flows:
+    counts[(f[1], f[2])] = counts.get((f[1], f[2]), 0) + 1
+  top = sorted(counts.values(), reverse=True)
+  info = {'workload': workload, 'source': wl['source'], 'flows': len(flows), 'pair_zipf': pair_zipf,
+          'pairs_used': len(counts),
+          'top10pct_pairs_share': (sum(top[:max(1, len(pairs) // 10)]) / float(len(flows))) if flows else 0.0,
           'flows_per_s': len(flows) / duration, 'target_rate': rate,
           'mean_size_bytes': mean_size, 'max_bytes': max_bytes,
           'offered_mbps': offered, 'offered_load': offered / (len(hosts) * bw_mbps),
