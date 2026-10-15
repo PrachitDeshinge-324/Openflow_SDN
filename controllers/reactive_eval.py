@@ -19,6 +19,14 @@ Usage (from the pox/ directory):
                   every new transport flow gets its own rule
   --match=pair  : match on (source MAC, destination MAC)
   --match=dst   : match on destination MAC only
+
+Networks with loops (fat-tree, ISP maps) need POX's spanning tree, or a single
+broadcast circles forever. Load it before this module:
+  python3 pox.py openflow.discovery openflow.spanning_tree --no-flood --hold-down \
+      reactive_eval ...
+Floods then follow the tree only, so learned paths follow the tree too.
+The number of links discovery has found is written to the stats file
+(extra.links, one per direction) so a script can wait for the tree.
 """
 
 import time
@@ -70,10 +78,11 @@ class ReactiveEval(object):
   def _handle_PacketIn(self, event):
     t0 = time.perf_counter()
     dpid = event.dpid
-    self.stats.count(dpid, 'packet_in')
-
     packet = event.parsed
-    if not packet.parsed or packet.type == ethernet.LLDP_TYPE:
+    if packet.parsed and packet.type == ethernet.LLDP_TYPE:
+      return   # topology discovery's own probes, not data traffic
+    self.stats.count(dpid, 'packet_in')
+    if not packet.parsed:
       return
 
     table = self.mac_to_port.setdefault(dpid, {})
@@ -107,6 +116,12 @@ def launch(match='exact', idle_timeout='10', hard_timeout='30', stats_file=None)
 
   def start():
     core.registerNew(ReactiveEval, match, int(idle_timeout), int(hard_timeout), stats)
+    if core.hasComponent('openflow_discovery'):
+      def links_changed(event):
+        stats.extra['links'] = len(core.openflow_discovery.adjacency)
+        stats.dirty = True
+      stats.extra['links'] = 0
+      core.openflow_discovery.addListenerByName('LinkEvent', links_changed)
     Timer(1, stats.dump, recurring=True)
     stats.dump(force=True)
 

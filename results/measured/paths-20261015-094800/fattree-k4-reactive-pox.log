@@ -1,0 +1,151 @@
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-01 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-02 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-03 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-04 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-05 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.1 -> 00-00-00-00-00-01.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.2 -> 00-00-00-00-00-02.1
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-06 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-06.1 -> 00-00-00-00-00-03.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-06.2 -> 00-00-00-00-00-04.1
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-07 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-07.1 -> 00-00-00-00-00-05.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-07.2 -> 00-00-00-00-00-06.3
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-08 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-08.1 -> 00-00-00-00-00-05.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-08.2 -> 00-00-00-00-00-06.4
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-09 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-09.1 -> 00-00-00-00-00-01.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-09.2 -> 00-00-00-00-00-02.2
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0a connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0a.1 -> 00-00-00-00-00-03.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0a.2 -> 00-00-00-00-00-04.2
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0b connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0b.1 -> 00-00-00-00-00-09.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0b.2 -> 00-00-00-00-00-0a.3
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0c connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0c.2 -> 00-00-00-00-00-0a.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0c.1 -> 00-00-00-00-00-09.4
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0d connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0d.1 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0d.2 -> 00-00-00-00-00-02.3
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0e connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0e.1 -> 00-00-00-00-00-03.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0e.2 -> 00-00-00-00-00-04.3
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0f connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0f.2 -> 00-00-00-00-00-0e.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0f.1 -> 00-00-00-00-00-0d.3
+INFO:openflow.of_01:[00-00-00-00-00-10 17] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-10 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-10.2 -> 00-00-00-00-00-0e.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-10.1 -> 00-00-00-00-00-0d.4
+INFO:openflow.of_01:[00-00-00-00-00-11 18] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-11 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-11.1 -> 00-00-00-00-00-01.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-11.2 -> 00-00-00-00-00-02.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0e.4 -> 00-00-00-00-00-10.2
+INFO:openflow.of_01:[00-00-00-00-00-12 19] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-12 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-13 20] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-13 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-12.1 -> 00-00-00-00-00-03.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-12.2 -> 00-00-00-00-00-04.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-13.2 -> 00-00-00-00-00-12.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-13.1 -> 00-00-00-00-00-11.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0d.3 -> 00-00-00-00-00-0f.1
+INFO:openflow.of_01:[00-00-00-00-00-14 21] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-14 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-14.2 -> 00-00-00-00-00-12.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-14.1 -> 00-00-00-00-00-11.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0d.4 -> 00-00-00-00-00-10.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0a.3 -> 00-00-00-00-00-0b.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0a.4 -> 00-00-00-00-00-0c.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-09.3 -> 00-00-00-00-00-0b.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-09.4 -> 00-00-00-00-00-0c.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-06.3 -> 00-00-00-00-00-07.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-06.4 -> 00-00-00-00-00-08.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.3 -> 00-00-00-00-00-07.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.3 -> 00-00-00-00-00-0e.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.4 -> 00-00-00-00-00-08.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.2 -> 00-00-00-00-00-0a.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.1 -> 00-00-00-00-00-06.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.3 -> 00-00-00-00-00-0e.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.4 -> 00-00-00-00-00-12.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.2 -> 00-00-00-00-00-0a.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.1 -> 00-00-00-00-00-06.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.4 -> 00-00-00-00-00-12.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.3 -> 00-00-00-00-00-0d.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.2 -> 00-00-00-00-00-09.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.4 -> 00-00-00-00-00-11.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.1 -> 00-00-00-00-00-05.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-0d.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-09.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.1 -> 00-00-00-00-00-05.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.4 -> 00-00-00-00-00-11.1
+INFO:openflow.discovery:link detected: 00-00-00-00-00-12.3 -> 00-00-00-00-00-13.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-12.4 -> 00-00-00-00-00-14.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-11.3 -> 00-00-00-00-00-13.1
+INFO:openflow.spanning_tree:4 ports changed
+INFO:openflow.discovery:link detected: 00-00-00-00-00-11.4 -> 00-00-00-00-00-14.1
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:4 ports changed
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:4 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:4 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0e.3 -> 00-00-00-00-00-0f.2
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:1 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.of_01:[00-00-00-00-00-13 20] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] closed
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-14 21] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] closed
+INFO:openflow.of_01:[00-00-00-00-00-12 19] closed
+INFO:openflow.of_01:[00-00-00-00-00-11 18] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-10 17] closed
+INFO:core:Going down...
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.

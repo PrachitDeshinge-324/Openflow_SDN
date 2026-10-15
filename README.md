@@ -12,6 +12,8 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `controllers/sa7_common.py` | Shared stats/topology helpers for both modules |
 | `experiments/run_experiments.py` | **Measured** evaluation: latency, flow-table occupancy, controller load under churn |
 | `experiments/plot_results.py` | Plots for a measured run |
+| `experiments/run_path_experiments.py` | **Path quality** (Review II): path stretch, throughput and link balance on a fat-tree and the Abilene ISP map |
+| `experiments/path_topologies.py`, `experiments/plot_paths.py` | Multi-path networks (fat-tree, Abilene, any Topology Zoo `.gml`) and plots for the path experiment |
 | `experiments/topologies/tree-d2-f2.json` | Topology file for running `proactive_eval` by hand on the 4-host tree |
 | `sdn_benchmark_suite.py` | **Analytical model** (expected values, not measurements); writes `results/*.png` |
 | `setup.sh`, `INSTALL.md`, `requirements.txt` | First-time installation: script, guide, Python libraries |
@@ -19,6 +21,7 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `run_live_pox_benchmark.py`, `run_pox_openflow_test.py` | Simulated OpenFlow 1.0 switch that handshakes with POX and times its reply to one PACKET_IN |
 | `results/` | Model charts; measured runs go to `results/measured/<timestamp>/` |
 | `docs/Progress_Review_1.md` | Progress Review I report (30 Sep 2026) |
+| `docs/Path_Quality_Experiment.md` | Path-quality experiment: why, how, metrics, results |
 | `Project_SA7_Final_Report.md` | Report draft (Section 4 = analytical model) |
 | `pox/` | POX controller checkout (not stored in this repo, see setup) |
 
@@ -82,6 +85,15 @@ The output goes to `results/measured/<timestamp>/`:
 Run `python3 experiments/run_experiments.py --help` for options (match granularity, timeouts, rates, number of pairs).
 
 Both modes run under identical conditions: static ARP entries on every host (ARP stays out of the measurement), IPv6 disabled on hosts, and a fixed random seed for pair selection.
+
+### Path quality: optimal path vs haphazard path
+
+```bash
+sudo python3 experiments/run_path_experiments.py --quick   # Abilene only, about 2 minutes
+sudo python3 experiments/run_path_experiments.py           # fat-tree + Abilene, about 15 minutes
+sudo python3 experiments/run_path_experiments.py --gml ~/Downloads/Geant2012.gml   # add a Topology Zoo map
+```
+Trees have only one path between two hosts, so this experiment uses networks with many paths: a k=4 fat-tree (data centre) and the Abilene backbone (ISP, link delays from city distances). It compares the reactive learning switch (over POX's spanning tree), proactive with one shortest path, and proactive with ECMP. It measures path stretch (path used compared with the best path), throughput with every host sending at once, and how evenly the links are loaded. Output goes to `results/measured/paths-<timestamp>/` (`paths.md`, `paths.json`, `paths_*.png`). The details are in [docs/Path_Quality_Experiment.md](docs/Path_Quality_Experiment.md).
 
 ---
 
