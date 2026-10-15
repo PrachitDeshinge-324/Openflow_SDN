@@ -35,6 +35,9 @@ Every network, traffic pattern and parameter in our experiments should come from
 | Abilene link delay | Straight-line distance between the cities ÷ 200 km per ms | Physics: light in optical fibre travels at about 2/3 of its speed in vacuum, about 200,000 km/s. City coordinates as in the Topology Zoo [3]. Real cables are longer, so our delays are a **lower bound**. | Used | Standard physics |
 | Link bandwidth | 10 Mbit/s on every link | A scaled-down speed so that a laptop can emulate it faithfully. Handigol et al. 2012 [4] show that Mininet reproduces published results when link rates are scaled to what the machine can handle. Same speed everywhere, so only path choice matters. | Used | To check (exact wording in [4]) |
 | Rule timeouts (reactive) | idle 10 s, hard 30 s, exact match | The defaults of POX's own `forwarding.l2_learning` module, which our reactive controller copies | Used | POX source code |
+| Link bandwidth in Step 2 | 100 Mbit/s on every link | Benson [1] found link utilisation low everywhere except the core. At 100 Mbit/s our university traffic loads the hosts' links by about 5%, close to that; at 10 Mbit/s it would overload them. | Used | PDF [1] |
+| Largest flow (Step 2) | Flows above 20 MB are cut to 20 MB | Not from a paper: it keeps one run to minutes on a laptop. It affects 0% of university flows, about 1% of web search flows and about 4% of data mining flows; all the small flows the controller has to set up are unchanged. | Used | Our choice |
+| Flow arrivals (web search, data mining) | Poisson, random source and destination, rate set by the target load (30%) | pFabric [8] Sec. 5: "flows arrive according to a Poisson process and the source and destination for each flow is chosen uniformly at random" | Used | Online |
 
 ---
 
@@ -45,9 +48,9 @@ Every network, traffic pattern and parameter in our experiments should come from
 | **Ping pairs** (ICMP, 6–10 pings per pair) | Measures delay only; not a traffic model | Standard measurement method | — | Review I, Step 1 | Used | — |
 | **Single-packet UDP flows at a fixed rate** (10–200 new flows/s) | A stress test for the controller ("flow churn") | Same idea as the controller benchmarks in Tootoonchian et al. 2012 [5] (cbench-style: many new flows per second) | — | Review I (churn) | Used | PDF [5] |
 | **Permutation traffic** (every host sends one long TCP flow to another host, all at once) | The standard data-centre stress test | Al-Fares et al. 2008 [2] and Hedera, Al-Fares et al. 2010 [6] (which calls it "random bijective") | Each host sends to exactly one host and receives from exactly one | Step 1 (throughput, link balance) | Used | To check (pattern name in [6]) |
-| **University / enterprise data-centre traffic** | Many small, short flows, arriving in ON/OFF bursts | **Benson et al. 2010 [1]**, "Network Traffic Characteristics of Data Centers in the Wild". They measured 10 data centres: 3 university, 2 private enterprise and 5 cloud. | See the Benson list below | Step 2 | Planned | **PDF** |
-| **Data-centre "web search" traffic** | Production search cluster: mostly small queries plus large background flows | **DCTCP, Alizadeh et al. 2010 [7]** (about 6,000 servers, more than 150 TB of traces over a month). The flow-size distribution was published as the "web search" workload in **pFabric, Alizadeh et al. 2013 [8]**. | See the DCTCP / pFabric list below | Step 2 | Planned | Online |
-| **Data-centre "data mining" traffic** | Big-data cluster: very skewed, a few giant flows | **VL2, Greenberg et al. 2009 [9]**. The distribution was published as the "data mining" workload in **pFabric [8]**. | See the VL2 / pFabric list below | Step 2 | Planned | Online |
+| **University / enterprise data-centre traffic** | Many small, short flows, arriving in ON/OFF bursts | **Benson et al. 2010 [1]**, "Network Traffic Characteristics of Data Centers in the Wild". They measured 10 data centres: 3 university, 2 private enterprise and 5 cloud. | See the Benson list below. Flow sizes read off Fig. 4(a) (curves EDU1/EDU3); arrivals per edge switch from a Weibull fitted to Benson's "80% of gaps 4–40 ms" (Weibull, as in Table 4) | Step 2 | Used | **PDF** |
+| **Data-centre "web search" traffic** | Production search cluster: mostly small queries plus large background flows | **DCTCP, Alizadeh et al. 2010 [7]** (about 6,000 servers, more than 150 TB of traces over a month). The flow-size distribution was published as the "web search" workload in **pFabric, Alizadeh et al. 2013 [8]**. | See the DCTCP / pFabric list below. Exact table `CDF_dctcp.tcl` from the PIAS simulator [15] | Step 2 | Used | Online + table file |
+| **Data-centre "data mining" traffic** | Big-data cluster: very skewed, a few giant flows | **VL2, Greenberg et al. 2009 [9]**. The distribution was published as the "data mining" workload in **pFabric [8]**. | See the VL2 / pFabric list below. Exact table `CDF_vl2.tcl` from the PIAS simulator [15] | Step 2 | Used | Online + table file |
 | **ISP traffic between cities** (traffic matrix) | How much traffic each city sends to every other city, every 5 minutes | **Abilene traffic matrices**, Zhang et al. 2005 [10] (real NetFlow data, 2004). They are also in SNDlib [11]. | Real city-to-city traffic volumes on the same Abilene map we use | Step 2 | Planned | Online. The weeks covered and the node list are still to check. That dataset has 12 nodes (Atlanta appears to have two routers), so we may need to merge them. |
 | **GÉANT traffic matrices** | The same for the European backbone | Uhlig et al. 2006 [12]: one matrix every 15 minutes over several months | City-to-city volumes for GÉANT | Step 2 (if we use GÉANT) | Option | Online |
 | **ISP backbone packet traces** | Real packets on a backbone link (Japan, WIDE) | **MAWI archive**, Cho et al. 2000 [13]. Daily traces from "samplepoint-F", a 1 Gbit/s transit link in Tokyo; IP addresses are anonymised. | Flow sizes and the mix of protocols on a real backbone, if we need them | Step 2 | Option | Online |
@@ -94,7 +97,8 @@ Every network, traffic pattern and parameter in our experiments should come from
 
 - [ ] Abilene in Topology Zoo: confirm 11 nodes and 14 links in `Abilene.gml`.
 - [ ] Abilene traffic matrices [10]: the exact weeks covered, the 12-node list, and the download location.
-- [ ] pFabric [8]: confirm both workload descriptions in its evaluation section, and get the CDF points.
+- [x] pFabric [8] CDF points: the exact tables are `CDF_dctcp.tcl` (web search) and `CDF_vl2.tcl` (data mining) from the PIAS simulator [15], in 1460-byte packets. Their means are 1.67 MB and 7.47 MB.
+- [ ] pFabric [8]: confirm the two workload descriptions in its own evaluation section.
 - [ ] Hedera [6]: confirm the name "random bijective" for permutation traffic.
 - [ ] Handigol et al. 2012 [4]: confirm the wording about scaling link rates.
 - [ ] GÉANT in Topology Zoo: number of nodes and links in `Geant2012.gml`.
@@ -118,6 +122,7 @@ Every network, traffic pattern and parameter in our experiments should come from
 12. S. Uhlig, B. Quoitin, S. Balon, J. Lepropre. *Providing Public Intradomain Traffic Matrices to the Research Community.* ACM SIGCOMM CCR 36(1), Jan 2006. Data: <https://totem.info.ucl.ac.be/dataset.html>
 13. K. Cho, K. Mitsuya, A. Kato. *Traffic Data Repository at the WIDE Project.* USENIX ATC 2000, FREENIX Track. Data: <https://mawi.wide.ad.jp/mawi/>
 14. A. Botta, A. Dainotti, A. Pescapè. *A Tool for the Generation of Realistic Network Workload for Emerging Networking Scenarios.* Computer Networks 56(15), 2012.
+15. W. Bai, L. Chen, K. Chen, D. Han, C. Tian, H. Wang. *Information-Agnostic Flow Scheduling for Commodity Data Centers (PIAS).* USENIX NSDI 2015. Simulator and workload files: <https://github.com/HKUST-SING/PIAS-NS2> (`scripts/CDF_dctcp.tcl`, `scripts/CDF_vl2.tcl`)
 
 ---
 
@@ -126,3 +131,4 @@ Every network, traffic pattern and parameter in our experiments should come from
 | Date | Change |
 | --- | --- |
 | 15 Oct 2026 | Created. Networks and traffic for Review I and Step 1 (used); data-centre, university and ISP traffic sources for Step 2 (planned). |
+| 15 Oct 2026 | Step 2: university, web search and data mining traffic now used. Added the PIAS table files [15], the 100 Mbit/s and 20 MB-cap choices, and the Poisson arrivals. |
