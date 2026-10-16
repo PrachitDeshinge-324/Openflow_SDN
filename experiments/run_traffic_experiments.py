@@ -241,6 +241,7 @@ NETWORKS = {
   'tree-d2-f4': lambda: (TreeTopo(depth=2, fanout=4), {}, {}),
   'tree-d3-f2': lambda: (TreeTopo(depth=3, fanout=2), {}, {}),
   'fattree-k4': pt.BUILTIN['fattree-k4'],
+  'fattree-k6': pt.BUILTIN['fattree-k6'],   # larger network: 54 hosts, 2,862 pairs
   'abilene': pt.BUILTIN['abilene'],
 }
 # Real Abilene link speeds (data/abilene/topo-2003-04-10.txt): all 9.92 Gbit/s except

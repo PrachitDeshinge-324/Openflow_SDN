@@ -7,7 +7,7 @@ Every builder returns (Mininet Topo, link delays, switch labels):
            delay= and written to the topology file for the proactive controller
   labels : {switch name: readable name}, e.g. 'edge p0-0' or 'Chicago'
 
-  fattree(k=4)  - data-centre fat-tree (Al-Fares et al., SIGCOMM 2008):
+  fattree(k=4)  - data-centre fat-tree (Al-Fares et al., SIGCOMM 2008); fattree-k6 is also built in:
                   k=4 gives 4 core, 8 aggregation, 8 edge switches, 16 hosts,
                   and 4 equal-length paths between hosts in different pods
   abilene()     - the Abilene / Internet2 US research backbone, 11 cities and
@@ -193,5 +193,6 @@ def gml_name(path):
 
 BUILTIN = {
   'fattree-k4': lambda: fattree(4),
+  'fattree-k6': lambda: fattree(6),   # 45 switches, 54 hosts, 2,862 host pairs
   'abilene': abilene,
 }
