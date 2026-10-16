@@ -490,3 +490,12 @@ Conclusions so far (one run each; confidence intervals still to come):
 | C2 | `--scenarios abilene:isp --budget-sweep` | ISP: real traffic matrices, which are skewed on their own | **done**, Section 4.6 |
 | D | Section 4.1 again with `--repeats 5` (about 2 h) | Confidence intervals for the main table | to do |
 | E | Any of the above with `--controller-host` (two PCs) | Point 9: does a separate controller PC change the result? | to do (needs a second laptop) |
+| F | `--scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1` | A larger network (45 switches, 54 hosts, 2,862 pairs): does the budget matter once proactive needs thousands of rules? | to do; first a smoke test (below) |
+
+**Run F: what the cloud test of 15 Oct showed.**
+- **Setup:** userspace Open vSwitch, 4 CPUs, websearch at 10% load, 20 s.
+- **Not usable for FCT:** 23–43% of flows failed for *every* controller, proactive included. That machine cannot carry 54 hosts at that load.
+- **Two useful signals:**
+  - **Proactive ECMP needed 13,230 rules; the hybrid at 25% needed 3,907 and the oracle 3,104.** This is the first network where proactive's N² rules exceed the hybrid's.
+  - **Only 356 of the 2,862 pairs carried any flow in 20 s,** so a 25% budget (716 pairs) already covers every active pair (the oracle hit 100%). That is why run F uses budgets of 2 / 5 / 10%, the range CacheFlow studied.
+- **On the laptop**, check first that the machine keeps up: `--scenarios fattree-k6:websearch --modes proactive-ecmp reactive-sp --duration 20 --load 0.05` must finish with 0 failed flows. Only then run F.

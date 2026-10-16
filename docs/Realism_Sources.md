@@ -102,7 +102,7 @@ Every network, traffic pattern and parameter in our experiments should come from
 
 - [x] Abilene: 11 cities and 14 links, confirmed by the traffic-matrix dataset's topology file `data/abilene/topo-2003-04-10.txt`.
 - [x] Abilene traffic matrices [10]: 24 weekly files X01–X24 (March–September 2004), 12 routers (two in Atlanta), format in `data/abilene/readme-AbileneTM.txt`. Downloaded from <https://www.cs.utexas.edu/~yzhang/research/AbileneTM/>.
-- [ ] SURGE [16]: check the lognormal and Pareto parameters and the 7% tail share against the paper (Table 2 / the "file sizes" model).
+- [ ] SURGE [16]: check the lognormal and Pareto parameters and the 7% tail share against the paper (Table 2 / the "file sizes" model). PDF: <https://cs-web.bu.edu/fac/crovella/paper-archive/sigm98-surge.pdf> (15 Oct: not reachable from the cloud sandbox; to check from a laptop). Secondary sources agree on the model's shape (lognormal body, Pareto tail) but none we found quotes the numbers.
 - [x] pFabric [8] CDF points: the exact tables are `CDF_dctcp.tcl` (web search) and `CDF_vl2.tcl` (data mining) from the PIAS simulator [15], in 1460-byte packets. Their means are 1.67 MB and 7.47 MB.
 - [ ] pFabric [8]: confirm the two workload descriptions in its own evaluation section.
 - [ ] Hedera [6]: confirm the name "random bijective" for permutation traffic.
