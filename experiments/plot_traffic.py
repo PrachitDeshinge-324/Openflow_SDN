@@ -125,7 +125,7 @@ def plot_control(sc, out_dir):
   return path
 
 
-COUNTER, ORACLE = '#6250d6', '#eda100'
+COUNTER, ORACLE, RANDOM = '#6250d6', '#eda100', '#8a877c'
 
 
 def _budget(mode):
@@ -137,7 +137,7 @@ def plot_budget(results, out_dir):
   sc = {}
   for r in results:
     sc.setdefault('%s, %s traffic' % (r['network'], r['workload']), {})[r['mode']] = r
-  sc = {k: v for k, v in sc.items() if any(m.startswith('hybrid-') for m in v)}
+  sc = {k: v for k, v in sc.items() if any(m.startswith(('hybrid-', 'oracle-', 'random-')) for m in v)}
   if not sc:
     return None
   metrics = [('Hit rate (% of new connections)', 'hybrid.hit_rate_pct',
@@ -151,7 +151,8 @@ def plot_budget(results, out_dir):
     for j, (label, ci, get) in enumerate(metrics):
       ax = axes[i][j]
       base = runs.get('reactive-sp')
-      for prefix, color, text in (('hybrid-', COUNTER, 'Counter'), ('oracle-', ORACLE, 'Oracle')):
+      for prefix, color, text in (('random-', RANDOM, 'Random'), ('hybrid-', COUNTER, 'Counter'),
+                                  ('oracle-', ORACLE, 'Oracle')):
         pts = sorted((_budget(m), get(r), r.get('ci', {}).get(ci, 0)) for m, r in runs.items()
                      if m.startswith(prefix))
         if base is not None and get(base) is not None:
@@ -163,7 +164,7 @@ def plot_budget(results, out_dir):
           if any(p[2] for p in pts):
             ax.errorbar([p[0] for p in pts], [p[1] for p in pts], yerr=[p[2] for p in pts], fmt='none',
                         ecolor=color, elinewidth=1.2, capsize=4)
-      xmax = max([_budget(m) for m in runs if m.startswith(('hybrid-', 'oracle-'))] + [10]) * 1.2
+      xmax = max([_budget(m) for m in runs if m.startswith(('hybrid-', 'oracle-', 'random-'))] + [10]) * 1.2
       # reactive-long's label goes under its line, so it does not sit on top of reactive's
       for mode, color, ls, dy in (('reactive', COLORS['reactive'], '--', 3),
                                   ('reactive-long', COLORS['reactive'], ':', -11),

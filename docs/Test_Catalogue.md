@@ -362,6 +362,7 @@ PACKET_IN/s is the same within the intervals in every scenario.
   - hysteresis 1.5.
 - **Budgets:** 10 / 25 / 50% of all host pairs.
 - **Oracle:** pre-installs the K pairs that really carry the most flows in the run, before the first flow (it reads the flow schedule).
+- **Random (baseline, runs tonight):** pre-installs a random K pairs, before the first flow, with no knowledge of the traffic. Together, random → counter → oracle show how much of the gain comes from choosing the pairs well.
 - **Traffic:**
   - university and fat-tree with Zipf pair popularity (exponent 1);
   - Abilene with its real matrices;

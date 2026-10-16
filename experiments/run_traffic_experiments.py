@@ -30,7 +30,7 @@ Usage (Mininet needs root):
   sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k4:university
   # Step 4: reactive with long timeouts, budgeted hybrid and oracle at 10/25/50% of pairs
   sudo python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university \
-      --budget-sweep --pair-zipf 1
+      --budget-sweep --pair-zipf 1        # add --random-baseline for random-10/25/50
   # 5 runs with different seeds: tables show mean +- 95% confidence interval
   sudo python3 experiments/run_traffic_experiments.py --repeats 5
   # controller on a second PC (start experiments/controller_agent.py there first)
@@ -74,6 +74,8 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #   hybrid-NN     : hybrid_eval, weighted counter keeps the top NN% of host pairs pre-installed
 #   oracle-NN     : upper bound for any predictor: pre-install the NN% of pairs that really
 #                   carry the most flows in this run's schedule, from the start
+#   random-NN     : no knowledge: pre-install a random NN% of host pairs (both directions of
+#                   each chosen pair), from the start; the baseline a smart choice must beat
 MODE_LABEL = dict(MODE_LABEL)
 MODE_LABEL.update({'reactive-long': 'Reactive, long timeouts',
                    'reactive-sp': 'Reactive on shortest paths (hybrid, budget 0%)'})
@@ -85,6 +87,8 @@ def mode_label(mode):
     return 'Hybrid, counter keeps top %s%% of pairs' % mode.split('-', 1)[1]
   if mode.startswith('oracle-'):
     return 'Oracle, busiest %s%% of pairs (upper bound)' % mode.split('-', 1)[1]
+  if mode.startswith('random-'):
+    return 'Random %s%% of pairs (no knowledge)' % mode.split('-', 1)[1]
   return MODE_LABEL[mode]
 
 
@@ -115,6 +119,27 @@ def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of
     pairs_file = os.path.join(run_dir, '%s-pairs.txt' % tag)
     with open(pairs_file, 'w') as f:
       for (src, dst), _ in sorted(counts.items(), key=lambda kv: -kv[1])[:k]:
+        f.write('%s %s\n' % (mac_of[src], mac_of[dst]))
+    return ['hybrid_eval', '--topo=%s' % topo_file, '--pairs_file=%s' % pairs_file, '--paths=%s' % paths]
+  if mode.startswith('random-'):
+    # Pairs are drawn as unordered pairs and installed in both directions, because a TCP
+    # flow needs both (data, then the reply), as for the oracle. The choice is fixed by the
+    # run's tag, so it does not depend on the traffic at all.
+    hosts = sorted(mac_of, key=lambda h: int(h[1:]))
+    n = len(hosts)
+    k = int(round(float(mode.split('-', 1)[1]) / 100.0 * n * (n - 1)))
+    unordered = [(a, b) for i, a in enumerate(hosts) for b in hosts[i + 1:]]
+    random.Random('%s-random-pairs' % tag).shuffle(unordered)
+    chosen = []
+    for a, b in unordered:
+      if len(chosen) >= k:
+        break
+      chosen.append((a, b))
+      if len(chosen) < k:
+        chosen.append((b, a))
+    pairs_file = os.path.join(run_dir, '%s-pairs.txt' % tag)
+    with open(pairs_file, 'w') as f:
+      for src, dst in chosen:
         f.write('%s %s\n' % (mac_of[src], mac_of[dst]))
     return ['hybrid_eval', '--topo=%s' % topo_file, '--pairs_file=%s' % pairs_file, '--paths=%s' % paths]
   raise SystemExit("Unknown mode %s" % mode)
@@ -611,6 +636,8 @@ def main():
                   help='Step 4: reactive, reactive-long, reactive-sp, hybrid at each --budgets, proactive')
   ap.add_argument('--budgets', nargs='+', type=int, default=[10, 25, 50],
                   help='hybrid budgets, %% of all host pairs')
+  ap.add_argument('--random-baseline', action='store_true',
+                  help='budget sweep: also pre-install a random NN%% of pairs at each budget')
   ap.add_argument('--decay', type=float, default=0.97, help='hybrid counter decay per second')
   ap.add_argument('--hysteresis', type=float, default=1.5,
                   help='hybrid: a newcomer must score this many times the weakest kept pair')
@@ -650,6 +677,7 @@ def main():
     if args.budget_sweep:
       modes = (['reactive', 'reactive-long', 'reactive-sp'] +
                ['hybrid-%d' % b for b in args.budgets] + ['oracle-%d' % b for b in args.budgets] +
+               (['random-%d' % b for b in args.budgets] if args.random_baseline else []) +
                ['proactive-ecmp' if 'fattree' in net_name else 'proactive'])
     else:
       modes = args.modes or (['reactive', 'proactive', 'proactive-ecmp'] if 'fattree' in net_name

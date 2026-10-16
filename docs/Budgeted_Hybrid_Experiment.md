@@ -23,6 +23,7 @@ The parameters, and the paper behind each, are in
 | `reactive-sp` | `hybrid_eval --budget=0`: reactive, but on the shortest path (it knows the topology) | one per TCP connection per switch | the 0% point of the sweep; separates "reactive" from "spanning tree" |
 | `hybrid-NN` | `hybrid_eval --budget=NN%`: reactive for everything, plus pair rules for the top NN% of host pairs chosen by a weighted counter | at most NN% of all host pairs × path length, plus the reactive rules | #7 |
 | `oracle-NN` | `hybrid_eval --pairs_file`: pre-installs the NN% of pairs that **really** carry the most flows in this run, before the first flow | as `hybrid-NN` | the best any predictor (counter, ML, anything) could do with the same budget |
+| `random-NN` | `hybrid_eval --pairs_file`: pre-installs a **random** NN% of host pairs (both directions of each chosen pair) before the first flow, with no knowledge of the traffic | as `hybrid-NN` | the baseline: how much of the gain comes from *choosing* the pairs well (add `--random-baseline` to the sweep, or `--modes random-10 random-25 random-50`) |
 | `proactive` / `proactive-ecmp` | `proactive_eval`: every pair pre-installed | all pairs | the other end |
 
 ### The weighted counter (`controllers/hybrid_eval.py`)
@@ -606,6 +607,7 @@ Conclusions so far (one run each; confidence intervals still to come):
 | D | All four scenarios with `--repeats 5` | Confidence intervals | **done**, Section 4.0 |
 | D2 | `--scenarios tree-d2-f4:university --pair-zipf 1 --modes hybrid-10 hybrid-25 --decay 0.9 --repeats 5` | Does a shorter memory help the counter at small budgets? | to do (one run so far: inconclusive) |
 | E | Any of the above with `--controller-host` (two PCs) | Point 9: does a separate controller PC change the result? | to do (needs a second laptop) |
+| G | `--modes random-10 random-25 random-50 --repeats 5` on the university (Zipf), fat-tree and Abilene scenarios | Random partial pre-installation: the baseline for the counter and the oracle | to do (tonight) |
 | F | `--scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1` | A larger network (45 switches, 54 hosts, 2,862 pairs): does the budget matter once proactive needs thousands of rules? | to do; first a smoke test (below) |
 
 **Run F: what the cloud test of 15 Oct showed.**
