@@ -109,7 +109,7 @@ None of these compared their idea, on the same testbed and traffic, against the 
 | University | Benson Fig. 4(a): 87% < 10 KB | Weibull gaps per edge switch, 80% within 4–40 ms | Benson et al., IMC 2010 |
 | Web search | `CDF_dctcp.tcl` (mean 1.67 MB) | Poisson, 30% load | DCTCP via pFabric / PIAS |
 | Data mining | `CDF_vl2.tcl` (mean 7.47 MB) | Poisson, 30% load | VL2 via pFabric / PIAS |
-| ISP | SURGE sizes (*parameters to verify*) | Real Abilene hourly traffic matrices, 1 Mar 2004 | Zhang et al., IMC 2005 |
+| ISP | SURGE file sizes (lognormal body μ = 9.357, σ = 1.318; Pareto tail k = 133 KB, α = 1.1, 7% of files in the tail; from the paper's Table 1 and Section 4) | Real Abilene hourly traffic matrices, 1 Mar 2004 | Zhang et al., IMC 2005 |
 | Pair popularity (Step 4) | – | Zipf with exponent 1 over host pairs, or uniform (control); real matrices for ISP | CacheFlow's Zipf assumption |
 
 ### 3.5 Fairness and statistics
@@ -215,7 +215,7 @@ Further findings:
 - **Emulation, not hardware:** Open vSwitch in software, so there is no TCAM limit and no hardware table-update rate.
 - **Controller:** POX is single-threaded, so absolute controller numbers are POX's, not a production controller's.
 - **Scale:** our networks are small (11–16 hosts; *TODO:* 54), so proactive's rules always fit.
-- **Traffic:** generated from published distributions, not replayed packets. The university size curve was read from a plot. The SURGE parameters are *to verify*. Pair popularity (Zipf) is an assumption, except for ISP.
+- **Traffic:** generated from published distributions, not replayed packets. The university size curve was read from a plot. SURGE models web files from the late 1990s (its parameters are checked against the paper). Pair popularity (Zipf) is an assumption, except for ISP.
 - **Machine state:** WSL2 timing noise, and the power mode differed between batches (Section 3.1).
 - **Counter design:** the counter scores "busy seconds", not flows. This understates what a counter can do at small budgets.
 

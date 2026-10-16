@@ -372,13 +372,13 @@ The full list of comparisons, each next to the closest paper and what that paper
 | By 5 Nov | **Two PCs (feedback point "multiple computers"):** POX on one laptop, Mininet on another; same runs, to measure real control-channel delay and a controller with its own CPU (tool ready: `docs/Controller_On_Second_PC.md`) |
 | 5–12 Nov | **The counter's weak spot:** a counter that counts flows instead of busy seconds, and a shorter memory (decay 0.9), at the 10% budget. **Optional:** an ML predictor (e.g. logistic regression) against the counter and the oracle at the same budget |
 | 5–12 Nov | **A larger network** (fat-tree k = 6: 54 hosts, 2,862 pairs, if the laptop can run it), where proactive's N² rules start to matter |
-| 12–20 Nov | Read the remaining full texts (PARD, the ML papers), check SURGE's parameters; final runs, final report and demo |
+| 12–20 Nov | Read the remaining full texts (PARD, the ML papers), final runs, final report and demo |
 
 **Risks.**
 - **POX near saturation:** POX is single-threaded and was at 86% CPU under university traffic, which also tells us where reactive breaks.
 - **WSL2 timing and power mode:** the Windows power mode changed absolute times by up to 2× (Section 6), so every batch now runs in "Best performance" and results are compared only within a batch. The counter at a 10% budget is the noisiest result (30.8 ± 10.2% hit rate).
 - **Small networks:** with 11–16 hosts proactive's rules always fit, so the rule budget is never forced. A larger network is planned; it may not fit on a laptop.
-- **One unverified parameter:** SURGE's numbers (ISP flow sizes) are still to be checked against the paper. The ISP traffic *volumes* are real data.
+- **SURGE is a 1998 web model:** all its parameters are now checked against the paper, but its file sizes stand in for 2004 backbone flows. The ISP traffic *volumes* are real data.
 - **Second PC:** depends on borrowing a laptop and on WSL2 mirrored networking (Windows 11).
 
 ---

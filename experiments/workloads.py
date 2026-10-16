@@ -60,7 +60,8 @@ UNIVERSITY_BYTES = [(60, 0.0), (100, 0.05), (300, 0.25), (500, 0.35), (1000, 0.4
 UNIV_GAP_WEIBULL = (1.34, 0.0215)   # shape, scale (s): P10 = 4 ms, P90 = 40 ms
 
 # SURGE file sizes (Barford & Crovella 1998): body lognormal(mu, sigma) in bytes,
-# tail Pareto(k, alpha) above k; fraction of the tail. TO CHECK against the paper.
+# tail Pareto(k, alpha) above k; fraction of the tail. mu, sigma, k, alpha: Table 1 of the paper;
+# p_tail: its Section 4, "93% of the files lie below the cutoff" (both checked 16 Oct 2026).
 SURGE = {'mu': 9.357, 'sigma': 1.318, 'k': 133000.0, 'alpha': 1.1, 'p_tail': 0.07}
 
 
