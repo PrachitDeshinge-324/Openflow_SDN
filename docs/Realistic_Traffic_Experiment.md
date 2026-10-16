@@ -191,7 +191,7 @@ python3 experiments/abilene_tm.py X02.gz --day 3      # another day; then --tm d
    - 73.4 ms on shortest paths;
    - 47.8 ms with proactive.
 
-   That is **about 44 ms from the paths and 26 ms from the controller**, so the estimate above had the two the wrong way round.
+   That is **about 44 ms from the paths and 26 ms from the controller**, so the estimate above had the two the wrong way round. The 5-run repeats (faster power mode) gave about 41 ms and 10 ms: the path part stayed, and the setup part shrank with the faster CPU.
 3. **Controller load and flow tables grow the same way as in the data centre.**
    - **Requests:** 59 new flows/s cause 624 PACKET_INs/s, about 10.6 per flow, at 44% CPU.
    - **Rules:** 7,176 against proactive's 386, which is **19 times more**.

@@ -25,12 +25,12 @@ Which is better, by how much, and when?
 | **Load balancing** (ECMP) as a third controller | In the fat-tree, ECMP carries **50% more traffic** than reactive (95 vs 64 Mbit/s) and leaves only 16% of links idle (reactive leaves 59%). |
 | **University traffic** (Benson et al., IMC 2010) | Small flows: **median 55.7 ms reactive vs 1.3 ms proactive (44×)**. The controller ran at **86% CPU** with 2,379 requests/s. |
 | **Data-centre traffic** (DCTCP web search, VL2 data mining) | Small flows are **8–10× faster with proactive ECMP**, and large flows **3–3.6× faster**. |
-| **Real ISP traffic** (Abilene traffic matrices, 2004) | Small flows: **median 120 vs 48 ms (2.5×)**. Measured split (Section 6): **44 ms from the spanning tree's detours, 26 ms from asking the controller**. |
-| **Budgeted hybrid** (new controller): a weighted counter keeps the busiest host pairs pre-installed, within a rule budget | With 25% of pairs pre-installed: **52–68% of new connections skip the controller**, 2.3–2.9× fewer controller requests and 2.0–2.5× fewer rules than reactive. The simple counter gets **within 6–12% of an oracle** that knows the future traffic (25–50% budgets). |
-| **Long timeouts** (60 s / 300 s; the SmartTime idea in its simplest form) | **No gain in 4 of 4 scenarios**, and 2.3–2.9× more rules. |
+| **Real ISP traffic** (Abilene traffic matrices, 2004) | Small flows: **median 120 vs 48 ms (2.5×)**. Measured split (Section 6, 5 runs): **about 41 ms from the spanning tree's detours, 10 ms from asking the controller**. |
+| **Budgeted hybrid** (new controller): a weighted counter keeps the busiest host pairs pre-installed, within a rule budget | With 25% of pairs pre-installed: **54–66% of new connections skip the controller**, 2.3–2.7× fewer controller requests and 2.0–2.4× fewer rules than reactive. The simple counter reaches **0.88–0.93 of an oracle** that knows the future traffic (25–50% budgets). |
+| **Long timeouts** (60 s / 300 s; the SmartTime idea in its simplest form) | **No gain in 4 of 4 scenarios** (slightly worse in one), and 2.2–3.0× more rules. |
 | Review I **reproduced on a second laptop** | Same patterns, identical rule counts. |
 
-**Every flow finished in every run (0 failures)**, and every controller got exactly the same traffic. Step 4 numbers are from one run per configuration; repeats with 95% confidence intervals are the next step (Section 9).
+**Every flow finished in every run (0 failures)**, and every controller got exactly the same traffic. Step 4 numbers are the mean of 5 runs with 95% confidence intervals; Sections 4 and 5 are single runs.
 
 ---
 
@@ -202,7 +202,7 @@ Flows completed: 6,102 university, 1,159 web search, 1,707 data mining and 1,761
 5. **ISP: reactive pays twice.**
    - Small flows are 2.5× slower (120 vs 48 ms).
    - Both reactive's longer paths and waiting for the controller add time. Our first estimate from the ping round trips of Experiment A was ~27 ms for the paths and ~40 ms for the controller.
-   - **Section 6 measures the split directly** by running reactive on shortest paths: **44 ms from the paths, 26 ms from the controller**. The estimate had the two the wrong way round, so we use the measured split from now on.
+   - **Section 6 measures the split directly** by running reactive on shortest paths: **about 41 ms from the paths and 10 ms from the controller** (5 runs, faster power mode; a first single run gave 44 / 26 ms). The estimate had the two the wrong way round, so we use the measured split from now on.
 
 ---
 
@@ -237,67 +237,73 @@ We ran the simplest version of each idea on our testbed, with the same traffic a
 - **Abilene:** the real traffic matrices give the popularity;
 - **a control run** uses uniform pairs.
 
-### Results (laptop, 15 Oct; one run each; `results/measured/traffic-20261015-204208/`, `-210056/`, `-211130/`, `-213728/`, `-215331/`)
+### Results (laptop, night of 15–16 Oct; every value = mean of 5 runs ± 95% confidence interval; `results/measured/traffic-20261015-225412/`, `-233914/`, `traffic-20261016-004215/`, `-012626/`)
 
-![Hit rate against rule budget, four scenarios](figures/step4_hit_rate.png)
+Every controller ran 5 times with seeds 7–11, so each run gets a new flow schedule from the same workload. "Median" is each run's small-flow median, averaged over the 5 runs.
 
-| Scenario | Controller | Hit rate | Small flows: median FCT (ms) | PACKET_IN/s | Controller CPU | Peak rules |
+![Hit rate against rule budget, four scenarios, mean of 5 runs](figures/step4_hit_rate.png)
+
+| Scenario | Controller | Hit rate % | Small flows: median FCT (ms) | PACKET_IN/s | Controller CPU % | Peak rules |
 | --- | --- | --- | --- | --- | --- | --- |
-| University tree | Reactive | - | 53.4 | 2,371 | 83.6% | 11,170 |
-| | Reactive, long timeouts | - | 59.1 | 2,327 | 83.6% | **32,644** |
-| | Reactive, shortest paths | 0% | 53.7 | 2,329 | 82.7% | 11,159 |
-| | Hybrid counter, 25% | 62.3% | 12.8 | 861 | 48.2% | 5,010 |
-| | Hybrid counter, 50% | 80.5% | 4.1 | 365 | 28.3% | 2,340 |
-| | Oracle, 25% / 50% | 70.6 / 85.7% | 7.4 / 3.0 | 572 / 274 | 39.7 / 22.0% | 3,287 / 1,987 |
-| | Proactive | 100% | 1.7 | 0 | 0.1% | 624 |
-| Fat-tree, web search | Reactive | - | 142.7 | 509 | 44.2% | 4,398 |
-| | Reactive, long timeouts | - | 141.5 | 468 | 41.2% | **10,912** |
-| | Reactive, shortest paths | 0% | 103.9 | 514 | 42.4% | 3,843 |
-| | Hybrid counter, 25% | 67.6% | 55.4 | 180 | 21.4% | 1,525 |
-| | Hybrid counter, 50% | 78.5% | 46.6 | 127 | 17.2% | 1,624 |
-| | Oracle, 25% / 50% | 74.7 / 88.8% | 50.3 / 37.4 | 132 / 60 | 15.5 / 7.7% | 1,214 / 972 |
-| | Proactive ECMP | 100% | 26.3 | 0 | 0.4% | 1,072 |
-| Abilene ISP | Reactive | - | 117.5 | 619 | 44.3% | 7,167 |
-| | Reactive, long timeouts | - | 116.6 | 603 | 43.4% | **16,440** |
-| | Reactive, shortest paths | 0% | 73.4 | 484 | 37.1% | 5,331 |
-| | Hybrid counter, 25% | 52.2% | 62.7 | 207 | 20.8% | 2,628 |
-| | Hybrid counter, 50% | 78.1% | 52.3 | 84 | 10.1% | 1,147 |
-| | Oracle, 25% / 50% | 59.1 / 83.2% | 60.5 / 50.1 | 172 / 64 | 16.1 / 6.4% | 2,386 / 1,115 |
-| | Proactive | 100% | 47.8 | 0 | 0.2% | 386 |
+| University tree | Reactive | - | 27.9 ± 2.4 | 2,553 ± 114 | 67.2 ± 1.9 | 10,965 ± 637 |
+| | Reactive, long timeouts | - | 29.6 ± 4.1 | 2,454 ± 106 | 64.8 ± 2.6 | **32,363 ± 2,018** |
+| | Reactive, shortest paths | 0 | 27.3 ± 3.9 | 2,549 ± 130 | 68.1 ± 3.1 | 10,983 ± 663 |
+| | Hybrid counter, 25% | 60.7 ± 5.5 | 8.4 ± 1.4 | 936 ± 209 | 35.4 ± 5.8 | 5,278 ± 1,205 |
+| | Hybrid counter, 50% | 78.9 ± 1.8 | 2.8 ± 1.0 | 448 ± 66 | 18.7 ± 2.4 | 2,938 ± 347 |
+| | Oracle, 25% / 50% | 68.2 / 84.7 | 5.0 / 1.7 | 658 / 324 | 25.6 / 12.9 | 3,586 / 2,012 |
+| | Proactive | 100 | 0.96 ± 0.21 | 0 | 0.1 | 624 |
+| Fat-tree, web search | Reactive | - | 110.8 ± 38.0 | 455 ± 42 | 25.6 ± 2.0 | 4,406 ± 569 |
+| | Reactive, long timeouts | - | 111.7 ± 36.1 | 450 ± 35 | 25.8 ± 1.0 | **10,643 ± 969** |
+| | Reactive, shortest paths | 0 | 59.3 ± 6.6 | 492 ± 55 | 25.8 ± 2.3 | 3,752 ± 428 |
+| | Hybrid counter, 25% | 65.8 ± 1.4 | 38.2 ± 5.1 | 180 ± 14 | 10.1 ± 0.5 | 1,569 ± 89 |
+| | Hybrid counter, 50% | 77.4 ± 1.8 | 35.0 ± 5.1 | 123 ± 15 | 7.4 ± 0.6 | 1,517 ± 84 |
+| | Oracle, 25% / 50% | 73.7 / 88.3 | 34.0 / 31.6 | 139 / 63 | 7.1 / 3.3 | 1,221 / 984 |
+| | Proactive ECMP | 100 | 28.6 ± 5.2 | 0 | 0.2 | 1,072 |
+| Abilene ISP | Reactive | - | 96.8 ± 6.8 | 604 ± 22 | 27.1 ± 0.7 | 7,339 ± 148 |
+| | Reactive, long timeouts | - | 97.3 ± 6.2 | 604 ± 16 | 27.3 ± 0.6 | **16,332 ± 427** |
+| | Reactive, shortest paths | 0 | 55.6 ± 2.0 | 447 ± 17 | 20.8 ± 0.8 | 5,321 ± 111 |
+| | Hybrid counter, 25% | 53.8 ± 2.3 | 50.0 ± 2.5 | 198 ± 19 | 10.7 ± 1.0 | 2,615 ± 245 |
+| | Hybrid counter, 50% | 77.2 ± 1.8 | 47.4 ± 1.9 | 92 ± 11 | 5.5 ± 0.5 | 1,328 ± 143 |
+| | Oracle, 25% / 50% | 59.2 / 83.0 | 49.4 / 47.2 | 169 / 67 | 9.0 / 3.8 | 2,418 / 1,141 |
+| | Proactive | 100 | 46.0 ± 1.5 | 0 | 0.1 | 386 |
 
-All runs: 6,088 university, 1,156 web search and 1,761 ISP flows, **0 failures**. The 10% budgets are in the figure and in the detailed document.
+Flows per run: 6,073 ± 41 (university), 1,121 ± 27 (web search) and 1,749 ± 43 (ISP). **0 failures**, except that reactive and reactive with long timeouts lost flows in one fat-tree seed (5 ± 15 per run on average). The 10% budgets and the oracle's intervals are in the figure and in `docs/Budgeted_Hybrid_Experiment.md`, Section 4.0.
 
-![Where reactive's extra time goes](figures/step4_cost_split.png)
+![Where reactive's extra time goes, mean of 5 runs](figures/step4_cost_split.png)
 
-**Two extra runs.**
-- **Control, uniform pairs** (university): the counter's hit rate is 9.7 / 24.5 / 47.7% at 10 / 25 / 50%, about the budget share itself. With no popular pairs there is nothing to learn.
-- **Warm-up, 120 s instead of 30 s** (university, 10%): the counter's hit rate rises from 24.5% to **38.1%**; the oracle stays at 51.5%. Half of the counter's gap at 10% was learning time; the other half is how it ranks pairs (below).
+**Extra runs.**
+- **Control, uniform pairs** (university, 5 runs): the counter's hit rate is 9.6 ± 0.2 / 24.5 ± 1.2 / 48.4 ± 0.2% at 10 / 25 / 50%, about the budget share itself. With no popular pairs there is nothing to learn.
+- **Warm-up, 120 s instead of 30 s** (university, 10%, one run): the counter's hit rate rose from 24.5% to 38.1%; the oracle stayed at 51.5%. Part of the counter's gap at 10% is learning time.
+- **Shorter memory, decay 0.9** (one run): 36.7% at 10%. That is inside the spread of the 0.97 repeats (30.8 ± 10.2%), so it is not evidence either way.
+
+**Power mode.** These repeats ran with Windows "Best performance"; the first single runs (in `docs/Budgeted_Hybrid_Experiment.md`) ran in "Balanced". All absolute times are lower here; every ranking holds.
 
 ### Findings
 
-1. **Long timeouts never help.**
-   - In all 4 scenarios: the same delay and the same controller load, with 2.3–2.9× the rules.
-   - Why: reactive rules are exact matches, and every new TCP connection has a new source port. A rule kept longer is never matched again.
-   - So "keep rules longer" does not help short-flow traffic unless the rules are coarser.
+1. **Long timeouts never help, and once they hurt.**
+   - In all 4 scenarios: the same or a worse delay, the same controller load, and 2.2–3.0× the rules.
+   - With uniform pairs the median is significantly slower: 25.7 ± 0.8 vs 23.6 ± 0.7 ms.
+   - Why: reactive rules are exact matches, and every new TCP connection has a new source port, so a rule kept longer is never matched again. "Keep rules longer" does not help short-flow traffic unless the rules are coarser.
 2. **Part of reactive's cost is the spanning tree, not the controller.** Running reactive on shortest paths separates the two (figure above):
-   - **University tree:** all 52 ms of the gap is setup. A tree has one path, so the spanning tree costs nothing.
-   - **Fat-tree:** 39 ms is the spanning tree's path, 78 ms is setup plus ECMP's better load balance.
-   - **Abilene:** **44 ms is path and only 26 ms is setup.** Section 5's "reactive vs proactive" gap mixed two effects; the larger one in the ISP is the path.
+   - **University tree:** essentially all of the gap (26 ms) is setup. A tree has one path, so the spanning tree costs nothing.
+   - **Fat-tree:** about 52 ms is the spanning tree's path, 31 ms is setup plus ECMP's better load balance. Reactive's own median varies a lot (110.8 ± 38.0 ms).
+   - **Abilene:** **41 ms is path, only 10 ms is setup.** 81% of reactive's extra delay on the ISP map comes from the detours.
+   - **A faster CPU shrinks only the setup part.** In the earlier Balanced-mode runs the setup parts were 52 / 78 / 26 ms; the path parts were about the same as now. A faster controller can hide setup cost, never path cost.
 3. **A small budget removes most of the setup cost when traffic is skewed.** With 25% of pairs pre-installed, compared with reactive on shortest paths:
-   - 52–68% of new connections skip the controller;
-   - 2.3–2.9× fewer PACKET_INs;
-   - 2.0–2.5× **fewer** rules, because one pair rule replaces the many per-connection rules.
+   - 54–66% of new connections skip the controller;
+   - 2.3–2.7× fewer PACKET_INs;
+   - 2.0–2.4× **fewer** rules, because one pair rule replaces the many per-connection rules.
 
-   On the university tree, the small-flow median drops 4.2× (53.7 → 12.8 ms) and controller CPU drops from 83% to 48%.
+   The small-flow median drops 3.3× on the university tree (27.3 → 8.4 ms) and 1.6× on the fat-tree. On Abilene it drops only 1.1×, because there the setup part is small.
 4. **The value of the budget comes from skew.**
    - **Uniform pairs:** a budget of B% buys about B% hit rate, the same as picking pairs at random.
-   - **Zipf pairs, or real Abilene traffic:** 25% of pairs buys 52–68%.
+   - **Zipf pairs, or real Abilene traffic:** 25% of pairs buys 54–66%.
    - **Real ISP traffic is skewed on its own:** the busiest 10% of city pairs carry a third of the flows. That is measured, not assumed.
 5. **The simple counter is close to a perfect predictor.**
-   - At 25–50% budgets it reaches **0.88–0.94 of the oracle's hit rate** in every skewed scenario. So ML could add at most 5–10 points of hit rate there.
-   - **Weak spot:** a small budget (10%) with many flows per pair (university): 0.47 of the oracle in 30 s, 0.74 in 120 s.
+   - At 25–50% budgets it reaches **0.88–0.93 of the oracle's hit rate** in every skewed scenario. So ML could add at most 5–11 points of hit rate there.
+   - **Weak spot:** a small budget (10%) on university traffic: 0.62 of the oracle, and the noisiest result (30.8 ± 10.2%).
    - **The cause is our design:** the counter scores a pair 0 or 1 per second, so pairs with 1.4 and 0.8 flows/s look alike. Counting flows instead is the obvious fix.
-6. **On our small networks, proactive is still the best choice.** It is the fastest, has no controller load, and uses the fewest rules (or nearly). A rule budget only matters when all pairs do not fit in the switches, which happens in large networks, not in 11–16-host ones. **We do not claim the hybrid beats proactive here.**
+6. **On our small networks, proactive is still the best choice.** It is the fastest, has no controller load, and uses the fewest rules on the tree and on Abilene. A rule budget only matters when all pairs do not fit in the switches, which happens in large networks, not in 11–16-host ones. **We do not claim the hybrid beats proactive here.**
 
 ---
 
@@ -312,9 +318,9 @@ All runs: 6,088 university, 1,156 web search and 1,761 ISP flows, **0 failures**
 | Controller capacity | NOX ≈ 30k flows/s, NOX-MT 1.6M/s (Tootoonchian 2012) | POX: 2,379 PACKET_IN/s at 86% CPU, near its limit |
 | Flow sizes in campus / enterprise data centres | 80% of flows < 10 KB (Benson 2010) | Our generator: 87% < 10 KB (uses Benson's curve) |
 | ECMP leaves throughput on the table | Hash collisions limit ECMP (Al-Fares 2008, Hedera 2010) | ECMP reached 95 of 160 Mbit/s (60%), with the busiest links at 100% |
-| Small rule budget serves most traffic | 90% hits with < 5% of rules (CacheFlow 2016) | Same direction, smaller effect: 52–68% hits with 25% of host pairs, 24–52% with 10% (Section 6). Our networks have only 110–240 pairs, and our hit rate counts connections, not packets |
-| Timeouts cut controller load | −58% cost (SmartTime 2014); −28% setups (AH-IHTA 2020) | **Not for short-flow traffic with exact-match rules:** 60 s / 300 s timeouts gave no fewer controller requests and 2.3–2.9× more rules (Section 6) |
-| ML predictors beat reactive | LSTM pre-install: −51% response time vs reactive (Batista 2024, IoT) | Beating reactive is easy: a plain counter cut controller requests 2.3–2.9×. The useful bound is the oracle: at 25–50% budgets the counter is within 6–12% of it, so ML could add at most 5–10 points of hit rate |
+| Small rule budget serves most traffic | 90% hits with < 5% of rules (CacheFlow 2016) | Same direction, smaller effect: 54–66% hits with 25% of host pairs, 27–51% with 10% (Section 6). Our networks have only 110–240 pairs, and our hit rate counts connections, not packets |
+| Timeouts cut controller load | −58% cost (SmartTime 2014); −28% setups (AH-IHTA 2020) | **Not for short-flow traffic with exact-match rules:** 60 s / 300 s timeouts gave no fewer controller requests and 2.2–3.0× more rules (Section 6) |
+| ML predictors beat reactive | LSTM pre-install: −51% response time vs reactive (Batista 2024, IoT) | Beating reactive is easy: a plain counter cut controller requests 2.3–2.7×. The useful bound is the oracle: at 25–50% budgets the counter reaches 0.88–0.93 of it, so ML could add at most 5–11 points of hit rate |
 
 Numbers from different papers are not directly comparable (different hardware, controllers and years). **The ranges and trends agree.**
 
@@ -344,7 +350,7 @@ The full list of comparisons, each next to the closest paper and what that paper
 | Heavy load (data centre) | Path choice and load balance | **Proactive ECMP**: 8–10× faster small flows, 3× faster large flows |
 | Wide-area network (ISP) | Both: longer paths **and** controller set-up | **Proactive**: 2.5× faster small flows |
 | Every pair active, no churn (Review I) | Nothing: same number of rules | Tie |
-| Skewed traffic, limited rule space (Section 6) | Which pairs get the scarce rules | **Budgeted hybrid**: 25% of pairs removes 52–68% of controller trips with fewer rules than reactive; a simple counter is close to the best possible choice |
+| Skewed traffic, limited rule space (Section 6) | Which pairs get the scarce rules | **Budgeted hybrid**: 25% of pairs removes 54–66% of controller trips with fewer rules than reactive; a simple counter is close to the best possible choice |
 | Uniform traffic (Section 6, control) | Nothing to learn | A budget buys only its own share |
 
 **Reactive loses on both counts.** It pays a set-up cost for every new flow, and on networks with loops its paths are chosen by flooding, not by quality. Section 6 shows how much of each: on the ISP map the path costs more than the setup. Proactive's weak point is that it installs a rule for **every** pair, whether used or not; on larger networks this grows as N².
@@ -361,7 +367,8 @@ The full list of comparisons, each next to the closest paper and what that paper
 
 | When | Work |
 | --- | --- |
-| By 2 Nov | **Repeats:** every Step 4 scenario 5× with different seeds, reported as mean ± 95% confidence interval (`--repeats 5`, already implemented; overnight runs) |
+| Done (16 Oct) | **Repeats:** every Step 4 scenario 5× with different seeds, reported as mean ± 95% confidence interval (Section 6) |
+| By 2 Nov | **Same rigour for Step 2:** re-run the realistic-traffic scenarios with `--repeats 5` in the same power mode, so all realistic-traffic numbers come from one setup |
 | By 5 Nov | **Two PCs (feedback point "multiple computers"):** POX on one laptop, Mininet on another; same runs, to measure real control-channel delay and a controller with its own CPU (tool ready: `docs/Controller_On_Second_PC.md`) |
 | 5–12 Nov | **The counter's weak spot:** a counter that counts flows instead of busy seconds, and a shorter memory (decay 0.9), at the 10% budget. **Optional:** an ML predictor (e.g. logistic regression) against the counter and the oracle at the same budget |
 | 5–12 Nov | **A larger network** (fat-tree k = 6: 54 hosts, 2,862 pairs, if the laptop can run it), where proactive's N² rules start to matter |
@@ -369,7 +376,7 @@ The full list of comparisons, each next to the closest paper and what that paper
 
 **Risks.**
 - **POX near saturation:** POX is single-threaded and was at 86% CPU under university traffic, which also tells us where reactive breaks.
-- **WSL2 timing noise:** repeats and a second laptop are used to control it. The counter is the noisiest result: its 10% hit rate was 24.5% on the laptop and 35.7% on a cloud test with the same traffic.
+- **WSL2 timing and power mode:** the Windows power mode changed absolute times by up to 2× (Section 6), so every batch now runs in "Best performance" and results are compared only within a batch. The counter at a 10% budget is the noisiest result (30.8 ± 10.2% hit rate).
 - **Small networks:** with 11–16 hosts proactive's rules always fit, so the rule budget is never forced. A larger network is planned; it may not fit on a laptop.
 - **One unverified parameter:** SURGE's numbers (ISP flow sizes) are still to be checked against the paper. The ISP traffic *volumes* are real data.
 - **Second PC:** depends on borrowing a laptop and on WSL2 mirrored networking (Windows 11).

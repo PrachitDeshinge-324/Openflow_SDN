@@ -8,9 +8,10 @@
 > **Status of this draft (15 Oct 2026).** This is the structure of the final report.
 > - **Sections that will not change** are written: introduction, related work, testbed and method, and the Review I and Step 1 results.
 > - **`TODO (data)`** marks a place that waits for a measurement still to run:
->   - the Step 4 repeats with confidence intervals;
 >   - the two-PC run;
->   - the larger fat-tree.
+>   - the larger fat-tree;
+>   - Step 2 with repeats.
+> - **Step 4 now uses the repeat means (16 Oct).**
 > - **Numbers marked *(single run)*** are from one run and will be replaced by the repeat means.
 
 ---
@@ -28,8 +29,8 @@ We compare them **side by side on one testbed** (Mininet, Open vSwitch, POX):
 **What we find:**
 1. **Reactive pays twice.** Its small flows are 2.5–44× slower than proactive's, because of the setup delay and, on networks with loops, the spanning tree's detours. On Abilene the detours cost more than the setup.
 2. **Long timeouts give no benefit** for short-flow traffic.
-3. **A budgeted hybrid helps when traffic is skewed.** Pre-installing the busiest 25% of host pairs, chosen by a simple counter, removes 52–68% of controller trips with fewer rules than reactive.
-4. **A perfect predictor would add only 5–10 percentage points** of hit rate at those budgets. This bounds what ML prediction could gain on this traffic.
+3. **A budgeted hybrid helps when traffic is skewed.** Pre-installing the busiest 25% of host pairs, chosen by a simple counter, removes 54–66% of controller trips, with 2.0–2.4× fewer rules than reactive.
+4. **A perfect predictor would add only 5–11 percentage points** of hit rate at those budgets. This bounds what ML prediction could gain on this traffic.
 
 ---
 
@@ -113,7 +114,7 @@ None of these compared their idea, on the same testbed and traffic, against the 
 
 ### 3.5 Fairness and statistics
 - **Identical flows:** the flow schedule is computed in advance from a seed, so every controller gets exactly the same flows (start time, source, destination, size).
-- **Repeats:** 5 seeds per configuration; mean ± half-width of the 95% confidence interval (Student's t, 4 degrees of freedom). *TODO (data):* apply this to Steps 2 and 4.
+- **Repeats:** 5 seeds per configuration; mean ± half-width of the 95% confidence interval (Student's t, 4 degrees of freedom). Done for Step 4. *TODO (data):* Step 2.
 - **Measured, not modelled:**
   - paths are read from the switches' flow tables;
   - controller load comes from counters inside our controllers;
@@ -155,16 +156,31 @@ Further findings:
 - **Amplification:** 7.4 to 12 requests per flow as the controller's load rises.
 
 ### 4.4 Between reactive and proactive (Step 4)
-*Source: `docs/Budgeted_Hybrid_Experiment.md`.* **TODO (data): replace with the repeat means ± 95% CI from the overnight runs.**
+*Source: `docs/Budgeted_Hybrid_Experiment.md`, Section 4.0. Every value is the mean of 5 runs (seeds 7–11) ± 95% CI, in "Best performance" mode. Full tables are in Section 6 of `docs/Progress_Review_2.md`; copy and condense them here.*
 
-Findings from the single runs, to confirm with the repeats:
-1. **Long timeouts:** no gain in 4 of 4 scenarios, with 2.3–2.9× the rules.
-2. **Path vs setup split** (reactive's extra small-flow median over proactive): university 0 / 52 ms, fat-tree 39 / 78 ms, Abilene 44 / 26 ms.
-3. **Budget of 25% of pairs:** 52–68% hit rate, 2.3–2.9× fewer PACKET_INs, 2.0–2.5× fewer rules than reactive. Uniform pairs: the budget share only.
-4. **Counter vs oracle:** 0.88–0.94 at 25–50% budgets; 0.47–0.90 at 10%.
-5. **Counter decay 0.9 vs 0.97 at small budgets:** *TODO (data).*
+1. **Long timeouts:**
+   - no gain in 4 of 4 scenarios, with 2.2–3.0× the rules;
+   - with uniform pairs, significantly slower (25.7 ± 0.8 vs 23.6 ± 0.7 ms).
+2. **Path vs setup split** (reactive's extra small-flow median over proactive):
 
-*Figures: `docs/figures/step4_hit_rate.png`, `docs/figures/step4_cost_split.png` (regenerate from the repeat means).*
+   | Scenario | Path | Setup |
+   | --- | --- | --- |
+   | University tree | 0.6 ms | 26 ms |
+   | Fat-tree | 52 ms (wide interval) | 31 ms |
+   | Abilene | **41 ms** | **10 ms** |
+
+   Against the Balanced-mode single runs, a faster CPU shrank only the setup part.
+3. **Budget of 25% of pairs**, compared with reactive on shortest paths:
+   - 54–66% hit rate;
+   - 2.3–2.7× fewer PACKET_INs;
+   - 2.0–2.4× fewer rules;
+   - small-flow median 3.3× lower (university), 1.6× (fat-tree) and 1.1× (Abilene).
+
+   With uniform pairs, a budget buys only its own share.
+4. **Counter vs oracle:** 0.88–0.93 at 25–50% budgets, 0.62–0.91 at 10%. The university 10% point is the noisiest (30.8 ± 10.2%).
+5. **Counter decay 0.9 vs 0.97:** one run, inconclusive. *TODO (data):* `--decay 0.9 --repeats 5`.
+
+*Figures: `docs/figures/step4_hit_rate.png` and `docs/figures/step4_cost_split.png` (both from the repeat means).*
 
 ### 4.5 Controller on a separate machine
 **TODO (data).** The question: does a real network between switches and controller, and a controller with its own CPU, change reactive's cost? Tool: `experiments/controller_agent.py` + `--controller-host`.
@@ -188,7 +204,7 @@ Findings from the single runs, to confirm with the repeats:
 | Short flows | New 5-tuples every time | Long timeouts do not help |
 
 ### 5.2 What this means for ML-based rule prediction
-- **What the oracle shows:** a perfect predictor of which host pairs will be busy would add only 5–10 percentage points of hit rate over a simple counter at 25–50% budgets on our traffic.
+- **What the oracle shows:** a perfect predictor of which host pairs will be busy would add only 5–11 percentage points of hit rate over a simple counter at 25–50% budgets on our traffic.
 - **Where ML could add more:**
   - small budgets with many flows per pair;
   - traffic where flows on one pair predict flows on *other* pairs (microservice call chains), at a scale where most pairs are idle.

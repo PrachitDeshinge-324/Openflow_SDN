@@ -185,7 +185,7 @@ The Review I experiment (`run_experiments.py --quick`) was re-run after these ch
 - **"Isn't this unfair to reactive?"**
   - This is how a plain reactive learning switch behaves on a network with loops; the spanning tree is required to stop broadcast storms.
   - A reactive controller can route on shortest paths if it is given the map (POX `l2_multi`), but then it still pays the first-packet delay measured in Review I.
-  - Step 4 measured exactly this. Our `hybrid_eval` with budget 0 is reactive on shortest paths. Under real traffic, the spanning tree cost reactive 39 ms (fat-tree) and 44 ms (Abilene) of small-flow median, on top of the setup cost (`docs/Budgeted_Hybrid_Experiment.md`).
+  - Step 4 measured exactly this. Our `hybrid_eval` with budget 0 is reactive on shortest paths. Under real traffic, the spanning tree cost reactive about 52 ms (fat-tree) and 41 ms (Abilene) of small-flow median, on top of the setup cost (mean of 5 runs) (`docs/Budgeted_Hybrid_Experiment.md`).
 - **"Why 10 Mbit/s links?"** So the links are the bottleneck, not the laptop's CPU. Every run had its busiest link at 100%, so the results depend on path choice only.
 - **"Why doesn't ECMP reach the ideal 160 Mbit/s?"** Hash collisions: two flows land on the same link. Hedera (NSDI 2010) fixes this by moving large flows.
 - **"Why straight-line delays?"** Topology Zoo gives city coordinates, not cable routes. Real routes are longer, so our delays and the reactive penalty are conservative.

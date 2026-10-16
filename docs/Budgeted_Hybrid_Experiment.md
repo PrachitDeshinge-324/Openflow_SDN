@@ -201,7 +201,122 @@ intervals (`--repeats 5`).
 
 ## 4. Laptop results
 
-Setup:
+### 4.0 Final numbers: 5 repeats with 95% confidence intervals (night of 15–16 Oct)
+
+**These are the numbers to quote.** Sections 4.1–4.7 below are the first single runs, kept as a record.
+
+**How the repeats ran:**
+- **Seeds:** every controller ran 5 times, with seeds 7–11, so each run gets a new flow schedule from the same workload.
+- **Values:** each value is the mean ± the half-width of the 95% confidence interval (Student's t, 4 degrees of freedom).
+- **"Median" column:** each run's small-flow median, averaged over the 5 runs.
+- **Power mode:** Windows "Best performance"; the single runs were in "Balanced" (see the note at the end of this section).
+- **Raw data:**
+  - university, Zipf: `results/measured/traffic-20261015-225412/`
+  - fat-tree, web search: `traffic-20261015-233914/`
+  - Abilene: `traffic-20261016-004215/`
+  - university, uniform: `traffic-20261016-012626/`
+  - decay test: `traffic-20261016-021112/`
+
+![Hit rate against rule budget, mean of 5 runs](figures/step4_hit_rate.png)
+
+**University tree, Zipf pairs** (6,073 ± 41 flows per run, 0 failed):
+
+| Controller | Hit rate % | Small-flow median (ms) | PACKET_IN/s | CPU % | Peak rules |
+| --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 27.9 ± 2.4 | 2,553 ± 114 | 67.2 ± 1.9 | 10,965 ± 637 |
+| Reactive, long timeouts | - | 29.6 ± 4.1 | 2,454 ± 106 | 64.8 ± 2.6 | **32,363 ± 2,018** |
+| Reactive, shortest paths (0%) | 0 | 27.3 ± 3.9 | 2,549 ± 130 | 68.1 ± 3.1 | 10,983 ± 663 |
+| Counter 10% | 30.8 ± 10.2 | 17.7 ± 2.9 | 1,819 ± 196 | 55.9 ± 3.4 | 8,005 ± 872 |
+| Counter 25% | 60.7 ± 5.5 | 8.4 ± 1.4 | 936 ± 209 | 35.4 ± 5.8 | 5,278 ± 1,205 |
+| Counter 50% | 78.9 ± 1.8 | 2.8 ± 1.0 | 448 ± 66 | 18.7 ± 2.4 | 2,938 ± 347 |
+| Oracle 10% | 49.3 ± 6.0 | 11.1 ± 1.3 | 1,145 ± 188 | 41.6 ± 3.8 | 5,621 ± 704 |
+| Oracle 25% | 68.2 ± 4.3 | 5.0 ± 0.6 | 658 ± 118 | 25.6 ± 3.1 | 3,586 ± 555 |
+| Oracle 50% | 84.7 ± 2.1 | 1.7 ± 0.7 | 324 ± 53 | 12.9 ± 1.5 | 2,012 ± 262 |
+| Proactive | 100 | 0.96 ± 0.21 | 0 | 0.1 | 624 |
+
+**Fat-tree, web search, Zipf pairs** (1,121 ± 27 flows per run; reactive and reactive with long timeouts lost 5 ± 15, all in one seed; all others 0):
+
+| Controller | Hit rate % | Small-flow median (ms) | Large flows, mean (s) | PACKET_IN/s | CPU % | Peak rules |
+| --- | --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 110.8 ± 38.0 | 16.1 ± 7.5 | 455 ± 42 | 25.6 ± 2.0 | 4,406 ± 569 |
+| Reactive, long timeouts | - | 111.7 ± 36.1 | 16.1 ± 7.0 | 450 ± 35 | 25.8 ± 1.0 | **10,643 ± 969** |
+| Reactive, shortest paths (0%) | 0 | 59.3 ± 6.6 | 9.3 ± 4.8 | 492 ± 55 | 25.8 ± 2.3 | 3,752 ± 428 |
+| Counter 10% | 51.1 ± 1.6 | 42.8 ± 6.0 | 9.3 ± 4.4 | 259 ± 26 | 13.8 ± 0.6 | 1,901 ± 104 |
+| Counter 25% | 65.8 ± 1.4 | 38.2 ± 5.1 | 9.4 ± 4.7 | 180 ± 14 | 10.1 ± 0.5 | 1,569 ± 89 |
+| Counter 50% | 77.4 ± 1.8 | 35.0 ± 5.1 | 9.2 ± 4.8 | 123 ± 15 | 7.4 ± 0.6 | 1,517 ± 84 |
+| Oracle 10% | 56.2 ± 1.3 | 38.8 ± 5.2 | 9.5 ± 4.5 | 231 ± 19 | 11.8 ± 0.5 | 1,714 ± 182 |
+| Oracle 25% | 73.7 ± 1.2 | 34.0 ± 5.2 | 9.4 ± 4.7 | 139 ± 11 | 7.1 ± 0.3 | 1,221 ± 86 |
+| Oracle 50% | 88.3 ± 0.7 | 31.6 ± 5.3 | 9.0 ± 5.0 | 63 ± 5 | 3.3 ± 0.2 | 984 ± 57 |
+| Proactive ECMP | 100 | 28.6 ± 5.2 | 9.3 ± 4.9 | 0 | 0.2 | 1,072 |
+
+**Abilene ISP, real traffic matrices** (1,749 ± 43 flows per run, 0 failed):
+
+| Controller | Hit rate % | Small-flow median (ms) | PACKET_IN/s | CPU % | Peak rules |
+| --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 96.8 ± 6.8 | 604 ± 22 | 27.1 ± 0.7 | 7,339 ± 148 |
+| Reactive, long timeouts | - | 97.3 ± 6.2 | 604 ± 16 | 27.3 ± 0.6 | **16,332 ± 427** |
+| Reactive, shortest paths (0%) | 0 | 55.6 ± 2.0 | 447 ± 17 | 20.8 ± 0.8 | 5,321 ± 111 |
+| Counter 10% | 26.6 ± 2.3 | 53.3 ± 2.2 | 334 ± 26 | 16.6 ± 1.2 | 4,103 ± 357 |
+| Counter 25% | 53.8 ± 2.3 | 50.0 ± 2.5 | 198 ± 19 | 10.7 ± 1.0 | 2,615 ± 245 |
+| Counter 50% | 77.2 ± 1.8 | 47.4 ± 1.9 | 92 ± 11 | 5.5 ± 0.5 | 1,328 ± 143 |
+| Oracle 10% | 33.1 ± 1.0 | 52.7 ± 2.4 | 287 ± 9 | 14.6 ± 0.3 | 3,778 ± 73 |
+| Oracle 25% | 59.2 ± 0.8 | 49.4 ± 2.5 | 169 ± 9 | 9.0 ± 0.5 | 2,418 ± 168 |
+| Oracle 50% | 83.0 ± 1.0 | 47.2 ± 1.4 | 67 ± 5 | 3.8 ± 0.3 | 1,141 ± 129 |
+| Proactive | 100 | 46.0 ± 1.5 | 0 | 0.1 | 386 |
+
+**University tree, uniform pairs (control)** (6,093 ± 101 flows per run, 0 failed):
+- **Counter:** 9.6 ± 0.2 / 24.5 ± 1.2 / 48.4 ± 0.2% hit rate at 10 / 25 / 50%.
+- **Oracle:** 12.5 ± 0.2 / 29.4 ± 0.5 / 55.4 ± 0.6%.
+- **Long timeouts:** small-flow median 25.7 ± 0.8 ms against reactive's 23.6 ± 0.7 ms, and 31,644 rules against 10,836.
+
+![Where reactive's extra time goes, mean of 5 runs](figures/step4_cost_split.png)
+
+### What the repeats say
+
+1. **Long timeouts never help, and once they hurt.**
+   - In all 4 scenarios the delay is the same or worse, with 2.2–3.0× the rules.
+   - With uniform pairs the long-timeout median is **significantly slower** (25.7 ± 0.8 vs 23.6 ± 0.7 ms; the intervals do not overlap). The likely cause is Open vSwitch working through 3× bigger tables.
+2. **Path vs setup: a faster controller shrinks only the setup part.** Reactive's extra small-flow median over proactive:
+
+   | Scenario | Path (spanning tree) | Setup (controller) |
+   | --- | --- | --- |
+   | University tree | 0.6 ms (within noise) | 26.3 ms |
+   | Fat-tree | 51.5 ms (wide interval: reactive's median is 110.8 ± 38.0) | 30.7 ms (includes ECMP's balance) |
+   | Abilene | **41.2 ms** | **9.7 ms** |
+
+   Compare the single runs in Balanced power mode (Section 4.7): setup was 52 / 78 / 26 ms, path 0 / 39 / 44 ms. The CPU change cut the setup part by half or more and left the path part the same. **A faster controller hides setup cost, never path cost.** On Abilene, 81% of reactive's extra delay is the path.
+3. **A 25% budget, compared with reactive on shortest paths:**
+   - **hit rate:** 54–66%;
+   - **controller trips:** 2.3–2.7× fewer PACKET_INs;
+   - **rules:** 2.0–2.4× fewer;
+   - **small-flow median:** 3.3× lower on the university tree (27.3 → 8.4 ms), 1.6× on the fat-tree (59.3 → 38.2), and 1.1× on Abilene (55.6 → 50.0), where the setup part is small.
+4. **Counter ÷ oracle hit rate:**
+
+   | Scenario | 10% | 25% | 50% |
+   | --- | --- | --- | --- |
+   | University, Zipf | 0.62 | 0.89 | 0.93 |
+   | Fat-tree, web search | 0.91 | 0.89 | 0.88 |
+   | Abilene | 0.80 | 0.91 | 0.93 |
+
+   - **At 25–50%:** 0.88–0.93 everywhere; a perfect predictor would add 5–11 points of hit rate.
+   - **At 10% on university traffic:** the counter is both weaker (0.62) and the noisiest result (30.8 ± 10.2%).
+5. **With uniform pairs a budget buys only its own share.** This confirms the single run: the gain comes from skew.
+6. **Proactive is still best on these networks**, with the fewest rules on the tree and on Abilene. On the fat-tree, the oracle at 50% (984) uses slightly fewer rules than proactive ECMP (1,072), but the counter never does.
+
+**Decay 0.9 instead of 0.97** (one run, seed 7, `traffic-20261016-021112`):
+- the counter's hit rate was 36.7% at 10% and 63.8% at 25%, against the oracle's 51.6 / 70.6%;
+- with decay 0.97, the 5-run means are 30.8 ± 10.2 / 60.7 ± 5.5%;
+- one run sits inside that spread, so **this is not evidence either way**. Deciding it needs `--decay 0.9 --repeats 5`, about 40 minutes.
+
+**Note on the power mode.** The single runs (Sections 4.1–4.7) were in Balanced mode, the repeats in Best performance:
+- **what changed:** absolute times; reactive's median on the university tree went from 53 to 28 ms;
+- **what held:** every ranking and every ratio within roughly the confidence intervals.
+
+Never compare a single-run number with a repeat number directly.
+
+### 4.1–4.7: the first single runs (15 Oct, Balanced power mode)
+
+Setup of these runs:
 
 - **Machine:** Mrudul's laptop: WSL2, Open vSwitch 3.7.1 with the kernel
   datapath, Python 3.14.
@@ -488,7 +603,8 @@ Conclusions so far (one run each; confidence intervals still to come):
 | B | `--scenarios tree-d2-f4:university --pair-zipf 1 --duration 120 --modes reactive-sp hybrid-10 oracle-10` | Is the counter's 10% gap warm-up (it closes in 120 s) or ranking (it stays)? | **done**, Section 4.4: half and half |
 | C1 | `--scenarios fattree-k4:websearch --budget-sweep --pair-zipf 1` | Data centre: fewer, bigger flows, many paths (ECMP) | **done**, Section 4.5 |
 | C2 | `--scenarios abilene:isp --budget-sweep` | ISP: real traffic matrices, which are skewed on their own | **done**, Section 4.6 |
-| D | Section 4.1 again with `--repeats 5` (about 2 h) | Confidence intervals for the main table | to do |
+| D | All four scenarios with `--repeats 5` | Confidence intervals | **done**, Section 4.0 |
+| D2 | `--scenarios tree-d2-f4:university --pair-zipf 1 --modes hybrid-10 hybrid-25 --decay 0.9 --repeats 5` | Does a shorter memory help the counter at small budgets? | to do (one run so far: inconclusive) |
 | E | Any of the above with `--controller-host` (two PCs) | Point 9: does a separate controller PC change the result? | to do (needs a second laptop) |
 | F | `--scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1` | A larger network (45 switches, 54 hosts, 2,862 pairs): does the budget matter once proactive needs thousands of rules? | to do; first a smoke test (below) |
 
