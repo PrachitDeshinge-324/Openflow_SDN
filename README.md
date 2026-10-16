@@ -33,6 +33,7 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `docs/Budgeted_Hybrid_Experiment.md` | Step 4: long timeouts, budgeted hybrid vs oracle, repeats with confidence intervals |
 | `docs/Evaluation_Plan.md` | Every comparison we make, next to the closest paper and what that paper misses, with status and results |
 | `docs/literature/` | Literature review (14 papers, PDFs in `papers/`) and the survey of 28 prediction/ML rule papers |
+| `docs/Test_Catalogue.md` | Every test in one place: question, setup, closest paper (what it found and missed), what we add, results, limits, raw data |
 | `docs/Viva_Guide.md` | How to explain the project: where each answer lives, the numbers to know, a presentation split, likely questions |
 | `docs/Final_Report.md` | Final report (20 Nov): structure and finished sections, with `TODO (data)` where measurements are still to come |
 | `docs/figures/` | Summary figures for the reports, and the script that makes them from the measured tables |

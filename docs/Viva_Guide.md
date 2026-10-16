@@ -33,7 +33,7 @@ Published papers propose many things in between, but each was tested on its own 
 2. **Long timeouts do not help** short-flow traffic. New TCP connections never reuse an exact-match rule, so the switch tables just grow 2–3×.
 3. **Pre-installing the busiest 25% of host pairs works.** A simple counter picks the pairs, and 54–66% of new connections then skip the controller, with 2–2.4× fewer rules than reactive.
 4. **A perfect predictor (the oracle) would add only 5–11 percentage points** at those budgets. So ML prediction has little room on this traffic.
-5. **On our small networks, proactive is still best.** On a larger fat-tree (54 hosts) it needs 13,230 rules against reactive's 2,058, and that is where a budget starts to matter.
+5. **On our small networks, proactive is still best.** On a larger fat-tree (54 hosts) it needs 13,230 rules in total against reactive's 2,058. Per switch that still fits a hardware table; at a few hundred hosts it stops fitting, and then a budget is needed.
 
 **What we do not claim:**
 - the hybrid is not a new algorithm: it is close to CacheFlow and PARD;
@@ -56,7 +56,8 @@ Published papers propose many things in between, but each was tested on its own 
 | "What is your hybrid? How does the counter work?" | `docs/Budgeted_Hybrid_Experiment.md` | 1. The controllers compared; "The weighted counter" (with a worked example) |
 | "What is the oracle?" | `docs/Budgeted_Hybrid_Experiment.md` | 1. "The oracle: a controller that knows the future" |
 | "Show the hybrid results with error bars" | `docs/Budgeted_Hybrid_Experiment.md` (4.0) or Review II Section 6 | figures `docs/figures/step4_hit_rate.png` and `step4_cost_split.png` |
-| "How do you compare with previous papers?" | `docs/Evaluation_Plan.md` | 1. Comparisons (closest paper, what it gives, what it misses, what we add) |
+| "Walk us through one test: what, closest paper, what it missed, your result" | `docs/Test_Catalogue.md` | one section per test (T1–T12), always in the same order |
+| "How do you compare with previous papers?" | `docs/Test_Catalogue.md` (per test) or `docs/Evaluation_Plan.md` (one table) | |
 | "Did you read the literature?" | `docs/literature/Literature_Review_IdleHybrid.md` (14 papers, page refs) and `ML_Rule_Prediction_Survey.md` (28 papers) | PDFs in `docs/literature/papers/` |
 | "Why not ML?" | `docs/literature/ML_Rule_Prediction_Survey.md` | D. What this means for our project; and the oracle results |
 | "Multiple PCs?" | `docs/Controller_On_Second_PC.md` | status line at the top, then 1–3 |
@@ -166,7 +167,7 @@ Every member presents one part and must answer its questions. Swap parts if you 
   - The oracle shows that at 25–50% budgets a perfect predictor adds only 5–11 points over a simple counter on our traffic.
   - ML could matter for traffic where one flow predicts flows on *other* pairs (microservice call chains), but only at a scale where most pairs are idle, which needs hundreds of hosts.
   - See `docs/literature/ML_Rule_Prediction_Survey.md`, section D.
-- **Proactive wins on your networks, so why a hybrid?** Proactive needs a rule for every pair: O(N²). On 16 hosts that is only 624 rules. On the 54-host fat-tree it is already 13,230, against 2,058 for reactive. Real switches hold thousands to tens of thousands of rules. The budget is the middle ground for large networks.
+- **Proactive wins on your networks, so why a hybrid?** Proactive needs a rule for every pair: O(N²). On 16 hosts that is only 624 rules. On the 54-host fat-tree it is already 13,230 in total, against 2,058 for reactive; the busiest switch holds 312. DevoFlow's real switch holds 1,500 wildcard rules [p.4]. An edge switch of a fat-tree needs about k × N pair rules, which passes 1,500 at about 250 hosts. The budget is the middle ground for networks of that size and larger.
 - **Why do the numbers differ between the single runs and the repeats?** The single runs were in Windows "Balanced" power mode, the repeats in "Best performance". Absolute times about halved; every ranking held. We compare numbers only within one batch.
 - **How are the confidence intervals computed?** 5 runs with different seeds; mean ± t(0.975, 4) × standard deviation / √5, with t = 2.776 (`experiments/repeats.py`).
 - **What is the amplification effect?** Under load, one new flow causes more PACKET_INs: about 12 instead of up to 6. More packets of the same flow reach the switch before its rule is installed, and each of them asks the controller again. It is a feedback loop towards overload.
