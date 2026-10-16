@@ -1,0 +1,48 @@
+INFO:hybrid_eval:Hybrid: 16 hosts, budget 60 of 240 pairs, decay 0.97, every 1.0 s
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] connected
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] connected
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] connected
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] connected
+INFO:openflow.of_01:[00-00-00-00-00-10 17] connected
+INFO:openflow.of_01:[00-00-00-00-00-11 18] connected
+INFO:openflow.of_01:[00-00-00-00-00-12 19] connected
+INFO:openflow.of_01:[00-00-00-00-00-13 20] connected
+INFO:openflow.of_01:[00-00-00-00-00-14 21] connected
+INFO:openflow.of_01:[00-00-00-00-00-13 20] closed
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] closed
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-14 21] closed
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-12 19] closed
+INFO:openflow.of_01:[00-00-00-00-00-11 18] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-10 17] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:core:Going down...
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.
