@@ -211,7 +211,7 @@ python3 experiments/abilene_tm.py X02.gz --day 3      # another day; then --tm d
 
 ## 10. Repeats: 5 runs with 95% confidence intervals (night of 17–18 Oct)
 
-Same four scenarios, networks, controllers and flow schedules as above, with **5 seeds (7–11)** per configuration, uniform host pairs, Windows "Best performance" mode. Each value is the mean ± the half-width of the 95% confidence interval (Student's t, 4 degrees of freedom). Raw data: the oldest of the five `results/measured/traffic-20261017-*/` folders of that night (the one started before `traffic-20261017-224052`). Command: `sudo python3 experiments/run_traffic_experiments.py --repeats 5`.
+Same four scenarios, networks, controllers and flow schedules as above, with **5 seeds (7–11)** per configuration, uniform host pairs, Windows "Best performance" mode. Each value is the mean ± the half-width of the 95% confidence interval (Student's t, 4 degrees of freedom). Raw data: `results/measured/traffic-20261017-214330/`. Command: `sudo python3 experiments/run_traffic_experiments.py --repeats 5`.
 
 | Scenario | Controller | Small flows < 100 KB: median / p99 (ms) | Large flows > 10 MB: mean (s) | PACKET_IN/s | Controller CPU % | Peak rules (all / busiest switch) |
 | --- | --- | --- | --- | --- | --- | --- |

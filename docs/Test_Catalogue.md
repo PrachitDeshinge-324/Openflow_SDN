@@ -382,7 +382,7 @@ The first single runs (Balanced mode) gave medians of 55.7 / 155 / 113 / 120 ms 
 **Limits.** Generated traffic, not replayed packets (except the ISP volumes, which are real). The university size curve was read from a plot.
 
 **Data and details.**
-- **Raw data:** the repeats are in the oldest of the five folders of 17–18 Oct (it started before `traffic-20261017-224052`); the first single runs in `traffic-20261015-113417/` and `-122618/`.
+- **Raw data:** the repeats are in `results/measured/traffic-20261017-214330/`; the first single runs in `traffic-20261015-113417/` and `-122618/`.
 - **Detailed documents:** `docs/Realistic_Traffic_Experiment.md`; `docs/Realism_Sources.md` (the paper behind every parameter).
 
 **If asked.**
