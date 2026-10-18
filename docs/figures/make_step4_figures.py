@@ -10,6 +10,8 @@ mean of 5 runs (seeds 7-11) with the half-width of its 95% confidence interval
   fat-tree, web search results/measured/traffic-20261015-233914/
   Abilene ISP          results/measured/traffic-20261016-004215/
   university, uniform  results/measured/traffic-20261016-012626/
+  random baseline      results/measured/traffic-20261017-224052/ (university, fat-tree), traffic-20261017-231017/ (Abilene)
+  fat-tree k = 6       results/measured/traffic-20261017-232237/ (3 runs)
 Each run's own plots (traffic_budget.png etc.) are in those folders; this script
 only puts the four scenarios side by side.
 
@@ -44,6 +46,20 @@ HIT = [
 ]
 BUDGETS = [0, 10, 25, 50]
 
+# Random pre-installation (no knowledge), hit rate and 95% CI at 10 / 25 / 50 %; none for the uniform control
+RANDOM = {
+  'University tree, Zipf pairs': ([0, 9.8, 23.9, 49.8], [0, 7.1, 7.8, 12.3]),
+  'Fat-tree, web search, Zipf pairs': ([0, 8.4, 19.3, 43.5], [0, 3.2, 9.0, 6.7]),
+  'Abilene ISP, real traffic matrices': ([0, 9.6, 24.5, 54.1], [0, 4.8, 4.8, 5.4]),
+}
+
+# Fat-tree k = 6 (3 runs): budgets 0 / 2 / 5 / 10 %
+K6_BUDGETS = [0, 2, 5, 10]
+K6_COUNTER = ([0, 40.0, 47.1, 50.9], [0, 6.8, 9.6, 7.8])
+K6_ORACLE = ([0, 50.3, 65.5, 77.8], [0, 7.1, 9.6, 8.1])
+K6_RULES = {'counter': [2160, 1589, 1819, 2374], 'oracle': [2160, 1370, 1430, 2019]}   # 0% = reactive on shortest paths
+K6_PROACTIVE_RULES = 13230
+
 # Small-flow median FCT (ms): reactive over a spanning tree, reactive on shortest
 # paths (hybrid budget 0), proactive (ECMP on the fat-tree)
 # (mean over 5 seeds of each run's median)
@@ -59,16 +75,19 @@ def hit_rate():
   for ax, (name, counter, oracle) in zip(axes, HIT):
     ax.plot([0, 50], [0, 50], color=MUTED, linestyle='--', linewidth=1,
             label='Budget share (pairs picked at random)')
-    for (ys, ci), color, label in ((oracle, ORACLE, 'Oracle (knows the future)'),
-                                   (counter, COUNTER, 'Weighted counter')):
+    series = [(oracle, ORACLE, 'Oracle (knows the future)'), (counter, COUNTER, 'Weighted counter')]
+    if name in RANDOM:
+      series.insert(0, (RANDOM[name], '#8a877c', 'Random pairs (no knowledge)'))
+    for (ys, ci), color, label in series:
       ax.errorbar(BUDGETS, ys, yerr=ci, color=color, linewidth=2, marker='o', markersize=8,
                   markeredgecolor='white', markeredgewidth=1.5, capsize=4, elinewidth=1.2, label=label)
     # direct labels on the 10% and 50% points only
     for i in (1, 3):
       ax.annotate('%.0f' % oracle[0][i], (BUDGETS[i], oracle[0][i] + oracle[1][i]), xytext=(0, 5),
                   textcoords='offset points', ha='center', color=INK, fontsize=9)
-      ax.annotate('%.0f' % counter[0][i], (BUDGETS[i], counter[0][i] - counter[1][i]), xytext=(0, -14),
-                  textcoords='offset points', ha='center', color=INK, fontsize=9)
+      if i == 3:   # at 10% the counter's label would sit on the random point
+        ax.annotate('%.0f' % counter[0][i], (BUDGETS[i], counter[0][i] - counter[1][i]), xytext=(0, -14),
+                    textcoords='offset points', ha='center', color=INK, fontsize=9)
     ax.set_title(name, color=INK, fontsize=10)
     ax.set_xticks(BUDGETS)
     ax.set_xlim(-3, 55)
@@ -125,6 +144,41 @@ def cost_split():
   return path
 
 
+def k6():
+  fig, (a, b) = plt.subplots(1, 2, figsize=(10, 4.0))
+  for (ys, ci), color, label in ((K6_ORACLE, ORACLE, 'Oracle (knows the future)'),
+                                 (K6_COUNTER, COUNTER, 'Weighted counter')):
+    a.errorbar(K6_BUDGETS, ys, yerr=ci, color=color, linewidth=2, marker='o', markersize=8,
+               markeredgecolor='white', markeredgewidth=1.5, capsize=4, elinewidth=1.2, label=label)
+  a.set_ylim(0, 100)
+  a.set_xticks(K6_BUDGETS)
+  a.set_xlabel('Rule budget (% of 2,862 host pairs)', color=INK)
+  a.set_ylabel('Hit rate: new connections that\nfound a rule (%)', color=INK)
+  a.set_title('Hit rate (3 runs, bars = 95% CI)', color=INK, fontsize=10)
+  a.legend(frameon=False, fontsize=9, loc='upper left')
+  style(a)
+  for key, color, label in (('counter', COUNTER, 'Weighted counter'), ('oracle', ORACLE, 'Oracle')):
+    b.plot(K6_BUDGETS, K6_RULES[key], color=color, linewidth=2, marker='o', markersize=8,
+           markeredgecolor='white', markeredgewidth=1.5, label=label)
+  b.axhline(K6_PROACTIVE_RULES, color=MUTED, linestyle='--', linewidth=1.2)
+  b.annotate('Proactive: 13,230 rules', (10, K6_PROACTIVE_RULES), xytext=(-4, -14), textcoords='offset points',
+             ha='right', color=MUTED, fontsize=9)
+  b.annotate('0% = reactive on shortest paths: 2,160', (0, 2160), xytext=(6, -16), textcoords='offset points',
+             ha='left', color=MUTED, fontsize=9)
+  b.set_ylim(0, 15000)
+  b.set_xticks(K6_BUDGETS)
+  b.set_xlabel('Rule budget (% of 2,862 host pairs)', color=INK)
+  b.set_ylabel('Peak rules in all switches', color=INK)
+  b.set_title('Rules in the switches', color=INK, fontsize=10)
+  b.legend(frameon=False, fontsize=9, loc='center right')
+  style(b)
+  fig.suptitle('Fat-tree k = 6 (54 hosts): what a small rule budget buys', color=INK)
+  fig.tight_layout()
+  path = os.path.join(HERE, 'step4_k6.png')
+  fig.savefig(path, dpi=150)
+  return path
+
+
 if __name__ == '__main__':
-  for p in (hit_rate(), cost_split()):
+  for p in (hit_rate(), cost_split(), k6()):
     print('[+] %s' % p)

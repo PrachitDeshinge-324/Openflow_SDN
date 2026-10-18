@@ -4,7 +4,7 @@ CS G525 Advanced Computer Networks, Project SA7, Group 2. Status: 16 October 202
 
 **One section per test, always in the same order:**
 1. **Question:** what the test answers.
-2. **Setup:** network, traffic, controllers, the command, number of runs.
+2. **Configuration:** hosts, switches, links, link speed and delay, controllers and their parameters, traffic, runs and seeds, power mode, the exact command. The parts common to every test (machines, software versions, controller options, network sizes) are in **Testbed** below.
 3. **Measured:** the metrics.
 4. **Closest paper(s):** what they did and found, with the page of the PDF; what they did not measure.
 5. **What we add.**
@@ -26,22 +26,83 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 - **Best performance:** the Step 4 repeats.
 - Absolute times differ between the two (up to 2×), so compare numbers only within one batch.
 
+## Testbed (common to every test)
+
+### Machines
+
+| Machine | Used for | OS / kernel | CPU | Open vSwitch datapath |
+| --- | --- | --- | --- | --- |
+| **Laptop 1** ("Harikrushna", Mrudul) | every test | Windows 11 + WSL2 Ubuntu, kernel 6.18.33.2-microsoft-standard-WSL2 | 16 hardware threads | kernel |
+| **Laptop 2** ("Nisarg") | T1, T2 reproduction (9 Oct) | Windows 11 + WSL2 Ubuntu, kernel 6.18.40.1-microsoft-standard-WSL2 | – | kernel |
+| **Cloud VM** | T10 checks only (never in a results table) | Linux 6.18, Python 3.11.15 | 4 vCPUs | userspace (OVS 3.3.9, no netem) |
+
+### Software (laptops)
+
+| Component | Version |
+| --- | --- |
+| Emulator | Mininet 2.3.0 |
+| Switch | Open vSwitch 3.7.1, kernel datapath, OpenFlow 1.0 |
+| Controller | POX 0.7.0 (`gar`, commit 5f82461), stored in `pox/`; single-threaded Python |
+| Python | 3.14.4 |
+| Our code | `controllers/` (POX modules), `experiments/` (harnesses), on GitHub `main` |
+
+### Settings that are the same in every test
+
+- **Controller placement:** the controller runs on the same machine, at `127.0.0.1:6633`, except T9.
+- **Addressing:** Mininet assigns MAC and IP addresses in order (h1 = 10.0.0.1, 00:00:00:00:00:01, ...).
+- **ARP:** static ARP tables on every host (`net.staticArp()`), so ARP never reaches the controller and does not distort the timings.
+- **IPv6:** turned off on every host, so no IPv6 neighbour traffic is generated.
+- **Seeds:** default seed 7. With repeats, the seeds are 7, 8, 9, 10, 11; each seed gives a new flow schedule, and the same seed gives the same schedule for every controller.
+- **Power mode:**
+  - Windows "Balanced": Review I, Step 1, Step 2 and the first Step 4 single runs;
+  - "Best performance": every 5-run repeat (16 Oct onwards).
+  - Compare absolute times only within one batch. The same configuration measured on two nights gave different reactive times (see T10), so a confidence interval covers run-to-run noise within a night, not drift between nights.
+
+### Controllers
+
+| Name in tables | Module and options | Rules it installs | Used in |
+| --- | --- | --- | --- |
+| Reactive (Review I) | `reactive_eval --match=exact --idle_timeout=10 --hard_timeout=30` (POX `l2_learning` logic) | one exact-match rule (in_port, MACs, IPs, protocol, ports) per new flow per switch, on the first packet; floods unknown destinations | T1, T2 |
+| Reactive (Steps 1, 2, 4) | the same, plus POX `openflow.discovery` + `openflow.spanning_tree --no-flood --hold-down`, on every network (on a tree the spanning tree is the whole tree) | as above, along the spanning tree only | T3–T7, T11, T12 |
+| Reactive, long timeouts | as Reactive, `--idle_timeout=60 --hard_timeout=300` | as Reactive | T6 |
+| Reactive on shortest paths | `hybrid_eval --budget=0` (knows the topology) | exact-match rules, hop by hop, on the lowest-delay path (ECMP on fat-trees) | T7, T11 |
+| Hybrid counter NN% | `hybrid_eval --budget=0.NN --decay=0.97 --hysteresis=1.5 --interval=1` | Reactive on shortest paths, plus pair rules (source MAC + destination MAC, priority 100) on every switch of the path, for the top-K pairs by score | T7 |
+| Oracle NN% | `hybrid_eval --pairs_file=...` | pair rules for the K busiest pairs of the run (both directions), installed before the first flow; the rest reactive | T7, T8 |
+| Random NN% | `hybrid_eval --pairs_file=...` | pair rules for K random pairs (both directions), before the first flow; the rest reactive | T7 |
+| Proactive | `proactive_eval --granularity=pair --paths=shortest --miss=drop` | one pair rule per ordered host pair on every switch of its lowest-delay path, installed when the switch connects; table-miss rule drops | all |
+| Proactive ECMP | `proactive_eval --paths=ecmp` | as Proactive, with pairs hashed (CRC32 of the two MACs) over the equal-cost paths | T4, T5, T7, T11, T12 |
+
+### Networks
+
+| Name | What it models | Hosts | Switches | Links (switch–switch + host) | Host pairs (ordered) | Link speed | Link delay |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `tree-d2-f2` | small campus tree | 4 | 3 | 2 + 4 | 12 | unshaped (T1, T2) | none |
+| `tree-d3-f2` | deeper tree | 8 | 7 | 6 + 8 | 56 | unshaped (T1, T2) | none |
+| `tree-d2-f4` | campus tree | 16 | 5 | 4 + 16 | 240 | unshaped (T1, T2); 100 Mbit/s (T3, T5–T7) | none |
+| `fattree-k4` | data centre (Al-Fares 2008) | 16 | 20 (4 core, 8 aggregation, 8 edge) | 32 + 16 | 240 | 10 Mbit/s (T4); 100 Mbit/s (T3, T5–T7) | none |
+| `abilene` | US research backbone, 11 cities | 11 (one per city) | 11 | 14 + 11 | 110 | 10 Mbit/s (T4); 100 Mbit/s (T3, T5–T7), Atlanta–Indianapolis at ¼ | one-way 1.33–11.03 ms per link (city distance ÷ 200 km/ms, netem) |
+| `fattree-k6` | larger data centre | 54 | 45 (9 core, 18 aggregation, 18 edge) | 108 + 54 | 2,862 | 100 Mbit/s | none |
+
+"Unshaped" means Mininet's default virtual Ethernet links, with no bandwidth limit and no added delay.
+
+---
+
 ## Index
 
 | # | Test | Closest paper(s) | Status |
 | --- | --- | --- | --- |
 | T1 | First-packet delay, reactive vs proactive | DIFANE, Ethane | Done (2 laptops) |
 | T2 | Rules in the switches: all pairs, and under churn | DevoFlow, CacheFlow | Done |
-| T3 | Controller load under realistic arrivals | Tootoonchian et al., DevoFlow | Done (single runs; repeats tonight) |
+| T3 | Controller load under realistic arrivals | Tootoonchian et al., DevoFlow | Done (5 runs) |
 | T4 | Path quality: optimal vs haphazard path | Al-Fares, Hedera | Done |
-| T5 | Flow completion time under realistic traffic | pFabric / PIAS workloads, Batista et al. | Done (single runs; repeats tonight) |
+| T5 | Flow completion time under realistic traffic | pFabric / PIAS workloads, Batista et al. | Done (5 runs) |
 | T6 | Reactive with long timeouts | SmartTime, AH-IHTA | Done (4 scenarios × 5 runs) |
-| T7 | Budgeted hybrid + oracle + uniform control | CacheFlow, PARD, Kim et al. | Done (4 scenarios × 5 runs) |
+| T7 | Budgeted hybrid + oracle + random baseline + uniform control | CacheFlow, PARD, Kim et al. | Done (4 scenarios × 5 runs; random baseline × 5 runs) |
 | T8 | ML predictor vs counter | Batista et al., Rouf & Yuksel | Bounded by the oracle; no ML model built |
 | T9 | Controller on a separate PC | Kandoo, Ethane | Tool ready; run pending |
 | T10 | Reproducibility on several machines | most papers above | Done |
 | T11 | Reactive's cost split: path vs setup | DIFANE (setup), Al-Fares / Hedera (path) | Done (3 networks × 5 runs) |
-| T12 | A larger network (fat-tree k = 6) | DevoFlow, CacheFlow | Smoke test done; sweep tonight |
+| T12 | A larger network (fat-tree k = 6) | DevoFlow, CacheFlow | Done (3 runs) |
 
 ---
 
@@ -49,12 +110,16 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **Question.** How much longer does the first packet of a new flow take when the rule must come from the controller, and does this grow with network size?
 
-**Setup.**
-- **Networks:** Mininet trees with 4, 8 and 16 hosts (`tree-d2-f2`, `tree-d3-f2`, `tree-d2-f4`).
-- **Controllers:** `reactive_eval` (POX learning switch, exact-match rules, idle 10 s / hard 30 s) and `proactive_eval` (one rule per host pair, installed when a switch connects).
-- **Traffic:** host pairs ping 6–10 times each, and packet 1 is compared with the later packets.
-- **Command:** `sudo python3 experiments/run_experiments.py`.
-- **Runs:** one run per laptop, two laptops.
+**Configuration.**
+
+| Item | Value |
+| --- | --- |
+| Networks | `tree-d2-f2` (4 hosts, 3 switches), `tree-d3-f2` (8 hosts, 7 switches), `tree-d2-f4` (16 hosts, 5 switches) |
+| Links | unshaped (no bandwidth limit, no added delay) |
+| Controllers | Reactive (Review I): exact match, idle 10 s / hard 30 s, no spanning tree (trees have no loops); Proactive: pair rules, installed when each switch connects |
+| Traffic | 20 random host pairs (all 6 on the 4-host tree), 10 pings per pair, 0.1 s apart; packet 1 = new flow, packet 2, then the median of packets 3–10 = steady state |
+| Runs | one run per laptop, seed 7: laptop 1 (27 Sep), laptop 2 (9 Oct); Balanced power mode |
+| Command | `sudo python3 experiments/run_experiments.py` (defaults: `--pairs 20 --count 10 --interval 0.1`) |
 
 **Measured.** Packet-1 RTT, packet-2 RTT, steady-state RTT.
 
@@ -98,12 +163,16 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **Question.** Does proactive really use more switch memory than reactive?
 
-**Setup.**
-- **Networks and controllers:** as T1.
-- **Two traffic cases:**
-  - every host pair active;
-  - **churn:** new single-packet UDP flows at 10–200 per second, cbench-style.
-- **Command:** `sudo python3 experiments/run_experiments.py`.
+**Configuration.**
+
+| Item | Value |
+| --- | --- |
+| Networks and controllers | as T1 (4, 8 and 16 hosts; Reactive (Review I) and Proactive) |
+| Links | unshaped |
+| Traffic, case 1 ("occupancy") | 25%, 50% and 100% of all host pairs made active (3 pings each), reactive rules cleared before each step; rules counted 1.5 s later |
+| Traffic, case 2 ("churn") | h1 sends single UDP packets to random other hosts (UDP port 9) at 10, 50, 100 and 200 new flows/s, 5 s per rate. Each packet uses a new socket, so a new source port, so a new flow. Reactive rules cleared before each rate |
+| Runs | one run per laptop, seed 7, two laptops; Balanced power mode |
+| Command | `sudo python3 experiments/run_experiments.py` (defaults: `--fractions 0.25 0.5 1.0 --rates 10 50 100 200 --churn-duration 5`) |
 
 **Measured.** Rules per switch and in total (`ovs-ofctl dump-aggregate`); controller PACKET_IN/s and CPU under churn.
 
@@ -145,9 +214,22 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **Question.** How busy does the controller get with real traffic patterns, and does its load grow faster than the traffic?
 
-**Setup.** The four Step 2 scenarios (see T5), reactive vs proactive.
-- **Command:** `sudo python3 experiments/run_traffic_experiments.py`.
-- **Runs:** single runs, Balanced mode. Repeats are scheduled tonight.
+**Configuration.**
+
+| Scenario | Network | Hosts | Switches | Host pairs | Link speed / delay |
+| --- | --- | --- | --- | --- | --- |
+| University | `tree-d2-f4` | 16 | 5 | 240 | 100 Mbit/s, no delay |
+| Web search | `fattree-k4` | 16 | 20 | 240 | 100 Mbit/s, no delay |
+| Data mining | `fattree-k4` | 16 | 20 | 240 | 100 Mbit/s, no delay |
+| ISP | `abilene` | 11 | 11 | 110 | 100 Mbit/s (Atlanta–Indianapolis 25 Mbit/s), city delays 1.33–11.03 ms |
+
+| Item | Value |
+| --- | --- |
+| Controllers | Reactive (Steps 1, 2, 4), Proactive, and Proactive ECMP on the fat-tree |
+| Traffic | the four published workloads of T5, 30 s of flow arrivals each |
+| Measurement window | the 30 s of arrivals; controller counters read from POX's own stats; CPU from `/proc` for the POX process; rules sampled every 5 s (`ovs-ofctl dump-aggregate`, data rules only) |
+| Runs | **5 runs, seeds 7–11**, uniform host pairs, Best performance mode (night of 17–18 Oct); the first single runs (seed 7, Balanced) are in `traffic-20261015-113417/` and `-122618/` |
+| Command | `sudo python3 experiments/run_traffic_experiments.py` (defaults: `--duration 30 --bw 100 --load 0.3 --max-mb 20 --flow-timeout 30`) |
 
 **Measured.** PACKET_IN/s, FLOW_MOD/s, controller CPU %, PACKET_INs per new flow.
 
@@ -162,24 +244,26 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **What we add.** Controller load under university, data-centre and ISP traffic, and the **amplification effect**.
 
-**Our results** (single runs):
+**Our results** (reactive, mean of 5 runs ± 95% CI):
 
-| Scenario | New flows/s | PACKET_IN/s (reactive) | Controller CPU | Rules: reactive vs proactive |
-| --- | --- | --- | --- | --- |
-| University | 203 | 2,379 | 86.4% | 10,928 vs 624 |
-| Data centre, web search | 39 | 514 | 44.3% | 4,623 vs 1,072 |
-| Data centre, data mining | 57 | 738 | 56.3% | 6,083 vs 1,072 |
-| ISP | 59 | 624 | 44.0% | 7,176 vs 386 |
+| Scenario | New flows/s | PACKET_IN/s | PACKET_INs per new flow | Controller CPU | Rules: reactive vs proactive |
+| --- | --- | --- | --- | --- | --- |
+| University | 203.1 | 2,417 ± 47 | 11.9 | 72.2 ± 4.8% | 10,836 ± 196 vs 624 (17×) |
+| Web search | 37.9 | 489 ± 22 | 12.9 | 36.5 ± 4.5% | 4,329 ± 419 vs 1,072 (4.0×) |
+| Data mining | 56.3 | 684 ± 29 | 12.1 | 47.0 ± 4.1% | 5,862 ± 218 vs 1,072 (5.5×) |
+| ISP | 58.3 | 611 ± 20 | 10.5 | 31.9 ± 3.5% | 7,332 ± 160 vs 386 (19×) |
+
+The first single runs (Balanced mode) gave 2,379 PACKET_IN/s at 86.4% CPU on university traffic; the faster power mode lowered the CPU share, not the request rate.
 
 **What it means.**
-- **POX nears saturation:** 86% CPU at 203 new flows/s on university traffic.
-- **Amplification:** one new flow caused about **12 PACKET_INs**, although it needs at most about 6 (up to 3 switches in each direction). While the controller is slow, more packets of the same flow reach the switch before its rule does, and each one asks again. In a lighter 10-s run (54% CPU) it was 7.4 per flow. This is a feedback loop towards overload.
+- **POX is busy but not saturated:** 72% of one core at 203 new flows/s (86% in the first, slower-mode run). The request rate is the same in both, so the load is set by the traffic, not by the machine.
+- **Amplification:** one new flow caused **10.5–12.9 PACKET_INs** in every scenario, although it needs at most about 6 (up to 3 switches in each direction). While the controller is slow, more packets of the same flow reach the switch before its rule does, and each one asks again. In a lighter 10-s run (54% CPU) it was 7.4 per flow. This is a feedback loop towards overload.
 
 **Limits.** POX is single-threaded Python, so absolute capacity is POX's, not a production controller's.
 
 **Data and details.**
-- **Raw data:** `results/measured/traffic-20261015-113417/`, `traffic-20261015-122618/`.
-- **Detailed documents:** `docs/Realistic_Traffic_Experiment.md` Section 7; Review II Section 5.
+- **Raw data:** as T5.
+- **Detailed documents:** `docs/Realistic_Traffic_Experiment.md`; Review II Section 5.
 
 **If asked.**
 - **"Isn't POX just slow?"** Yes, and we say so. The trend matters: requests per flow grow with load. That holds for any controller near its own limit.
@@ -190,19 +274,17 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **Question.** On networks with many paths, which paths do the controllers actually use, and what does that cost in delay and throughput?
 
-**Setup.**
-- **Networks:**
-  - **fat-tree k = 4:** 20 switches, 16 hosts, up to 4 equal paths;
-  - **Abilene:** the real US backbone, 11 cities, 14 links, delays from fibre distance.
-- **Links:** 10 Mbit/s, so only the path matters.
-- **Controllers:**
-  - reactive over POX's spanning tree ("haphazard");
-  - proactive shortest path ("optimal");
-  - proactive ECMP.
-- **Traffic:**
-  - **A:** 40 host pairs, pinged; the real path is read from the flow tables;
-  - **B:** permutation traffic (every host sends one TCP flow at once), 3 permutations × 10 s.
-- **Command:** `sudo python3 experiments/run_path_experiments.py`.
+**Configuration.**
+
+| Item | Value |
+| --- | --- |
+| Networks | `fattree-k4` (16 hosts, 20 switches, 48 links, up to 4 equal paths between pods); `abilene` (11 hosts, 11 switches, 25 links, one-way delays 1.33–11.03 ms) |
+| Links | **10 Mbit/s** on every link, so the links (not the laptop) are the bottleneck |
+| Controllers | Reactive over the spanning tree ("haphazard"), Proactive shortest path ("optimal"), Proactive ECMP |
+| Traffic A (paths) | 40 random host pairs (the same for every controller), 6 pings each, 0.1 s apart; the real path is read from the flow tables (`ovs-ofctl dump-flows`) and compared with the best possible path |
+| Traffic B (throughput) | every host sends one TCP flow to another at the same time (random permutation with no host sending to itself): 16 flows on the fat-tree, 11 on Abilene; 3 permutations × 10 s |
+| Runs | single run, seed 7 (the paths are deterministic; throughput is mean ± std over the 3 permutations); Balanced power mode |
+| Command | `sudo python3 experiments/run_path_experiments.py` (defaults: `--pairs 40 --count 6 --bw 10 --flow-seconds 10 --perms 3`) |
 
 **Measured.** Hop stretch, delay stretch, share of pairs on a longer path, ping RTT, total throughput, Jain index over links, unused links.
 
@@ -247,20 +329,24 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **Question.** With real traffic patterns (mostly tiny flows, a few huge ones), how much slower are flows under reactive?
 
-**Setup.**
-- **Scenarios** (each network carries the traffic measured in that kind of network):
+**Configuration.** Networks as in T3: 16 hosts on the tree and the fat-tree, 11 on Abilene. All links 100 Mbit/s; Abilene's Atlanta–Indianapolis link 25 Mbit/s, with city delays.
 
-  | Scenario | Network | Traffic | Source |
-  | --- | --- | --- | --- |
-  | University | tree, 16 hosts | Benson Fig. 4(a) sizes; Weibull gaps, 80% within 4–40 ms | Benson et al., IMC 2010 [p.2, p.6, p.7] |
-  | Web search | fat-tree k = 4 | `CDF_dctcp.tcl`, Poisson, 30% load | DCTCP via pFabric / PIAS |
-  | Data mining | fat-tree k = 4 | `CDF_vl2.tcl`, Poisson, 30% load | VL2 via pFabric / PIAS |
-  | ISP | Abilene | real hourly traffic matrices (1 Mar 2004); SURGE sizes (checked against the paper's Table 1 and Section 4) | Zhang et al., IMC 2005; Barford & Crovella 1998 |
+| Scenario | Flow sizes | Flow arrivals | Flows per 30 s run | Source |
+| --- | --- | --- | --- | --- |
+| University (`tree-d2-f4`) | Benson Fig. 4(a), university curves: 60 B to 10 MB, 87% < 10 KB | per edge switch (4 of them), Weibull gaps (shape 1.34, scale 21.5 ms: 80% between 4 and 40 ms); a random host under that switch starts each flow | about 6,100 (203/s) | Benson et al., IMC 2010 [p.2, p.6, p.7] |
+| Web search (`fattree-k4`) | `CDF_dctcp.tcl` (in 1,460-byte packets), mean 1.67 MB | Poisson; rate set by 30% load of host capacity | about 1,160 (39/s) | DCTCP via pFabric / PIAS |
+| Data mining (`fattree-k4`) | `CDF_vl2.tcl`, mean 7.47 MB | Poisson, 30% load | about 1,710 (57/s) | VL2 via pFabric / PIAS |
+| ISP (`abilene`) | SURGE: lognormal body μ = 9.357, σ = 1.318; Pareto tail above 133 KB, α = 1.1; 7% in the tail | real hourly city-to-city volumes of 1 Mar 2004, 24 h replayed in 30 s, scaled by 100 Mbit/s ÷ 9.92 Gbit/s; Poisson within each hour | about 1,760 (59/s) | Zhang et al., IMC 2005; Barford & Crovella 1998 (Table 1, Section 4) |
 
-- **Links:** 100 Mbit/s; flows capped at 20 MB.
-- **Fairness:** the same flow schedule for every controller.
-- **Command:** `sudo python3 experiments/run_traffic_experiments.py`.
-- **Runs:** single runs, Balanced mode; repeats are scheduled tonight.
+| Item | Value |
+| --- | --- |
+| Destination choice | uniform random (pFabric's choice) for university, web search and data mining in Step 2; the real matrices for ISP |
+| One flow | open a TCP connection, send N bytes, wait for a 1-byte reply; flow completion time = connect to reply; a flow without a reply in 30 s counts as failed |
+| Cap | flows above 20 MB are cut to 20 MB (0% of university, about 1% of web search, about 4% of data-mining flows) |
+| Same flows for everyone | the schedule (start time, source, destination, size) is computed from the seed before the controller starts |
+| Controllers | Reactive (Steps 1, 2, 4), Proactive, Proactive ECMP (fat-tree) |
+| Runs | **5 runs, seeds 7–11**, uniform host pairs, Best performance mode (night of 17–18 Oct); the first single runs (seed 7, Balanced) are in `traffic-20261015-113417/` and `-122618/` |
+| Command | `sudo python3 experiments/run_traffic_experiments.py` |
 
 **Measured.** Flow completion time (FCT) of small (< 100 KB), medium and large (> 10 MB) flows: mean, median, 99th percentile; failed flows.
 
@@ -275,26 +361,28 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **What we add.** Reactive vs proactive vs ECMP flow completion times under university, data-centre and real ISP traffic.
 
-**Our results** (single runs; small-flow median / p99 in ms; large-flow mean in s):
+**Our results** (mean of 5 runs ± 95% CI; small-flow median / p99 in ms; large-flow mean in s):
 
 | Scenario | Reactive | Proactive | Proactive ECMP |
 | --- | --- | --- | --- |
-| University | **55.7** / 126.0 | **1.3** / 37.9 | - |
-| Web search | 155.3 / 343.5; large 12.2 s | 62.6 / 242.0; large 12.8 s | **19.2** / 170.8; large **3.5 s** |
-| Data mining | 113.0 / 244.2; large 10.9 s | 24.9 / 111.0; large 10.7 s | **11.5** / 67.7; large **3.6 s** |
-| ISP | **120.0** / 405.7 | **48.1** / 198.4 | - |
+| University | **32.0 ± 4.5** / 92.1 ± 25.5 | **1.15 ± 0.24** / 41.4 ± 4.4 | - |
+| Web search | 115.5 ± 16.9 / 308.5 ± 34.9; large 10.3 ± 3.3 s | 57.3 ± 8.0 / 243.9 ± 20.3; large 10.5 ± 3.4 s | **17.0 ± 3.4** / 194.0 ± 39.3; large **3.19 ± 0.62 s** |
+| Data mining | 80.5 ± 12.6 / 183.3 ± 30.3; large 9.85 ± 0.77 s | 26.2 ± 2.0 / 99.5 ± 22.6; large 9.98 ± 0.66 s | **9.6 ± 2.4** / 67.3 ± 9.3; large **3.56 ± 0.45 s** |
+| ISP | **101.5 ± 4.5** / 350.0 ± 16.9; large 1.61 ± 0.06 s | **46.3 ± 1.2** / 206.5 ± 37.3; large 1.46 ± 0.40 s | - |
 
-0 failed flows in every run.
+Flows per run: 6,093 ± 101 (university), 1,136 ± 49 (web search), 1,689 ± 40 (data mining), 1,749 ± 43 (ISP). 0 failed flows in every run.
+
+The first single runs (Balanced mode) gave medians of 55.7 / 155 / 113 / 120 ms for reactive. Reactive got faster in the faster power mode; proactive barely changed, so the ratios shrank a little.
 
 **What it means.**
-- **University:** small flows are 44× slower with reactive. The network is only 6% loaded, so the whole difference is the setup cost.
-- **Data centre:** small flows are 8–10× faster with ECMP. Large flows depend on load balance, not on the controller.
-- **ISP:** 2.5× slower; T11 splits this into path and setup.
+- **University:** small flows are **28× slower** with reactive (32.0 vs 1.15 ms; 44× in the first single run). The network is only 6% loaded, so the whole difference is the setup cost.
+- **Data centre:** small flows are **6.8× (web search) and 8.4× (data mining) faster** with ECMP than with reactive. Large flows depend on load balance, not on the controller: 9.9–10.5 s with reactive or one shortest path, **3.2–3.6 s with ECMP**.
+- **ISP:** reactive is **2.2× slower** (101.5 vs 46.3 ms); T11 splits this into path and setup.
 
 **Limits.** Generated traffic, not replayed packets (except the ISP volumes, which are real). The university size curve was read from a plot.
 
 **Data and details.**
-- **Raw data:** as T3.
+- **Raw data:** the repeats are in the oldest of the five folders of 17–18 Oct (it started before `traffic-20261017-224052`); the first single runs in `traffic-20261015-113417/` and `-122618/`.
 - **Detailed documents:** `docs/Realistic_Traffic_Experiment.md`; `docs/Realism_Sources.md` (the paper behind every parameter).
 
 **If asked.**
@@ -306,11 +394,16 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 
 **Question.** Is "just keep reactive rules longer" enough to get most of proactive's benefit?
 
-**Setup.**
-- **Controller:** reactive with idle 60 s / hard 300 s, against the default 10 s / 30 s.
-- **Traffic:** all four Step 4 scenarios: university Zipf, fat-tree web search, Abilene, university uniform.
-- **Command:** `--budget-sweep` (it includes `reactive-long`).
-- **Runs:** **5 runs, seeds 7–11, Best performance mode.**
+**Configuration.**
+
+| Item | Value |
+| --- | --- |
+| Scenarios | university (`tree-d2-f4`, 16 hosts), Zipf pairs; web search (`fattree-k4`, 16 hosts), Zipf pairs; ISP (`abilene`, 11 hosts), real matrices; university, uniform pairs (control) |
+| Links | 100 Mbit/s (Abilene: Atlanta–Indianapolis 25 Mbit/s, city delays) |
+| Traffic | the T5 workloads, 30 s; host-pair popularity Zipf with exponent 1 (`--pair-zipf 1`) where stated |
+| Controllers compared | Reactive (idle 10 s / hard 30 s) vs Reactive, long timeouts (idle 60 s / hard 300 s), both over the spanning tree; plus the others of the sweep (T7) |
+| Runs | **5 runs, seeds 7–11**, Best performance mode (night of 15–16 Oct) |
+| Command | `sudo python3 experiments/run_traffic_experiments.py --scenarios <scenario> --budget-sweep --pair-zipf 1 --repeats 5` |
 
 **Measured.** Small-flow FCT, PACKET_IN/s, peak rules.
 
@@ -356,19 +449,21 @@ PACKET_IN/s is the same within the intervals in every scenario.
 
 **Question.** If only a fraction of the host pairs may have pre-installed rules, how much of proactive's benefit does that buy, and how close is a simple counter to the best possible choice?
 
-**Setup.**
-- **Controller** (`controllers/hybrid_eval.py`): reactive on shortest paths, plus pair rules (source MAC + destination MAC) for the top-K pairs by a decaying counter:
-  - every second, `score = 0.97 × score + (1 if used this second)`;
-  - hysteresis 1.5.
-- **Budgets:** 10 / 25 / 50% of all host pairs.
-- **Oracle:** pre-installs the K pairs that really carry the most flows in the run, before the first flow (it reads the flow schedule).
-- **Random (baseline, runs tonight):** pre-installs a random K pairs, before the first flow, with no knowledge of the traffic. Together, random → counter → oracle show how much of the gain comes from choosing the pairs well.
-- **Traffic:**
-  - university and fat-tree with Zipf pair popularity (exponent 1);
-  - Abilene with its real matrices;
-  - a control run with uniform pairs.
-- **Command:** `--budget-sweep --pair-zipf 1`.
-- **Runs:** **5 runs, seeds 7–11.**
+**Configuration.**
+
+| Item | Value |
+| --- | --- |
+| Scenarios | as T6: university Zipf (16 hosts, 240 pairs), fat-tree web search Zipf (16 hosts, 240 pairs), Abilene (11 hosts, 110 pairs), university uniform |
+| Links | 100 Mbit/s (Abilene as T5) |
+| Budgets | 10%, 25%, 50% of all ordered host pairs: 24 / 60 / 120 pairs on 240, 11 / 28 / 55 on 110 |
+| Counter | every 1 s: `score = 0.97 × score + 1` if the pair was used in that second, else `0.97 × score`. "Used" = a PACKET_IN of the pair at the sender's switch, or (if pre-installed) its rule's packet counter went up (one stats request per installed pair per second). The top-K scores keep pair rules; a newcomer must score 1.5× the weakest kept pair (hysteresis) |
+| Pair rules | match source MAC + destination MAC, priority 100, on every switch of the pair's shortest path (ECMP-hashed on the fat-tree), installed far end first |
+| Everything else | reactive on shortest paths, exact match, idle 10 s / hard 30 s |
+| Oracle | counts each pair's flows in the run's schedule in both directions and pre-installs the top K before the first flow; never changes them |
+| Random | pre-installs K random pairs (each in both directions) before the first flow, chosen with no knowledge of the traffic (seeded per run) |
+| Hit rate | new TCP connections whose SYN found a rule at the sender's switch ÷ all connections |
+| Runs | **5 runs, seeds 7–11**, Best performance mode, for counter, oracle, random and decay 0.9; one extra single run: 120 s warm-up (Balanced). The random runs and the decay runs were on the night of 17–18 Oct, the counter and oracle runs on 15–16 Oct: hit rates compare directly (they depend only on the flow schedule), times only loosely |
+| Command | `sudo python3 experiments/run_traffic_experiments.py --scenarios <scenario> --budget-sweep --pair-zipf 1 --repeats 5` |
 
 **Measured.**
 - **Hit rate:** the share of new TCP connections whose first packet found a rule at the sender's switch.
@@ -409,13 +504,33 @@ At a 25% budget, against reactive on shortest paths:
 
 Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 28.6 / 46.0 ms.
 
-**Extra runs.**
+**Random baseline: pre-installing a random K pairs, no knowledge** (mean of 5 runs ± 95% CI; hit rate %):
+
+| Scenario | Random 10 / 25 / 50% | Counter 10 / 25 / 50% | Oracle 10 / 25 / 50% | Share of the oracle's gain over random that the counter gets |
+| --- | --- | --- | --- | --- |
+| University, Zipf | 9.8 ± 7.1 / 23.9 ± 7.8 / 49.8 ± 12.3 | 30.8 / 60.7 / 78.9 | 49.3 / 68.2 / 84.7 | 0.53 / 0.83 / 0.83 |
+| Fat-tree, web search | 8.4 ± 3.2 / 19.3 ± 9.0 / 43.5 ± 6.7 | 51.1 / 65.8 / 77.4 | 56.2 / 73.7 / 88.3 | 0.89 / 0.85 / 0.76 |
+| Abilene | 9.6 ± 4.8 / 24.5 ± 4.8 / 54.1 ± 5.4 | 26.6 / 53.8 / 77.2 | 33.1 / 59.2 / 83.0 | 0.72 / 0.84 / 0.80 |
+
+At a 25% budget, against reactive on shortest paths (University / Fat-tree / Abilene):
+
+| Controller | PACKET_IN/s | Peak rules | Small-flow median (ms) |
+| --- | --- | --- | --- |
+| Reactive on shortest paths | 2,549 / 492 / 447 | 10,983 / 3,752 / 5,321 | 27.3 / 59.3 / 55.6 |
+| **Random 25%** | 1,872 / 389 / 334 | 8,556 / 3,282 / 4,012 | 19.2 / 55.3 / 53.3 |
+| Counter 25% | 936 / 180 / 198 | 5,278 / 1,569 / 2,615 | 8.4 / 38.2 / 50.0 |
+| Oracle 25% | 658 / 139 / 169 | 3,586 / 1,221 / 2,418 | 5.0 / 34.0 / 49.4 |
+
+**Other extra runs.**
 - **Warm-up check** (120 s instead of 30 s, university, 10%, single run): the counter's hit rate rose from 24.5% to 38.1%; the oracle stayed at 51.5%.
-- **Decay 0.9** (single run): 36.7% at 10%, which is inside the 0.97 spread. Inconclusive; repeats are scheduled tonight.
+- **Decay 0.9 instead of 0.97** (university, Zipf, 5 runs): hit rate 34.9 ± 6.8% (10%) and 62.1 ± 4.5% (25%), against 30.8 ± 10.2% and 60.7 ± 5.5% with 0.97. Small-flow median 15.5 / 7.0 ms against 17.7 / 8.4 ms; wasted installs 50 / 64 against 40 / 64. Every difference is inside the confidence intervals: **a shorter memory does not help.**
 
 **What it means.**
 1. **With skewed traffic, a quarter of the pairs removes most of the setup cost.** 54–66% of new connections skip the controller, with **fewer** rules than reactive: one pair rule replaces many per-connection rules.
 2. **The gain comes from skew.** With uniform pairs, a budget of B% buys about B%.
+   - **Random pre-installation confirms it:** with skewed traffic, a random K pairs also buys only about its budget share (8–10% / 19–25% / 44–54% at 10 / 25 / 50%), with very wide intervals (a lucky pick can catch a busy pair).
+   - **Choosing well is worth a lot:** at 25%, random cuts the rules by only 12–25% and the controller requests by 21–27%; the counter cuts the rules by 51–58% and the requests by 56–63%.
+   - **The counter does most of the oracle's job:** it gets 72–89% of the oracle's advantage over random (53% for university at 10%).
 3. **The simple counter reaches 0.88–0.93 of a perfect predictor** at 25–50% budgets.
 4. **Its weak spot is small budgets with many flows per pair** (university, 10%). The counter scores "busy seconds", not flows, so pairs with 1.4 and 0.8 flows/s look alike.
 5. **Proactive still wins on these small networks** (see T12 for a larger one).
@@ -426,7 +541,7 @@ Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 
 - The oracle is the best **fixed** set: right for our traffic, whose popularity does not change during a run.
 
 **Data and details.**
-- **Raw data:** as T6, plus `traffic-20261015-211130/` (warm-up) and `traffic-20261016-021112/` (decay).
+- **Raw data:** as T6, plus `traffic-20261015-211130/` (warm-up), `traffic-20261017-224052/` (random: university and fat-tree), `traffic-20261017-231017/` (random: Abilene) and `traffic-20261018-001723/` (decay 0.9).
 - **Detailed documents:** `docs/Budgeted_Hybrid_Experiment.md` (Sections 1 and 4.0); Review II Section 6; figure `docs/figures/step4_hit_rate.png`.
 
 **If asked.**
@@ -439,7 +554,7 @@ Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 
 
 **Question.** Would a machine-learning predictor choose the pre-installed pairs better than a simple counter?
 
-**Setup.** No ML model was built. The oracle from T7 gives the best possible choice for each budget, and the gap between the oracle and the counter bounds what *any* predictor could add.
+**Configuration.** No separate run: the bound comes from the T7 runs (same scenarios, networks, budgets and 5 seeds). No ML model was built. The oracle gives the best possible choice for each budget, and the gap between the oracle and the counter bounds what *any* predictor could add.
 
 **Closest papers.**
 - **Batista et al.** (2024):
@@ -456,7 +571,8 @@ Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 
 
 **Our results** (from T7):
 - **25–50% budgets:** a perfect predictor would add only **5–11 percentage points** of hit rate over the counter.
-- **10% budget:** the gap is larger (university: 18.5 points), and part of it is our counter's design.
+- **10% budget:** the gap is larger (university: 18.5 points). A shorter counter memory (decay 0.9, 5 runs) did not close it, so the cause is likely the counter's 0/1 scoring, not its memory length.
+- **At scale (k = 6, T12):** the gap to the oracle is wider (the counter reaches 0.65–0.80 of it). With few flows per pair, there is more to learn, so a better predictor has more to gain there.
 
 **What it means.** On this traffic, ML has little room.
 - **Where ML could matter:** traffic where flows on one pair predict flows on *other* pairs (microservice call chains), at a scale where most pairs are idle.
@@ -477,9 +593,16 @@ Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 
 
 **Question.** Does a real network between the switches and the controller, and a controller with its own CPU, change reactive's cost?
 
-**Setup.**
-- POX runs on PC B, started remotely by `experiments/controller_agent.py`. Mininet and the traffic run on PC A, with `--controller-host <PC B>`.
-- On WSL2 this needs mirrored networking and two firewall rules (`docs/Controller_On_Second_PC.md`).
+**Configuration.**
+
+| Item | Value |
+| --- | --- |
+| PC A | Mininet, Open vSwitch and the traffic; runs `run_traffic_experiments.py --controller-host <PC B's IP>` |
+| PC B | POX, started and stopped per run by `experiments/controller_agent.py` (listens on TCP 6000; POX listens on TCP 6633) |
+| Network between them | the same LAN (Ethernet preferred); on WSL2, mirrored networking plus two firewall rules (`docs/Controller_On_Second_PC.md`) |
+| Scenarios | any of T5–T7; planned: the university Zipf sweep and Abilene, 5 seeds, same seeds as T7 |
+| Power mode | Best performance on both PCs |
+| Status | tested only with the agent on the same machine (127.0.0.1); the two-laptop run is pending |
 
 **Measured.** All T5/T7 metrics, plus the round-trip time between the PCs (median of 20 TCP handshakes).
 
@@ -510,7 +633,14 @@ Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 
 
 **Question.** Are the results specific to one laptop?
 
-**Setup.** The same commands on laptop 1, laptop 2 (Review I) and a cloud VM (Steps 1 and 4).
+**Configuration.**
+
+| Run | Machine | Datapath | What was compared |
+| --- | --- | --- | --- |
+| Review I (T1, T2) | laptop 1 (27 Sep) and laptop 2 (9 Oct) | kernel | latency pattern, rule counts, controller load |
+| Step 1 (T4) | laptop 1 and the cloud VM | kernel / userspace | the traced paths |
+| Step 4 (T7) | laptop 1 and the cloud VM | kernel / userspace | the ranking of the ten controllers |
+| Step 4 repeats (T6, T7, T11) | laptop 1, 5 seeds | kernel | mean ± 95% confidence interval |
 
 **Closest papers.** Most papers above report one testbed and do not repeat on different machines.
 
@@ -519,6 +649,15 @@ Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 
 - **Step 1:** **identical paths** on the laptop and a cloud VM.
 - **Step 4:** the same ranking of all ten controllers on the laptop and the cloud VM. Absolute times differ: the cloud VM uses a slower userspace datapath.
 - **Within one laptop:** 5 seeds per configuration give 95% confidence intervals (T6, T7, T11).
+
+**Night-to-night variation (found on 17 Oct).** The same configuration (university, uniform pairs, 5 seeds, Best performance) was measured twice:
+
+| | Reactive small-flow median | Proactive | Ratio | Controller CPU |
+| --- | --- | --- | --- | --- |
+| Night of 15–16 Oct | 23.6 ± 0.7 ms | 0.96 ms | 25× | 64.2% |
+| Night of 17–18 Oct | 32.0 ± 4.5 ms | 1.15 ms | 28× | 72.2% |
+
+The intervals do not overlap, so a confidence interval covers noise *within* a night, not the machine's state *between* nights (background load, temperature). The ratio held. **Therefore: compare controllers only within one batch, and quote ratios more than absolute times.**
 
 **Limits.** All machines ran Mininet + Open vSwitch; no hardware switch.
 
@@ -531,11 +670,15 @@ Proactive, for reference: 0 PACKET_IN/s; 624 / 1,072 / 386 rules; median 0.96 / 
 
 **Question.** When reactive is slower, how much of that is asking the controller (**setup**), and how much is the spanning tree's longer paths (**path**)?
 
-**Setup.** The same reactive logic run two ways, on the same traffic:
-- over the spanning tree (`reactive`);
-- on shortest paths (`reactive-sp` = `hybrid_eval` with budget 0).
+**Configuration.**
 
-So: path cost = reactive − reactive-sp; setup cost = reactive-sp − proactive. Three networks, **5 runs each**.
+| Item | Value |
+| --- | --- |
+| Scenarios | university (`tree-d2-f4`, 16 hosts), web search (`fattree-k4`, 16 hosts), Abilene (11 hosts); traffic as T5, with Zipf pairs on the tree and the fat-tree |
+| Links | 100 Mbit/s (Abilene as T5) |
+| The three controllers | Reactive over the spanning tree; Reactive on shortest paths (`hybrid_eval --budget=0`: the same exact-match reactive logic, but routed on the known topology); Proactive (ECMP on the fat-tree) |
+| Calculation | path cost = Reactive − Reactive on shortest paths; setup cost = Reactive on shortest paths − Proactive (small-flow medians) |
+| Runs | **5 runs, seeds 7–11** (the same runs as T6/T7), Best performance mode |
 
 **Measured.** Small-flow median FCT.
 
@@ -576,29 +719,52 @@ In the earlier Balanced-mode single runs, the setup parts were 52 / 78 / 26 ms a
 
 **Question.** Does the picture change when proactive needs thousands of rules?
 
-**Setup.**
-- **Network:** fat-tree k = 6: 45 switches, 54 hosts, 2,862 host pairs.
-- **Traffic:** web search at 5% load (the laptop's limit).
-- **Budgets:** 2 / 5 / 10% (the range CacheFlow studied).
-- **Command:** `--scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1 --repeats 3` (tonight).
+**Configuration.**
+
+| Item | Value |
+| --- | --- |
+| Network | `fattree-k6`: 54 hosts, 45 switches (9 core, 18 aggregation, 18 edge), 162 links, 2,862 ordered host pairs, up to 9 equal paths between pods |
+| Links | 100 Mbit/s, no delay |
+| Traffic | web search (as T5), Zipf pairs, **5% load** (the laptop's limit: about 21 new flows/s, about 280 Mbit/s offered), 30 s |
+| Controllers | the full sweep: Reactive, Reactive with long timeouts, Reactive on shortest paths, counter / oracle at **2 / 5 / 10%** (57 / 143 / 286 pairs), Proactive ECMP |
+| Runs | **3 runs, seeds 7–9**, Best performance mode (night of 17–18 Oct); an earlier smoke test (1 run, 20 s, Proactive ECMP and Reactive on shortest paths) gave 13,230 and 2,058 rules |
+| Command | `sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1 --repeats 3` |
 
 **Closest papers.**
 - **DevoFlow:** a real switch holds 16K exact-match and 1,500 wildcard rules [p.4].
 - **CacheFlow:** 84–97% hits with 2–10% of rules [p.9].
 
-**Our results so far** (smoke test, single run, 0 failed flows):
+**Our results** (mean of 3 runs, seeds 7–9, ± 95% CI with 2 degrees of freedom, so the intervals are wide; 642 ± 114 flows per run, **0 failed**):
 
-| Controller | Small-flow mean | Peak rules, all switches | Peak rules, busiest switch |
-| --- | --- | --- | --- |
-| Proactive ECMP | 9.8 ms | **13,230** | 312 |
-| Reactive, shortest paths | 47.4 ms | **2,058** | 80 |
+| Controller | Hit rate % | Small-flow median (ms) | PACKET_IN/s | Peak rules, all switches | Peak rules, busiest switch |
+| --- | --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 99.6 ± 48.5 | 344 ± 29 | 3,012 ± 660 | 406 |
+| Reactive, long timeouts | - | 93.7 ± 33.0 | 354 ± 47 | 8,023 ± 1,003 | 1,061 |
+| Reactive on shortest paths | 0 | 51.5 ± 7.1 | 367 ± 50 | 2,160 ± 406 | 138 |
+| Counter 2% (57 pairs) | 40.0 ± 6.8 | 31.3 ± 7.9 | 229 ± 59 | 1,589 ± 283 | 69 |
+| Counter 5% (143) | 47.1 ± 9.6 | 26.9 ± 8.2 | 204 ± 60 | 1,819 ± 385 | 77 |
+| Counter 10% (286) | 50.9 ± 7.8 | 25.0 ± 15.5 | 189 ± 59 | 2,374 ± 329 | 89 |
+| Oracle 2% | 50.3 ± 7.1 | 23.0 ± 9.4 | 195 ± 45 | 1,370 ± 312 | 54 |
+| Oracle 5% | 65.5 ± 9.6 | 13.5 ± 17.6 | 143 ± 45 | 1,430 ± 241 | 56 |
+| Oracle 10% | 77.8 ± 8.1 | 8.0 ± 4.9 | 96 ± 46 | 2,019 ± 113 | 68 |
+| Proactive ECMP | 100 | 4.9 ± 0.6 | 0 | **13,230** | 312 |
 
 **What it means.**
-- **On 16 hosts, proactive had the fewest rules; on 54 hosts it has 6.4× more than reactive.** This is the N² cost.
-- **Per switch it still fits.** A switch's capacity is per switch, and proactive's busiest switch holds 312 pair rules. Pair rules match only MAC addresses, so on hardware they would sit in the TCAM. That is within the 1,500 wildcard rules of DevoFlow's switch.
-- **Where it stops fitting:** an edge switch of a k-ary fat-tree needs about k × N pair rules (N = k³/4 hosts). At k = 10 (250 hosts) that is about 2,500, above the 1,500. So the budget becomes necessary at a few hundred hosts: larger than we can emulate, and small for a real data centre.
+- **Proactive's rule count explodes with size:** 13,230 rules in total against 1,072 on the 16-host fat-tree (12× more rules for 3.4× the hosts), and 6.1× the reactive-on-shortest-paths count.
+- **A 2% budget already changes the picture:** 57 pre-installed pairs give a 40% hit rate, 1.6× lower small-flow median than reactive on shortest paths (31 vs 51 ms) and 38% fewer controller requests, with **8× fewer rules than proactive** (1,589 vs 13,230) and fewer than reactive. It does not reach proactive's 4.9 ms.
+- **Path and setup, here:** reactive's extra over proactive is about 48 ms of path (99.6 − 51.5) and 47 ms of setup (51.5 − 4.9).
+- **The counter is weaker at this scale:** 0.80 / 0.72 / 0.65 of the oracle's hit rate at 2 / 5 / 10% (0.88–0.93 on the 16-host networks), and 43–46% of its installs are wasted (51 of 118, 125 of 273, 214 of 500). With only about 640 flows over 2,862 pairs in 30 s, most pairs appear once or twice, so the counter spends many installs on pairs that do not come back.
+- **At 10% the hybrid holds more rules than pure reactive** (2,374 vs 2,160): the pair rules are added on top of the exact-match rules of the misses.
+- **The per-switch view is unchanged:** proactive's busiest switch holds 312 rules, which still fits a hardware table (see the calculation below).
 
-**Status.** The budget sweep runs tonight.
+**Per switch it still fits.** A switch's capacity is per switch, and proactive's busiest switch holds 312 pair rules. Pair rules match only MAC addresses, so on hardware they would sit in the TCAM. That is within the 1,500 wildcard rules of DevoFlow's switch. An edge switch of a k-ary fat-tree needs about k × N pair rules (N = k³/4 hosts). At k = 10 (250 hosts) that is about 2,500, above the 1,500. So the budget becomes necessary at a few hundred hosts: larger than we can emulate, and small for a real data centre.
+
+**Limits.**
+- Only 3 seeds, so many differences between neighbouring rows (for example counter 5% vs 10%) are not significant.
+- 5% load, not 30%: the laptop cannot carry more at this size.
+- Web search traffic only.
+
+**Data and details.** `results/measured/traffic-20261017-232237/`; `docs/Budgeted_Hybrid_Experiment.md` Section 4.8.
 
 ---
 

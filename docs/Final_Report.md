@@ -7,11 +7,8 @@
 
 > **Status of this draft (15 Oct 2026).** This is the structure of the final report.
 > - **Sections that will not change** are written: introduction, related work, testbed and method, and the Review I and Step 1 results.
-> - **`TODO (data)`** marks a place that waits for a measurement still to run:
->   - the two-PC run;
->   - the larger fat-tree;
->   - Step 2 with repeats.
-> - **Step 4 now uses the repeat means (16 Oct).**
+> - **`TODO (data)`** marks a place that waits for a measurement still to run: the two-PC run (and an emulated control-channel delay).
+> - **Steps 2 and 4 now use the repeat means (16–18 Oct), including the random baseline and the 54-host fat-tree.**
 > - **Numbers marked *(single run)*** are from one run and will be replaced by the repeat means.
 
 ---
@@ -27,10 +24,11 @@ We compare them **side by side on one testbed** (Mininet, Open vSwitch, POX):
 - **traffic:** university, data-centre and ISP traffic taken from published measurements and real traffic matrices.
 
 **What we find:**
-1. **Reactive pays twice.** Its small flows are 2.5–44× slower than proactive's, because of the setup delay and, on networks with loops, the spanning tree's detours. On Abilene the detours cost more than the setup.
+1. **Reactive pays twice.** Its small flows are 2.2–28× slower than proactive's, because of the setup delay and, on networks with loops, the spanning tree's detours. On Abilene the detours cost more than the setup.
 2. **Long timeouts give no benefit** for short-flow traffic.
 3. **A budgeted hybrid helps when traffic is skewed.** Pre-installing the busiest 25% of host pairs, chosen by a simple counter, removes 54–66% of controller trips, with 2.0–2.4× fewer rules than reactive.
-4. **A perfect predictor would add only 5–11 percentage points** of hit rate at those budgets. This bounds what ML prediction could gain on this traffic.
+4. **Choosing the pairs is what pays:** random pre-installation buys only its budget share, and a perfect predictor would add only 5–11 percentage points over the counter at those budgets. This bounds what ML prediction could gain on this traffic.
+5. **At 54 hosts, proactive's rule count (13,230) is 12× that of 16 hosts;** a 2% budget gives a 40% hit rate with 8× fewer rules.
 
 ---
 
@@ -101,7 +99,7 @@ None of these compared their idea, on the same testbed and traffic, against the 
 - **Trees:** 4, 8 and 16 hosts.
 - **Fat-tree k = 4:** 20 switches, 16 hosts.
 - **Abilene:** 11 cities, 14 links, real link speeds, and city-to-city delays from fibre distance.
-- *TODO (data):* fat-tree k = 6 (45 switches, 54 hosts).
+- **Fat-tree k = 6:** 45 switches, 54 hosts, 2,862 pairs (3 runs).
 
 ### 3.4 Traffic
 | Workload | Flow sizes | Arrivals | Source |
@@ -114,7 +112,7 @@ None of these compared their idea, on the same testbed and traffic, against the 
 
 ### 3.5 Fairness and statistics
 - **Identical flows:** the flow schedule is computed in advance from a seed, so every controller gets exactly the same flows (start time, source, destination, size).
-- **Repeats:** 5 seeds per configuration; mean ± half-width of the 95% confidence interval (Student's t, 4 degrees of freedom). Done for Step 4. *TODO (data):* Step 2.
+- **Repeats:** 5 seeds per configuration; mean ± half-width of the 95% confidence interval (Student's t, 4 degrees of freedom). Done for Steps 2 and 4 (the k = 6 network: 3 seeds).
 - **Measured, not modelled:**
   - paths are read from the switches' flow tables;
   - controller load comes from counters inside our controllers;
@@ -142,18 +140,19 @@ None of these compared their idea, on the same testbed and traffic, against the 
 *Figures: `results/measured/paths-20261015-094800/`.*
 
 ### 4.3 Realistic traffic (Step 2)
-*Source: `docs/Realistic_Traffic_Experiment.md`.* *(single run, Balanced mode)* *TODO: decide whether to re-run with `--repeats 5` in performance mode.*
+*Source: `docs/Realistic_Traffic_Experiment.md`, Section 10. Mean of 5 runs (seeds 7–11), Best performance mode, uniform host pairs.*
 
 | Scenario | Reactive small-flow median | Proactive (ECMP) small-flow median |
 | --- | --- | --- |
-| University | 55.7 ms | 1.3 ms |
-| Web search | 155 ms | 19 ms (ECMP) |
-| Data mining | 113 ms | 11.5 ms (ECMP) |
-| ISP | 120 ms | 48 ms |
+| University | 32.0 ± 4.5 ms | 1.15 ± 0.24 ms (28×) |
+| Web search | 115.5 ± 16.9 ms | 17.0 ± 3.4 ms, ECMP (6.8×) |
+| Data mining | 80.5 ± 12.6 ms | 9.6 ± 2.4 ms, ECMP (8.4×) |
+| ISP | 101.5 ± 4.5 ms | 46.3 ± 1.2 ms (2.2×) |
 
 Further findings:
-- **Controller load:** 2,379 PACKET_IN/s at 86% CPU for 203 new flows/s.
-- **Amplification:** 7.4 to 12 requests per flow as the controller's load rises.
+- **Controller load:** 2,417 PACKET_IN/s at 72% CPU for 203 new flows/s (86% in the slower power mode).
+- **Amplification:** 10.5–12.9 requests per new flow in every scenario (7.4 in a lighter run).
+- **Night-to-night variation:** the same university configuration gave reactive medians of 23.6 and 32.0 ms on two nights, with the ratio holding (25× and 28×); controllers are compared only within one batch.
 
 ### 4.4 Between reactive and proactive (Step 4)
 *Source: `docs/Budgeted_Hybrid_Experiment.md`, Section 4.0. Every value is the mean of 5 runs (seeds 7–11) ± 95% CI, in "Best performance" mode. Full tables are in Section 6 of `docs/Progress_Review_2.md`; copy and condense them here.*
@@ -178,7 +177,8 @@ Further findings:
 
    With uniform pairs, a budget buys only its own share.
 4. **Counter vs oracle:** 0.88–0.93 at 25–50% budgets, 0.62–0.91 at 10%. The university 10% point is the noisiest (30.8 ± 10.2%).
-5. **Counter decay 0.9 vs 0.97:** one run, inconclusive. *TODO (data):* `--decay 0.9 --repeats 5`.
+5. **Random pre-installation** (no knowledge): only the budget share (8–10% / 19–25% / 44–54% hit rate at 10 / 25 / 50%). At 25% it cuts the rules by 12–25%, the counter by 51–58%. The counter gets 72–89% of the oracle's advantage over random.
+6. **Counter decay 0.9 vs 0.97:** no difference within the intervals (5 runs): a shorter memory does not help.
 
 *Figures: `docs/figures/step4_hit_rate.png` and `docs/figures/step4_cost_split.png` (both from the repeat means).*
 
@@ -186,7 +186,15 @@ Further findings:
 **TODO (data).** The question: does a real network between switches and controller, and a controller with its own CPU, change reactive's cost? Tool: `experiments/controller_agent.py` + `--controller-host`.
 
 ### 4.6 A larger network
-**TODO (data).** Fat-tree k = 6 (54 hosts, 2,862 pairs): does the rule budget start to matter when proactive needs thousands of rules?
+*Source: `docs/Budgeted_Hybrid_Experiment.md`, Section 4.8. Fat-tree k = 6, web search at 5% load, 3 runs, 0 failed flows.*
+
+- **Proactive ECMP needs 13,230 rules** (12× the 16-host fat-tree), reactive on shortest paths 2,160.
+- **Counter at 2% (57 pairs):** 40% hit rate, small-flow median 31.3 ms (reactive on shortest paths 51.5, proactive 4.9), 38% fewer PACKET_INs, **1,589 rules (8× fewer than proactive)**.
+- **The counter is weaker at this scale:** 0.65–0.80 of the oracle; 43–46% of installs wasted.
+- **Per switch:** proactive's busiest switch holds 312 rules, still within a hardware table (1,500 in DevoFlow's switch). The budget becomes necessary at a few hundred hosts (an edge switch needs about k × N pair rules).
+- **Limits:** 3 seeds, wide intervals, 5% load.
+
+*Figure: `docs/figures/step4_k6.png`.*
 
 ---
 

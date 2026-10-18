@@ -125,14 +125,16 @@ Every member presents one part and must answer its questions. Swap parts if you 
 - **Abilene, reactive:** 70% of pairs on a slower path; delay stretch 1.58 on average, up to 4.47. Ping 40.5 vs 26.9 ms.
 - **Fat-tree, total throughput:** ECMP 95 Mbit/s against 64 (reactive) and 62 (one shortest path). Unused links: 16% vs 59%.
 
-**Step 2, realistic traffic** (single runs, Balanced power mode; the repeats are running):
+**Step 2, realistic traffic** (mean of 5 runs ± 95% CI, Best performance mode):
 
-| Scenario | Reactive small-flow median | Proactive (ECMP) |
-| --- | --- | --- |
-| University | 55.7 ms | 1.3 ms |
-| Web search | 155 ms | 19 ms |
-| Data mining | 113 ms | 11.5 ms |
-| ISP | 120 ms | 48 ms |
+| Scenario | Reactive small-flow median | Proactive (ECMP) | Ratio |
+| --- | --- | --- | --- |
+| University | 32.0 ± 4.5 ms | 1.15 ms | 28× |
+| Web search | 115.5 ± 16.9 ms | 17.0 ms | 6.8× |
+| Data mining | 80.5 ± 12.6 ms | 9.6 ms | 8.4× |
+| ISP | 101.5 ± 4.5 ms | 46.3 ms | 2.2× |
+
+The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactive. Reactive was faster in the faster mode, proactive barely changed.
 
 **Step 4, between reactive and proactive** (mean of 5 runs ± 95% CI, Best performance mode):
 
@@ -143,7 +145,9 @@ Every member presents one part and must answer its questions. Swap parts if you 
 | Path / setup part of reactive's extra delay | 0.6 / 26 ms | 52 / 31 ms | 41 / 10 ms |
 | Rules: long timeouts vs reactive | 3.0× | 2.4× | 2.2× |
 
-**Larger network** (fat-tree k = 6, smoke test): proactive needs **13,230 rules**, reactive on shortest paths **2,058**.
+**Random vs counter** (hit rate at 25%): random 23.9 / 19.3 / 24.5% (university / fat-tree / Abilene), counter 60.7 / 65.8 / 53.8%, oracle 68.2 / 73.7 / 59.2%.
+
+**Larger network** (fat-tree k = 6, 3 runs): proactive needs **13,230 rules**, reactive on shortest paths **2,160**; a 2% budget gives a 40% hit rate with **1,589 rules**; the counter reaches 0.65–0.80 of the oracle there.
 
 ---
 

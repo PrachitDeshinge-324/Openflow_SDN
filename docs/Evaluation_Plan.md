@@ -21,7 +21,7 @@ Results so far are summarised in Section 3; details are in `docs/Progress_Review
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | First-packet delay, reactive vs proactive, 4 / 8 / 16 hosts | Done | **DIFANE** (SIGCOMM 2010); **Ethane** (SIGCOMM 2007) | First-packet RTT of reactive NOX vs DIFANE on Click software switches. Ethane: setup delay in a real 300-host deployment | Only one network size; no link between delay and path length; old software stack | Three network sizes. Delay grows with the number of switches on the path. A modern Open vSwitch stack, including its cache effect. Reproduced on 2 laptops |
 | 2 | Rules in the switches: all pairs active, and under churn | Done | **DevoFlow** (SIGCOMM 2011); **CacheFlow** (SOSR 2016) | DevoFlow: table and setup-rate limits of a real HP switch, then simulation. CacheFlow: caching popular rules on a real Pica8 switch | No direct count of how reactive exact-match rules pile up against proactive under churn | Measured count: up to **83× more rules** for reactive under churn; equal to proactive when every pair talks |
-| 3 | Controller load under realistic flow arrivals | Done | **Tootoonchian et al.** (Hot-ICE 2012, cbench) | Maximum flows/s of several controllers under **synthetic** load from emulated switches | Realistic traffic; how load changes requests per flow | Load under university, data-centre and ISP traffic, plus the **amplification effect**: 7.4 → ~12 requests per flow as POX CPU rose from 54% to 86% |
+| 3 | Controller load under realistic flow arrivals | Done | **Tootoonchian et al.** (Hot-ICE 2012, cbench) | Maximum flows/s of several controllers under **synthetic** load from emulated switches | Realistic traffic; how load changes requests per flow | Load under university, data-centre and ISP traffic, plus the **amplification effect**: 10.5–12.9 requests per flow in every scenario (7.4 in a lighter run), 5 runs |
 | 4 | Path quality: reactive vs proactive shortest path vs ECMP | Done | **Al-Fares** (SIGCOMM 2008); **Hedera** (NSDI 2010) | Fat-tree design; ECMP and flow scheduling for throughput | Not about how rules are installed. The reactive-vs-proactive papers do not measure paths | **Links installation mode to path quality**: stretch, delay, throughput, link balance, on a fat-tree and the real Abilene map |
 | 5 | Flow completion time under realistic traffic | Done | **pFabric** (SIGCOMM 2013) / **PIAS** (NSDI 2015) workloads; **Batista et al.** 2024 | pFabric/PIAS: published web-search and data-mining workloads, used to test transport protocols. Batista: response time, reactive vs LSTM pre-install, on IoT | These workloads never used to compare rule-installation strategies; Batista only on periodic IoT | Reactive vs proactive vs ECMP under university, web-search, data-mining and **real Abilene ISP** traffic |
 | 6 | Reactive with long timeouts | **Done** (4 scenarios, 5 runs each) | **SmartTime** (DEBS 2014); **AH-IHTA** (*Electronics* 2020) | Adaptive vs fixed timeouts: fewer misses and less controller load. SmartTime on Benson's real university traces | No comparison against proactive or a hybrid on the same traffic; no flow completion times or path quality | Long timeouts vs proactive vs hybrid on the same workloads and networks, with all metrics |
@@ -44,7 +44,7 @@ Results so far are summarised in Section 3; details are in `docs/Progress_Review
 | Paths | Hop stretch, delay stretch, % of pairs on a longer path, path RTT | 4 |
 | Throughput | Total throughput vs ideal; slowest flow; busiest link; Jain index over links; % of links unused | 4 |
 | Control channel | Effect of controller-to-switch delay on all of the above | 9 |
-| Rigour | 5 repeats, mean and 95% confidence interval (done for Step 4; Step 2 to repeat) | All |
+| Rigour | 5 repeats, mean and 95% confidence interval (done for Steps 2 and 4) | All |
 
 ---
 
@@ -53,6 +53,7 @@ Results so far are summarised in Section 3; details are in `docs/Progress_Review
 | # | Result |
 | --- | --- |
 | 6 | Long timeouts (60 s / 300 s) gave **no fewer controller requests and no faster flows** in 4 of 4 scenarios (significantly slower in one), with 2.2–3.0× the rules. Exact-match rules are never reused by new connections. |
+| 7 (random) | Pre-installing a random K pairs buys only the budget share (8–10% / 19–25% / 44–54% hit rate at 10 / 25 / 50%). The counter gets 72–89% of the oracle's advantage over random. |
 | 7 | 25% of host pairs pre-installed: **54–66% hit rate**, 2.3–2.7× fewer PACKET_INs, 2.0–2.4× fewer rules than reactive on shortest paths. With uniform pairs, a budget buys only its own share. |
 | 7 (oracle) | The counter reaches **0.88–0.93 of the oracle's hit rate** at 25–50% budgets, and 0.62–0.91 at 10%. |
 | 8 | Not built. The oracle shows how much any predictor, ML included, could add: at most 5–11 points of hit rate at 25–50% budgets; more only at a 10% budget with many flows per pair. |

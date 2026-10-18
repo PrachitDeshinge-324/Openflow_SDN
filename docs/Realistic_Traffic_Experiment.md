@@ -72,6 +72,8 @@ sudo python3 experiments/run_traffic_experiments.py           # all 4 scenarios,
 
 ## 7. Results
 
+> **Update (18 Oct).** Sections 7 and 8 are the first single runs (seed 7, Windows Balanced power mode). The same four scenarios were then repeated 5 times with Best performance mode; **those are the numbers to quote**: Section 10. Compared with the single runs, reactive is faster in the faster mode and the ratios are a little smaller; the conclusions hold.
+
 **Report run:** laptop, Windows 11 + WSL2 (kernel 6.18.33.2), Open vSwitch 3.7.1 kernel datapath, POX 0.7.0, Python 3.14.4. Every link 100 Mbit/s, 30 s of flow arrivals, 30% target load for the data-centre workloads, flows capped at 20 MB. Run 15 Oct 2026; files are in [`results/measured/traffic-20261015-113417/`](../results/measured/traffic-20261015-113417/).
 
 **Every flow finished in every run (0 failed)**, so the laptop kept up and the differences below come from the controllers.
@@ -206,3 +208,31 @@ python3 experiments/abilene_tm.py X02.gz --day 3      # another day; then --tm d
 - **The ISP controller is local.** In a real ISP the controller sits in one city, so its messages to distant switches take tens of ms. Here it is on the same machine. Running the controller on a second PC (`docs/Controller_On_Second_PC.md`; tool ready, run pending) starts to add this.
 - **SURGE comes from web traffic.** Its flow sizes come from web workloads of the late 1990s and are only a stand-in for 2004 backbone flows. The traffic *volumes* between cities are real.
 - **Python adds overhead.** The traffic generator is Python, so very small FCTs include some scheduling delay. It is the same for every controller, so comparisons are fair.
+
+## 10. Repeats: 5 runs with 95% confidence intervals (night of 17–18 Oct)
+
+Same four scenarios, networks, controllers and flow schedules as above, with **5 seeds (7–11)** per configuration, uniform host pairs, Windows "Best performance" mode. Each value is the mean ± the half-width of the 95% confidence interval (Student's t, 4 degrees of freedom). Raw data: the oldest of the five `results/measured/traffic-20261017-*/` folders of that night (the one started before `traffic-20261017-224052`). Command: `sudo python3 experiments/run_traffic_experiments.py --repeats 5`.
+
+| Scenario | Controller | Small flows < 100 KB: median / p99 (ms) | Large flows > 10 MB: mean (s) | PACKET_IN/s | Controller CPU % | Peak rules (all / busiest switch) |
+| --- | --- | --- | --- | --- | --- | --- |
+| University | Reactive | **32.0 ± 4.5** / 92.1 ± 25.5 | - | 2,417 ± 47 | 72.2 ± 4.8 | 10,836 / 3,336 |
+| University | Proactive | **1.15 ± 0.24** / 41.4 ± 4.4 | - | 0 | 0.1 | 624 / 192 |
+| Web search | Reactive | 115.5 ± 16.9 / 308.5 ± 34.9 | 10.3 ± 3.3 | 489 ± 22 | 36.5 ± 4.5 | 4,329 / 722 |
+| Web search | Proactive | 57.3 ± 8.0 / 243.9 ± 20.3 | 10.5 ± 3.4 | 0 | 0.2 | 1,072 / 192 |
+| Web search | Proactive ECMP | **17.0 ± 3.4** / 194.0 ± 39.3 | **3.19 ± 0.62** | 0 | 0.3 | 1,072 / **58** |
+| Data mining | Reactive | 80.5 ± 12.6 / 183.3 ± 30.3 | 9.85 ± 0.77 | 684 ± 29 | 47.0 ± 4.1 | 5,862 / 979 |
+| Data mining | Proactive | 26.2 ± 2.0 / 99.5 ± 22.6 | 9.98 ± 0.66 | 0 | 0.2 | 1,072 / 192 |
+| Data mining | Proactive ECMP | **9.6 ± 2.4** / 67.3 ± 9.3 | **3.56 ± 0.45** | 0 | 0.3 | 1,072 / **58** |
+| ISP (Abilene) | Reactive | **101.5 ± 4.5** / 350.0 ± 16.9 | 1.61 ± 0.06 | 611 ± 20 | 31.9 ± 3.5 | 7,332 / 1,080 |
+| ISP (Abilene) | Proactive | **46.3 ± 1.2** / 206.5 ± 37.3 | 1.46 ± 0.40 | 0 | 0.1 | 386 / 62 |
+
+Flows per run: 6,093 ± 101 (university), 1,136 ± 49 (web search), 1,689 ± 40 (data mining), 1,749 ± 43 (ISP). **0 failed flows** in every run.
+
+**What the repeats say:**
+1. **University: small flows are 28× slower with reactive** (32.0 vs 1.15 ms; 44× in the single run). Same cause: the network is only 6% loaded.
+2. **Data centre: ECMP is 6.8× (web search) and 8.4× (data mining) faster than reactive** for small flows, and 3.2× / 2.8× for large flows.
+3. **ISP: reactive is 2.2× slower** (101.5 vs 46.3 ms). The path/setup split is measured in `docs/Budgeted_Hybrid_Experiment.md` (about 41 ms path, 10 ms setup).
+4. **Amplification confirmed:** 10.5–12.9 PACKET_INs per new flow in every scenario (11.9 university, 12.9 web search, 12.1 data mining, 10.5 ISP).
+5. **Reactive's rule count:** 4.0–19× proactive's, as before.
+
+**Machine state matters.** The same configuration (university, uniform pairs, 5 seeds) measured on two nights gave reactive medians of 23.6 ± 0.7 ms (16 Oct) and 32.0 ± 4.5 ms (17 Oct), with proactive at 0.96 and 1.15 ms: the ratio held (25× and 28×) but the intervals do not overlap. A confidence interval covers run-to-run noise within a night, not the machine's state between nights, so we quote ratios and compare only within one batch.

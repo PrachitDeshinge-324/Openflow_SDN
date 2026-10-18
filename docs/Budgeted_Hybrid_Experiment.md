@@ -596,6 +596,61 @@ Conclusions so far (one run each; confidence intervals still to come):
    matters only when all pairs do not fit in the switches, as in large
    networks.
 
+### 4.8 Night of 17–18 Oct: random baseline, larger network, decay 0.9
+
+All Best performance mode, uniform host pairs where stated. Raw data: `results/measured/traffic-20261017-224052/` (random: university and fat-tree), `-231017/` (random: Abilene), `-232237/` (fat-tree k = 6), `traffic-20261018-001723/` (decay 0.9).
+
+**Random baseline.** Pre-install a random K pairs, with no knowledge of the traffic (5 runs, same seeds 7–11 as the counter and oracle; hit rate % ± 95% CI):
+
+| Scenario | Random 10 / 25 / 50% | Counter | Oracle | Counter's share of the oracle's gain over random |
+| --- | --- | --- | --- | --- |
+| University, Zipf | 9.8 ± 7.1 / 23.9 ± 7.8 / 49.8 ± 12.3 | 30.8 / 60.7 / 78.9 | 49.3 / 68.2 / 84.7 | 0.53 / 0.83 / 0.83 |
+| Fat-tree, web search | 8.4 ± 3.2 / 19.3 ± 9.0 / 43.5 ± 6.7 | 51.1 / 65.8 / 77.4 | 56.2 / 73.7 / 88.3 | 0.89 / 0.85 / 0.76 |
+| Abilene | 9.6 ± 4.8 / 24.5 ± 4.8 / 54.1 ± 5.4 | 26.6 / 53.8 / 77.2 | 33.1 / 59.2 / 83.0 | 0.72 / 0.84 / 0.80 |
+
+At a 25% budget (University / Fat-tree / Abilene):
+
+| Controller | PACKET_IN/s | Peak rules | Small-flow median (ms) |
+| --- | --- | --- | --- |
+| Reactive on shortest paths | 2,549 / 492 / 447 | 10,983 / 3,752 / 5,321 | 27.3 / 59.3 / 55.6 |
+| Random 25% | 1,872 / 389 / 334 | 8,556 / 3,282 / 4,012 | 19.2 / 55.3 / 53.3 |
+| Counter 25% | 936 / 180 / 198 | 5,278 / 1,569 / 2,615 | 8.4 / 38.2 / 50.0 |
+| Oracle 25% | 658 / 139 / 169 | 3,586 / 1,221 / 2,418 | 5.0 / 34.0 / 49.4 |
+
+- **Random buys only its budget share**, even with skewed traffic (8–10% / 19–25% / 44–54% at 10 / 25 / 50%), and its intervals are wide: a lucky pick catches a busy pair.
+- **At 25%, random cuts the rules by 12–25% and the controller requests by 21–27%.** The counter cuts the rules by 51–58% and the requests by 56–63%. So most of the gain comes from *choosing the pairs*, not from having pre-installed rules.
+- **The counter gets 72–89% of the oracle's advantage over random** (53% for university at 10%).
+- **Caveat on times.** The random runs were a different night from the counter and oracle runs. Hit rates compare directly (they depend only on the flow schedule); the times only loosely (see the night-to-night note in `docs/Test_Catalogue.md`, T10).
+
+**Decay 0.9 instead of 0.97** (university, Zipf, 5 runs):
+
+| | Hit rate 10% | Hit rate 25% | Median 10% / 25% (ms) | Installs (wasted) 10% / 25% |
+| --- | --- | --- | --- | --- |
+| Decay 0.97 | 30.8 ± 10.2 | 60.7 ± 5.5 | 17.7 / 8.4 | 70 (40) / 144 (64) |
+| Decay 0.9 | 34.9 ± 6.8 | 62.1 ± 4.5 | 15.5 / 7.0 | 81 (50) / 153 (64) |
+
+Every difference is inside the intervals, so **a shorter memory does not help**. The 10% weak spot is more likely the counter's 0/1 scoring (Section 4.4) than its memory length; a counter that counts flows is still untested.
+
+**Larger network: fat-tree k = 6** (54 hosts, 45 switches, 2,862 pairs; web search, Zipf pairs, 5% load; 3 runs, seeds 7–9; 642 ± 114 flows per run, 0 failed):
+
+| Controller | Hit rate % | Small-flow median (ms) | PACKET_IN/s | Peak rules (all / busiest switch) |
+| --- | --- | --- | --- | --- |
+| Reactive (spanning tree) | - | 99.6 ± 48.5 | 344 ± 29 | 3,012 / 406 |
+| Reactive, long timeouts | - | 93.7 ± 33.0 | 354 ± 47 | 8,023 / 1,061 |
+| Reactive on shortest paths | 0 | 51.5 ± 7.1 | 367 ± 50 | 2,160 / 138 |
+| Counter 2% (57 pairs) | 40.0 ± 6.8 | 31.3 ± 7.9 | 229 ± 59 | 1,589 / 69 |
+| Counter 5% (143) | 47.1 ± 9.6 | 26.9 ± 8.2 | 204 ± 60 | 1,819 / 77 |
+| Counter 10% (286) | 50.9 ± 7.8 | 25.0 ± 15.5 | 189 ± 59 | 2,374 / 89 |
+| Oracle 2 / 5 / 10% | 50.3 / 65.5 / 77.8 | 23.0 / 13.5 / 8.0 | 195 / 143 / 96 | 1,370 / 1,430 / 2,019 (all) |
+| Proactive ECMP | 100 | 4.9 ± 0.6 | 0 | **13,230** / 312 |
+
+- **Proactive's rules explode with size:** 13,230 against 1,072 on 16 hosts (12× the rules for 3.4× the hosts), and 6.1× the reactive count.
+- **A 2% budget already helps:** 40% hit rate, a 1.6× lower median than reactive on shortest paths, 38% fewer controller requests, and **8× fewer rules than proactive**.
+- **The counter is weaker at this scale:** 0.80 / 0.72 / 0.65 of the oracle, and 43–46% of its installs wasted (51 of 118, 125 of 273, 214 of 500). About 640 flows spread over 2,862 pairs means many pairs appear only once or twice, so the counter spends installs on pairs that do not return.
+- **At 10% the hybrid holds more rules than pure reactive** (2,374 vs 2,160): its pair rules are added on top of the misses' exact-match rules.
+- **Path and setup:** about 48 ms of path and 47 ms of setup in reactive's extra over proactive.
+- **Limits:** 3 seeds (wide intervals; for example counter 5% vs 10% is not significant), 5% load, web search only.
+
 ## 5. Runs still to do
 
 | Run | Command (add `sudo python3 experiments/run_traffic_experiments.py`) | Question it answers | Status |
@@ -605,10 +660,10 @@ Conclusions so far (one run each; confidence intervals still to come):
 | C1 | `--scenarios fattree-k4:websearch --budget-sweep --pair-zipf 1` | Data centre: fewer, bigger flows, many paths (ECMP) | **done**, Section 4.5 |
 | C2 | `--scenarios abilene:isp --budget-sweep` | ISP: real traffic matrices, which are skewed on their own | **done**, Section 4.6 |
 | D | All four scenarios with `--repeats 5` | Confidence intervals | **done**, Section 4.0 |
-| D2 | `--scenarios tree-d2-f4:university --pair-zipf 1 --modes hybrid-10 hybrid-25 --decay 0.9 --repeats 5` | Does a shorter memory help the counter at small budgets? | to do (one run so far: inconclusive) |
+| D2 | `--scenarios tree-d2-f4:university --pair-zipf 1 --modes hybrid-10 hybrid-25 --decay 0.9 --repeats 5` | Does a shorter memory help the counter at small budgets? | **done**, Section 4.8: no |
 | E | Any of the above with `--controller-host` (two PCs) | Point 9: does a separate controller PC change the result? | to do (needs a second laptop) |
-| G | `--modes random-10 random-25 random-50 --repeats 5` on the university (Zipf), fat-tree and Abilene scenarios | Random partial pre-installation: the baseline for the counter and the oracle | to do (tonight) |
-| F | `--scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1` | A larger network (45 switches, 54 hosts, 2,862 pairs): does the budget matter once proactive needs thousands of rules? | to do; first a smoke test (below) |
+| G | `--modes random-10 random-25 random-50 --repeats 5` on the university (Zipf), fat-tree and Abilene scenarios | Random partial pre-installation: the baseline for the counter and the oracle | **done**, Section 4.8 |
+| F | `--scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1` | A larger network (45 switches, 54 hosts, 2,862 pairs): does the budget matter once proactive needs thousands of rules? | **done**, Section 4.8 (3 seeds) |
 
 **Run F: what the cloud test of 15 Oct showed.**
 - **Setup:** userspace Open vSwitch, 4 CPUs, websearch at 10% load, 20 s.
