@@ -1,0 +1,69 @@
+{
+  "mode": "reactive",
+  "config": {
+    "match": "exact",
+    "idle_timeout": 10,
+    "hard_timeout": 30
+  },
+  "pid": 293751,
+  "uptime_s": 63.38455271720886,
+  "written_at": 1792276235.9361012,
+  "totals": {
+    "packet_in": 73243,
+    "flow_mod": 73012,
+    "packet_out": 231,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 20382,
+      "flow_mod": 20337,
+      "packet_out": 45,
+      "connected_at": 1792276172.703805,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 13179,
+      "flow_mod": 13132,
+      "packet_out": 47,
+      "connected_at": 1792276172.7519238,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 13387,
+      "flow_mod": 13342,
+      "packet_out": 45,
+      "connected_at": 1792276172.8277733,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 13212,
+      "flow_mod": 13165,
+      "packet_out": 47,
+      "connected_at": 1792276172.8950765,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 13083,
+      "flow_mod": 13036,
+      "packet_out": 47,
+      "connected_at": 1792276172.9239502,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 73243,
+    "mean": 118.14312334364269,
+    "p50": 105.50600018177647,
+    "p95": 193.7690003614989,
+    "max": 15993.870999864157
+  },
+  "extra": {
+    "links": 8
+  }
+}

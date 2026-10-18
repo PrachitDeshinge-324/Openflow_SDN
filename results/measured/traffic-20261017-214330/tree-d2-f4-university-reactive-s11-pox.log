@@ -1,0 +1,35 @@
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-01 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-02 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.5 -> 00-00-00-00-00-01.1
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-03 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.5 -> 00-00-00-00-00-01.2
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-04 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-05 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.5 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.5 -> 00-00-00-00-00-01.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-04.5
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-03.5
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.1 -> 00-00-00-00-00-02.5
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.4 -> 00-00-00-00-00-05.5
+INFO:openflow.spanning_tree:4 ports changed
+INFO:openflow.spanning_tree:5 ports changed
+INFO:openflow.spanning_tree:5 ports changed
+INFO:openflow.spanning_tree:5 ports changed
+INFO:openflow.spanning_tree:5 ports changed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:core:Going down...
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.

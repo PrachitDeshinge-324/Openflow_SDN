@@ -1,0 +1,82 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.25,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/traffic-20261017-224052/tree-d2-f4-topo.json",
+    "pairs_file": "/home/mrudul/Openflow_SDN/results/measured/traffic-20261017-224052/tree-d2-f4-university-random-50-s8-pairs.txt"
+  },
+  "pid": 451653,
+  "uptime_s": 40.28615140914917,
+  "written_at": 1792277356.624654,
+  "totals": {
+    "packet_in": 41098,
+    "flow_mod": 41286,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 12516,
+      "flow_mod": 12583,
+      "packet_out": 0,
+      "connected_at": 1792277316.5231,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 5543,
+      "flow_mod": 5574,
+      "packet_out": 0,
+      "connected_at": 1792277316.5393975,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 8171,
+      "flow_mod": 8200,
+      "packet_out": 0,
+      "connected_at": 1792277316.630717,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 7740,
+      "flow_mod": 7770,
+      "packet_out": 0,
+      "connected_at": 1792277316.6791153,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 7128,
+      "flow_mod": 7159,
+      "packet_out": 0,
+      "connected_at": 1792277316.7312455,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 40982,
+    "mean": 159.05154694703663,
+    "p50": 140.94199968894827,
+    "p95": 256.33499990362907,
+    "max": 13949.412999863853
+  },
+  "extra": {
+    "budget_pairs": 120,
+    "total_pairs": 240,
+    "pair_installs": 120,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 120,
+    "ingress_syn_misses": 3408,
+    "ingress_new_flows": 12702
+  }
+}
