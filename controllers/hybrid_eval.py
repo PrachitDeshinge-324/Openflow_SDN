@@ -23,6 +23,10 @@ path), within a budget of K pairs for the whole network:
   --budget=0    : pure reactive on shortest paths ("reactive-sp")
   --budget=0.25 : at most 25% of all (source, destination) host pairs pre-installed
   --budget=1    : every pair can be pre-installed once it has been seen
+  --match=exact : the reactive rule matches the whole flow (default, as l2_learning)
+  --match=pair  : the reactive rule matches source MAC + destination MAC, so later flows
+                  of the same pair find it ("reactive with pair rules", no prediction)
+  --match=dst   : the reactive rule matches the destination MAC only
   --pairs_file=F: "oracle" upper bound: pre-install exactly the pairs listed in F
                   (one "src_mac dst_mac" per line, e.g. the truly busiest pairs of the
                   coming traffic), keep them for the whole run, no counter
@@ -35,7 +39,7 @@ at the sender's switch) - the harness turns the last one into a hit rate.
 Usage (from the pox/ directory):
   PYTHONPATH=../controllers python3 pox.py hybrid_eval --topo=/path/topo.json \\
       [--budget=0.25] [--decay=0.97] [--interval=1] [--hysteresis=1.5] [--pairs_file=F] \\
-      [--paths=shortest|ecmp] [--idle_timeout=10] [--hard_timeout=30] [--stats_file=...]
+      [--paths=shortest|ecmp] [--match=exact|pair|dst] [--idle_timeout=10] [--hard_timeout=30] [--stats_file=...]
 """
 
 import time
@@ -58,11 +62,12 @@ PAIR_PRIORITY = 100   # pre-installed pair rules; reactive rules are exact match
 class HybridEval(object):
 
   def __init__(self, topo_file, budget, decay, interval, hysteresis, paths,
-               idle_timeout, hard_timeout, stats, pairs_file=None):
+               idle_timeout, hard_timeout, stats, pairs_file=None, match='exact'):
     self.hosts, self.adj = load_topology(topo_file)
     self.weights = load_link_weights(topo_file)
     self.by_mac = {EthAddr(h['mac']): h for h in self.hosts}
     self.paths = paths
+    self.match_mode = match
     self.decay, self.hysteresis = decay, hysteresis
     self.idle_timeout, self.hard_timeout = idle_timeout, hard_timeout
     self.stats = stats
@@ -100,6 +105,14 @@ class HybridEval(object):
         self._path_cache[key] = tied[0]
     return self._path_cache[key]
 
+  def _path_from(self, dpid, src, dst):
+    tied = shortest_paths(self.adj, self.weights, dpid, dst['dpid'])
+    if not tied:
+      return None
+    if self.paths == 'ecmp':
+      return tied[zlib.crc32(('%s-%s' % (src['mac'], dst['mac'])).encode()) % len(tied)]
+    return tied[0]
+
   def _out_port(self, path, dpid, dst):
     i = path.index(dpid)
     return dst['port'] if i == len(path) - 1 else self.adj[dpid][path[i + 1]]
@@ -125,10 +138,14 @@ class HybridEval(object):
     if src is None or dst is None:
       return   # broadcast or unknown host: static ARP is used, so drop
     path = self._path(src, dst)
+    if self.match_mode == 'dst' and path and dpid not in path:
+      # a destination rule at an earlier switch may have sent the packet along another
+      # shortest path (the first sender's), so route from here
+      path = self._path_from(dpid, src, dst)
     if not path or dpid not in path:
       return
     pair = (src['mac'], dst['mac'])
-    if dpid == path[0]:   # the sender's own switch: this is where a flow starts
+    if dpid == src['dpid']:   # the sender's own switch: this is where a flow starts
       self.active.add(pair)
       tcp = packet.find('tcp')
       if tcp is not None and tcp.SYN and not tcp.ACK:
@@ -136,7 +153,12 @@ class HybridEval(object):
       self.stats.extra['ingress_new_flows'] += 1
       self.stats.dirty = True
     msg = of.ofp_flow_mod()
-    msg.match = of.ofp_match.from_packet(packet, event.port)
+    if self.match_mode == 'pair':
+      msg.match = of.ofp_match(dl_src=packet.src, dl_dst=packet.dst)
+    elif self.match_mode == 'dst':
+      msg.match = of.ofp_match(dl_dst=packet.dst)
+    else:
+      msg.match = of.ofp_match.from_packet(packet, event.port)
     msg.idle_timeout, msg.hard_timeout = self.idle_timeout, self.hard_timeout
     msg.actions.append(of.ofp_action_output(port=self._out_port(path, dpid, dst)))
     msg.data = event.ofp
@@ -230,20 +252,23 @@ class HybridEval(object):
 
 
 def launch(topo=None, budget='0.25', decay='0.97', interval='1', hysteresis='1.5',
-           paths='shortest', idle_timeout='10', hard_timeout='30', stats_file=None, pairs_file=None):
+           paths='shortest', idle_timeout='10', hard_timeout='30', stats_file=None, pairs_file=None,
+           match='exact'):
   if not topo:
     raise RuntimeError("hybrid_eval needs --topo=<topology.json>")
   if paths not in ('shortest', 'ecmp'):
     raise RuntimeError("--paths must be shortest or ecmp")
+  if match not in ('exact', 'pair', 'dst'):
+    raise RuntimeError("--match must be exact, pair or dst")
   config = {'budget': float(budget), 'decay': float(decay), 'interval': float(interval),
             'hysteresis': float(hysteresis), 'paths': paths, 'idle_timeout': int(idle_timeout),
-            'hard_timeout': int(hard_timeout), 'topo': topo, 'pairs_file': pairs_file}
+            'hard_timeout': int(hard_timeout), 'topo': topo, 'pairs_file': pairs_file, 'match': match}
   stats = ControllerStats('hybrid', config, stats_file)
 
   def start():
     core.registerNew(HybridEval, topo, float(budget), float(decay), float(interval),
                      float(hysteresis), paths, int(idle_timeout), int(hard_timeout), stats,
-                     pairs_file)
+                     pairs_file, match)
     Timer(1, stats.dump, recurring=True)
     stats.dump(force=True)
 

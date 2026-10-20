@@ -30,7 +30,8 @@ Usage (Mininet needs root):
   sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k4:university
   # Step 4: reactive with long timeouts, budgeted hybrid and oracle at 10/25/50% of pairs
   sudo python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university \
-      --budget-sweep --pair-zipf 1        # add --random-baseline for random-10/25/50
+      --budget-sweep --pair-zipf 1        # add --random-baseline for random-10/25/50,
+                                          # --granularity-baselines for reactive-pair / reactive-dst
   # 5 runs with different seeds: tables show mean +- 95% confidence interval
   sudo python3 experiments/run_traffic_experiments.py --repeats 5
   # controller on a second PC (start experiments/controller_agent.py there first)
@@ -71,6 +72,9 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #   reactive-long : reactive learning switch with long timeouts (the SmartTime / AH-IHTA
 #                   idea in its simplest form: keep rules longer)
 #   reactive-sp   : hybrid_eval with budget 0 = reactive, but on shortest paths
+#   reactive-pair : reactive-sp, but each rule matches source + destination MAC, so later flows
+#                   of a pair hit it (no prediction; tests whether wildcards alone explain the hybrid)
+#   reactive-dst  : the same with the destination MAC only
 #   hybrid-NN     : hybrid_eval, weighted counter keeps the top NN% of host pairs pre-installed
 #   oracle-NN     : upper bound for any predictor: pre-install the NN% of pairs that really
 #                   carry the most flows in this run's schedule, from the start
@@ -78,7 +82,9 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #                   each chosen pair), from the start; the baseline a smart choice must beat
 MODE_LABEL = dict(MODE_LABEL)
 MODE_LABEL.update({'reactive-long': 'Reactive, long timeouts',
-                   'reactive-sp': 'Reactive on shortest paths (hybrid, budget 0%)'})
+                   'reactive-sp': 'Reactive on shortest paths (hybrid, budget 0%)',
+                   'reactive-pair': 'Reactive on shortest paths, pair rules',
+                   'reactive-dst': 'Reactive on shortest paths, destination rules'})
 SPANNING_TREE_MODES = ('reactive', 'reactive-long')
 
 
@@ -105,10 +111,12 @@ def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of
     return ['openflow.discovery', 'openflow.spanning_tree', '--no-flood', '--hold-down',
             'reactive_eval', '--match=exact', '--idle_timeout=%d' % args.long_idle,
             '--hard_timeout=%d' % args.long_hard]
-  if mode == 'reactive-sp' or mode.startswith('hybrid-'):
-    budget = 0.0 if mode == 'reactive-sp' else float(mode.split('-', 1)[1]) / 100.0
+  if mode in ('reactive-sp', 'reactive-pair', 'reactive-dst') or mode.startswith('hybrid-'):
+    budget = float(mode.split('-', 1)[1]) / 100.0 if mode.startswith('hybrid-') else 0.0
+    match = {'reactive-pair': 'pair', 'reactive-dst': 'dst'}.get(mode, 'exact')
     return ['hybrid_eval', '--topo=%s' % topo_file, '--budget=%g' % budget,
-            '--decay=%g' % args.decay, '--hysteresis=%g' % args.hysteresis, '--paths=%s' % paths]
+            '--decay=%g' % args.decay, '--hysteresis=%g' % args.hysteresis, '--paths=%s' % paths,
+            '--match=%s' % match]
   if mode.startswith('oracle-'):
     counts = {}
     for _, src, dst, _ in flows:   # a TCP flow uses both directions (data, then the reply)
@@ -638,6 +646,9 @@ def main():
                   help='hybrid budgets, %% of all host pairs')
   ap.add_argument('--random-baseline', action='store_true',
                   help='budget sweep: also pre-install a random NN%% of pairs at each budget')
+  ap.add_argument('--granularity-baselines', action='store_true',
+                  help='budget sweep: also run reactive-pair and reactive-dst (reactive on shortest paths '
+                       'with wildcard rules, no pre-installation)')
   ap.add_argument('--decay', type=float, default=0.97, help='hybrid counter decay per second')
   ap.add_argument('--hysteresis', type=float, default=1.5,
                   help='hybrid: a newcomer must score this many times the weakest kept pair')
@@ -676,6 +687,7 @@ def main():
       sys.exit("Unknown scenario %s" % s)
     if args.budget_sweep:
       modes = (['reactive', 'reactive-long', 'reactive-sp'] +
+               (['reactive-pair', 'reactive-dst'] if args.granularity_baselines else []) +
                ['hybrid-%d' % b for b in args.budgets] + ['oracle-%d' % b for b in args.budgets] +
                (['random-%d' % b for b in args.budgets] if args.random_baseline else []) +
                ['proactive-ecmp' if 'fattree' in net_name else 'proactive'])

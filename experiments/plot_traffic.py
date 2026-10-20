@@ -168,6 +168,8 @@ def plot_budget(results, out_dir):
       # reactive-long's label goes under its line, so it does not sit on top of reactive's
       for mode, color, ls, dy in (('reactive', COLORS['reactive'], '--', 3),
                                   ('reactive-long', COLORS['reactive'], ':', -11),
+                                  ('reactive-pair', COLORS['reactive'], '-.', 3),
+                                  ('reactive-dst', COLORS['reactive'], '-.', -11),
                                   ('proactive', COLORS['proactive'], '--', 3),
                                   ('proactive-ecmp', COLORS['proactive-ecmp'], '--', 3)):
         if mode in runs and get(runs[mode]) is not None:
