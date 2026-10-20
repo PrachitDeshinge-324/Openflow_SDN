@@ -35,6 +35,8 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `docs/literature/` | Literature review (14 papers, PDFs in `papers/`) and the survey of 28 prediction/ML rule papers |
 | `docs/Test_Catalogue.md` | Every test in one place: question, setup, closest paper (what it found and missed), what we add, results, limits, raw data |
 | `docs/Viva_Guide.md` | How to explain the project: where each answer lives, the numbers to know, a presentation split, likely questions |
+| `results/measured/INDEX.md` | Which result folder belongs to which test (T1–T12), with runs and power mode |
+| `docs/Deep_Dive_T4_T7_T11.md` | Full study guide for the three tests to know best (T4 spanning-tree cost, T7 budgeted hybrid, T11 where reactive time goes): concepts, worked examples, all numbers, Q&A, practice plan |
 | `docs/Final_Report.md` | Final report (20 Nov): structure and finished sections, with `TODO (data)` where measurements are still to come |
 | `docs/figures/` | Summary figures for the reports, and the script that makes them from the measured tables |
 | `docs/Controller_On_Second_PC.md` | Step 4: how to run the controller on a second PC (incl. WSL2 networking) |
