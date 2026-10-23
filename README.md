@@ -34,6 +34,7 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `docs/Evaluation_Plan.md` | Every comparison we make, next to the closest paper and what that paper misses, with status and results |
 | `docs/literature/` | Literature review (14 papers, PDFs in `papers/`) and the survey of 28 prediction/ML rule papers |
 | `docs/Test_Catalogue.md` | Every test in one place: question, setup, closest paper (what it found and missed), what we add, results, limits, raw data |
+| `docs/Granularity_Baseline_Experiment.md` | Reactive with wildcard (pair / destination) rules vs the budgeted hybrid: results for four scenarios and what changes in the claims |
 | `docs/Viva_Guide.md` | How to explain the project: where each answer lives, the numbers to know, a presentation split, likely questions |
 | `results/measured/INDEX.md` | Which result folder belongs to which test (T1–T12), with runs and power mode |
 | `docs/Deep_Dive_T4_T7_T11.md` | Full study guide for the three tests to know best (T4 spanning-tree cost, T7 budgeted hybrid, T11 where reactive time goes): concepts, worked examples, all numbers, Q&A, practice plan |

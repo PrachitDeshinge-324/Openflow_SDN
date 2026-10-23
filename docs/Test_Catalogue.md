@@ -329,6 +329,8 @@ The first single runs (Balanced mode) gave 2,379 PACKET_IN/s at 86.4% CPU on uni
 
 **Question.** With real traffic patterns (mostly tiny flows, a few huge ones), how much slower are flows under reactive?
 
+> **Update, 21 Oct 2026.** All reactive numbers in this test use exact-match rules. A reactive controller with pair or destination rules removes most of the penalty (university: 52.5 to 1.5 ms; Abilene: 56.5 to 46.1 ms, proactive 46.0). See `docs/Granularity_Baseline_Experiment.md`.
+
 **Configuration.** Networks as in T3: 16 hosts on the tree and the fat-tree, 11 on Abilene. All links 100 Mbit/s; Abilene's Atlanta–Indianapolis link 25 Mbit/s, with city delays.
 
 | Scenario | Flow sizes | Flow arrivals | Flows per 30 s run | Source |
@@ -394,6 +396,8 @@ The first single runs (Balanced mode) gave medians of 55.7 / 155 / 113 / 120 ms 
 
 **Question.** Is "just keep reactive rules longer" enough to get most of proactive's benefit?
 
+> **Update, 21 Oct 2026.** Long timeouts keep exact-match rules that are never reused. A reactive controller with pair or destination rules gets 86 to 98% hit rate with the normal timeouts (`docs/Granularity_Baseline_Experiment.md`).
+
 **Configuration.**
 
 | Item | Value |
@@ -448,6 +452,8 @@ PACKET_IN/s is the same within the intervals in every scenario.
 ## T7. Budgeted hybrid, oracle and uniform control
 
 **Question.** If only a fraction of the host pairs may have pre-installed rules, how much of proactive's benefit does that buy, and how close is a simple counter to the best possible choice?
+
+> **Update, 21 Oct 2026.** A reactive controller that installs a pair rule on the first miss (no prediction) reaches 86 to 98% hit rate in all four scenarios, above the counter and the hindsight oracle at 25%, with no more rules than proactive. At 11 to 16 hosts most of the hybrid's gain is rule granularity. The open test is k=6, where pairs far outnumber flows. See `docs/Granularity_Baseline_Experiment.md`.
 
 **Configuration.**
 

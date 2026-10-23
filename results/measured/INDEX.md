@@ -75,3 +75,14 @@ No folder. Not run yet; it needs a second laptop (`docs/Controller_On_Second_PC.
 - Some folders are on the laptop only until the user commits them; check with `ls results/measured`.
 - Do not switch git branches while a batch is running: it deletes files the batch needs.
 - If a document and this index disagree, the document's own raw-data line is the older one; fix this index.
+
+## Granularity test (wildcard reactive rules, 20-21 Oct)
+
+See `docs/Granularity_Baseline_Experiment.md`. `traffic-20261020-171300/` is an aborted start with no results.
+
+| Folder | Test | What it holds | Runs | Mode |
+|---|---|---|---|---|
+| `traffic-20261020-171718/` | **Granularity** | **University, Zipf: reactive-pair / reactive-dst with counter, oracle, random (15 controllers)** | 5 | Best performance |
+| `traffic-20261020-183215/` | **Granularity** | **Fat-tree, web search (exact-match reactive rows contaminated by laptop sleep)** | 5 | Best performance |
+| `traffic-20261021-050401/` | **Granularity** | **Abilene ISP** | 5 | Best performance |
+| `traffic-20261021-060910/` | **Granularity** | **University, uniform pairs (control)** | 5 | Best performance |
