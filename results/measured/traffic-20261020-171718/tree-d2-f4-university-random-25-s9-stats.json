@@ -1,0 +1,83 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.25,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/traffic-20261020-171718/tree-d2-f4-topo.json",
+    "pairs_file": "/home/mrudul/Openflow_SDN/results/measured/traffic-20261020-171718/tree-d2-f4-university-random-25-s9-pairs.txt",
+    "match": "exact"
+  },
+  "pid": 677139,
+  "uptime_s": 39.62781000137329,
+  "written_at": 1792519202.1030395,
+  "totals": {
+    "packet_in": 49356,
+    "flow_mod": 49427,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 14040,
+      "flow_mod": 14074,
+      "packet_out": 0,
+      "connected_at": 1792519162.583492,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 9472,
+      "flow_mod": 9483,
+      "packet_out": 0,
+      "connected_at": 1792519162.6790266,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 8256,
+      "flow_mod": 8269,
+      "packet_out": 0,
+      "connected_at": 1792519162.759432,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 9364,
+      "flow_mod": 9372,
+      "packet_out": 0,
+      "connected_at": 1792519162.859061,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 8224,
+      "flow_mod": 8229,
+      "packet_out": 0,
+      "connected_at": 1792519163.0031502,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 49255,
+    "mean": 264.9005545326352,
+    "p50": 248.10099785099737,
+    "p95": 394.4020027120132,
+    "max": 36976.51699985727
+  },
+  "extra": {
+    "budget_pairs": 60,
+    "total_pairs": 240,
+    "pair_installs": 60,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 60,
+    "ingress_syn_misses": 4195,
+    "ingress_new_flows": 16041
+  }
+}

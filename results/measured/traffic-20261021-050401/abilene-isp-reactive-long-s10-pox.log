@@ -1,0 +1,92 @@
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-01 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-02 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.2 -> 00-00-00-00-00-02.2
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-03 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.3 -> 00-00-00-00-00-03.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.2 -> 00-00-00-00-00-02.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.2 -> 00-00-00-00-00-01.2
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-04 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-05 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.3 -> 00-00-00-00-00-02.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.2 -> 00-00-00-00-00-01.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.2 -> 00-00-00-00-00-04.4
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-06 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-06.3 -> 00-00-00-00-00-05.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-06.2 -> 00-00-00-00-00-03.3
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-07 connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-08 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-08.4 -> 00-00-00-00-00-07.2
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-09 connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-08.2 -> 00-00-00-00-00-05.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-09.3 -> 00-00-00-00-00-08.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-09.2 -> 00-00-00-00-00-06.4
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0a connected (reactive, match=exact)
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:reactive_eval:Switch 00-00-00-00-00-0b connected (reactive, match=exact)
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0a.2 -> 00-00-00-00-00-09.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0b.3 -> 00-00-00-00-00-0a.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0b.2 -> 00-00-00-00-00-07.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-0a.3 -> 00-00-00-00-00-0b.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-09.4 -> 00-00-00-00-00-0a.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-08.3 -> 00-00-00-00-00-09.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-07.3 -> 00-00-00-00-00-0b.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-07.2 -> 00-00-00-00-00-08.4
+INFO:openflow.discovery:link detected: 00-00-00-00-00-06.4 -> 00-00-00-00-00-09.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.3 -> 00-00-00-00-00-06.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-05.4 -> 00-00-00-00-00-08.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-04.4 -> 00-00-00-00-00-05.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-03.3 -> 00-00-00-00-00-06.2
+INFO:openflow.discovery:link detected: 00-00-00-00-00-02.4 -> 00-00-00-00-00-04.3
+INFO:openflow.discovery:link detected: 00-00-00-00-00-01.3 -> 00-00-00-00-00-04.2
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:4 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:openflow.spanning_tree:2 ports changed
+INFO:openflow.spanning_tree:3 ports changed
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:core:Going down...
+Traceback (most recent call last):
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 317, in cycle
+    rv = t.execute()
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 111, in execute
+    return self.gen.send(v)
+           ~~~~~~~~~~~~~^^^
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 1078, in run
+    rv = self._callback(*self._args,**self._kw)
+  File "/home/mrudul/Openflow_SDN/controllers/sa7_common.py", line 81, in dump
+    os.replace(tmp, self.stats_file)   # atomic, so readers never see half a file
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/mrudul/Openflow_SDN/results/measured/traffic-20261021-050401/abilene-isp-reactive-long-s10-stats.json.tmp' -> '/home/mrudul/Openflow_SDN/results/measured/traffic-20261021-050401/abilene-isp-reactive-long-s10-stats.json'
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.
+Task <Timer 6 tid:7> caused an exception and was de-scheduled
