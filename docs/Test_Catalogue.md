@@ -725,6 +725,8 @@ In the earlier Balanced-mode single runs, the setup parts were 52 / 78 / 26 ms a
 
 **Question.** Does the picture change when proactive needs thousands of rules?
 
+> **Update, 23 Oct 2026.** Rerun with wildcard baselines (`traffic-20261023-070549/`, 3 seeds): reactive with pair rules gets 51% hit rate and destination rules 59% at this size, down from 86 to 98% at 11 to 16 hosts. The counter at 10% gets the same 51% with 1.9 times the rules; only the oracle (65 to 78% at 5 to 10%) is better. See `docs/Granularity_Baseline_Experiment.md`.
+
 **Configuration.**
 
 | Item | Value |

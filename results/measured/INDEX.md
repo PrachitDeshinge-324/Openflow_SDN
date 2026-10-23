@@ -86,3 +86,4 @@ See `docs/Granularity_Baseline_Experiment.md`. `traffic-20261020-171300/` is an 
 | `traffic-20261020-183215/` | **Granularity** | **Fat-tree, web search (exact-match reactive rows contaminated by laptop sleep)** | 5 | Best performance |
 | `traffic-20261021-050401/` | **Granularity** | **Abilene ISP** | 5 | Best performance |
 | `traffic-20261021-060910/` | **Granularity** | **University, uniform pairs (control)** | 5 | Best performance |
+| `traffic-20261023-070549/` | **T12 + granularity** | **Fat-tree k=6 with reactive-pair / reactive-dst, counter, oracle, proactive (12 controllers)** | 3 (seeds 7-9) | Best performance |

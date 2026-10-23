@@ -85,7 +85,33 @@ Hit rate = new connections whose first packet found a rule at the sender's switc
 | Random, 25% | 25.3 | 17.7 ± 0.7 | 1,763 | 8,204 |
 | Proactive | - | 0.96 ± 0.20 | 0 | 624 |
 
-**Warning: the fat-tree exact-match rows are contaminated.** The laptop slept during the batch. In folder `traffic-20261020-183215/`, `Reactive, long timeouts` shows 223 ± 600 failed flows (one run lost almost all its flows), `Reactive` shows 5 ± 14, and `Reactive on shortest paths` has an interval of ± 69 ms. Do not quote those rows. For exact-match reactive on the fat-tree use the clean 5-run results of the night of 17-18 Oct (`traffic-20261017-214330/`: small-flow median, mean of 5 runs, reactive 110.8 ms, reactive on shortest paths 59.3 ms, proactive ECMP 28.6 ms). The pair, destination, counter, oracle, random and proactive rows report 0 failed flows; pair rules have a wider interval (± 18.8) that should be checked against the per-run rows.
+### Fat-tree k=6 (54 hosts, 2,862 pairs), added 23 Oct
+
+Same traffic as T12 (web search, 5% load, Zipf 1, about 640 flows per run), **3 seeds (7 to 9)**, 12 controllers per seed, 0 failed flows. Folder: `results/measured/traffic-20261023-070549/`. The counter and oracle numbers reproduce the earlier T12 run (counter 40.0 / 46.9 / 51.1%, oracle 50.3 / 65.5 / 77.8%, proactive 13,230 rules).
+
+| Controller | Hit rate % | Small-flow median (ms) | PACKET_IN/s | Peak rules |
+| --- | --- | --- | --- | --- |
+| Reactive (spanning tree), exact | 0 | 86.0 ± 39.7 | 345 | 2,977 |
+| Reactive on shortest paths, exact | 0 | 52.5 ± 22.4 | 371 | 2,165 |
+| **Reactive, pair rules** | **50.8 ± 5.0** | 21.5 ± 11.3 | 213 | 1,249 |
+| **Reactive, destination rules** | **59.3 ± 2.4** | 13.4 ± 7.4 | 153 | 766 |
+| Counter, 2% | 40.0 ± 7.0 | 29.1 ± 18.7 | 231 | 1,583 |
+| Counter, 5% | 46.9 ± 9.5 | 24.7 ± 12.3 | 212 | 1,840 |
+| Counter, 10% | 51.1 ± 7.2 | 22.6 ± 9.6 | 189 | 2,368 |
+| Oracle, 2% | 50.3 ± 7.1 | 22.0 ± 9.5 | 194 | 1,363 |
+| Oracle, 5% | 65.5 ± 9.6 | 13.4 ± 18.6 | 141 | 1,430 |
+| Oracle, 10% | 77.8 ± 8.1 | 8.1 ± 4.2 | 94 | 2,028 |
+| Proactive (ECMP) | - | 4.95 ± 0.8 | 0 | 13,230 |
+
+What it shows:
+- **The wildcard hit rate falls with size**: 86 to 98% at 11 to 16 hosts, 51% (pair) and 59% (destination) at 54 hosts. About 640 flows over 2,862 pairs means most pairs appear once or twice, so a rule installed on the first miss is rarely reused.
+- **The counter still adds nothing over plain pair rules.** At a 10% budget it has the same hit rate (51.1 vs 50.8) and speed (22.6 vs 21.5 ms), with 1.9 times the rules (2,368 vs 1,249) and 43% of its installs wasted (214 of 500).
+- **Only the oracle, which knows the future, beats wildcard rules** (65.5% at 5%, 77.8% at 10%). So prediction has room at this size, but our counter does not capture it.
+- **Proactive is still the fastest** (4.95 ms) but needs 10.6 times the rules of pair rules and 17 times those of destination rules.
+- Destination rules are the best non-oracle trade-off: 59% hit rate and 13.4 ms with 766 rules.
+- With 3 seeds most speed differences between pair, destination, counter and the 2 to 5% oracle are not significant; the hit rates are tighter.
+
+**Warning: the fat-tree exact-match rows (k=4) are contaminated.** The laptop slept during the batch. In folder `traffic-20261020-183215/`, `Reactive, long timeouts` shows 223 ± 600 failed flows (one run lost almost all its flows), `Reactive` shows 5 ± 14, and `Reactive on shortest paths` has an interval of ± 69 ms. Do not quote those rows. For exact-match reactive on the fat-tree use the clean 5-run results of the night of 17-18 Oct (`traffic-20261017-214330/`: small-flow median, mean of 5 runs, reactive 110.8 ms, reactive on shortest paths 59.3 ms, proactive ECMP 28.6 ms). The pair, destination, counter, oracle, random and proactive rows report 0 failed flows; pair rules have a wider interval (± 18.8) that should be checked against the per-run rows.
 
 **Reproducibility.** Counter, oracle and random hit rates reproduce the earlier batches within 0.1 point (for example fat-tree counter 65.7 vs 65.8 at 25%; university random 23.9 vs 23.9).
 
@@ -101,7 +127,7 @@ Hit rate = new connections whose first packet found a rule at the sender's switc
 ## 5. What it does not show
 
 - **Not that wildcards are better in general.** Wildcard rules give up per-flow policy (access control, per-flow paths) and per-flow visibility, which is the reason for exact-match rules in Ethane-style designs. Our tests have no policy and no monitoring, so they cannot value that. State it as an argument, not a result.
-- **Small networks only.** 11 to 16 hosts, 110 to 240 pairs, about 25 flows per pair in 30 s, so the first miss of a pair is amortised. At k=6 (2,862 pairs, about 640 flows in 30 s) most pairs appear once or twice, and pair rules should hit far less. That is the open test, and where a rule budget could still matter.
+- **Small networks (k=4, Abilene) amortise the first miss.** 110 to 240 pairs and about 25 flows per pair in 30 s. At k=6 the hit rate of pair rules falls to 51% (see above), so the k=4 result must not be extrapolated to large networks. Only 3 seeds at k=6, 5% load, web search only.
 - **Idle timeout 10 s.** Pair rules were not given long timeouts; destination rules would also behave differently under a different routing policy.
 - **One failed flow** in the oracle at 10% (university, seed 7); negligible (1 of 6,073).
 
@@ -111,12 +137,12 @@ Hit rate = new connections whose first packet found a rule at the sender's switc
 | --- | --- |
 | "Reactive is 2.2 to 28 times slower" (T5) | holds for exact-match rules only |
 | "Proactive costs memory, reactive costs time" (T1, T2) | granularity-dependent; pair-rule reactive matches proactive's rules and its speed |
-| "A rule budget buys most of proactive's benefit" (T7) | true against exact-match reactive; **not** against pair-rule reactive at 11 to 16 hosts |
+| "A rule budget buys most of proactive's benefit" (T7) | true against exact-match reactive; **not** against pair-rule reactive at 11 to 16 hosts; at 54 hosts the counter equals pair rules, only the oracle is better |
 | "The oracle bounds what any predictor can add" (T8) | still a static hindsight bound only; ML has even less room because a rule with no prediction already hits 86 to 98% |
 
 ## 7. Next steps
 
-1. **k=6 with the new modes** (where pairs far outnumber flows): `sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k6:websearch --budget-sweep --budgets 2 5 10 --load 0.05 --pair-zipf 1 --repeats 3 --granularity-baselines` (about 1 hour).
+1. **A counter on top of a wildcard fallback** (untested idea): pre-install the busiest pairs as now, but let every miss install a pair rule instead of an exact-match rule. At k=6 this might close part of the gap between pair rules (51%) and the oracle (65 to 78%). It is a prediction, not a result.
 2. Add `proactive-dst` to complete the two-axis grid (when x how coarse).
-3. Rerun the fat-tree exact-match rows (reactive, long timeouts, reactive on shortest paths) without the laptop sleeping, and check the pair-rule interval against the per-run rows.
-4. A capped version of reactive-pair (a rule budget with LRU eviction) is the natural form of the hybrid if k=6 shows that pair rules overflow.
+3. Rerun the k=4 fat-tree exact-match rows without the laptop sleeping (optional; the earlier clean results exist).
+4. Emulated control-channel delay and the second-PC run (T9), since every result so far uses a loopback control channel.
