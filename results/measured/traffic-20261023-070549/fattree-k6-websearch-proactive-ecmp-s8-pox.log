@@ -1,0 +1,143 @@
+INFO:proactive_eval:Loaded topology: 45 switches, 54 hosts
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-01 connected: pushed 238 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-02 connected: pushed 278 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-03 connected: pushed 270 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-04 connected: pushed 295 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-05 connected: pushed 258 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-06 connected: pushed 263 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-07 connected: pushed 275 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-08 connected: pushed 278 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-09 connected: pushed 275 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-0a connected: pushed 274 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-0b connected: pushed 278 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-0c connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-0d connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-0e connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-0f connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-10 17] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-10 connected: pushed 272 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-11 18] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-11 connected: pushed 298 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-12 19] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-12 connected: pushed 294 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-13 20] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-13 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-14 21] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-14 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-15 22] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-15 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-16 23] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-16 connected: pushed 275 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-17 24] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-17 connected: pushed 282 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-18 25] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-18 connected: pushed 307 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-19 26] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-19 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-1a 27] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-1a connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-1b 28] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-1b connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-1c 29] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-1c connected: pushed 272 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-1d 30] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-1d connected: pushed 296 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-1e 31] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-1e connected: pushed 296 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-1f 32] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-1f connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-20 33] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-20 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-21 34] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-21 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-22 35] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-22 connected: pushed 298 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-23 36] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-23 connected: pushed 291 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-24 37] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-24 connected: pushed 275 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-25 38] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-25 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-26 39] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-26 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-27 40] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-27 connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-28 41] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-28 connected: pushed 268 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-29 42] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-29 connected: pushed 298 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-2a 43] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-2a connected: pushed 298 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-2b 44] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-2b connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-2c 45] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-2c connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-2d 46] connected
+INFO:proactive_eval:Switch 00-00-00-00-00-2d connected: pushed 312 rules (granularity=pair, paths=ecmp)
+INFO:openflow.of_01:[00-00-00-00-00-1a 27] closed
+INFO:openflow.of_01:[00-00-00-00-00-1c 29] closed
+INFO:openflow.of_01:[00-00-00-00-00-23 36] closed
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-1f 32] closed
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] closed
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-22 35] closed
+INFO:openflow.of_01:[00-00-00-00-00-26 39] closed
+INFO:openflow.of_01:[00-00-00-00-00-1b 28] closed
+INFO:openflow.of_01:[00-00-00-00-00-29 42] closed
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-28 41] closed
+INFO:openflow.of_01:[00-00-00-00-00-16 23] closed
+INFO:openflow.of_01:[00-00-00-00-00-24 37] closed
+INFO:openflow.of_01:[00-00-00-00-00-12 19] closed
+INFO:openflow.of_01:[00-00-00-00-00-18 25] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:openflow.of_01:[00-00-00-00-00-1e 31] closed
+INFO:openflow.of_01:[00-00-00-00-00-19 26] closed
+INFO:openflow.of_01:[00-00-00-00-00-2b 44] closed
+INFO:openflow.of_01:[00-00-00-00-00-13 20] closed
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-17 24] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-2d 46] closed
+INFO:openflow.of_01:[00-00-00-00-00-21 34] closed
+INFO:openflow.of_01:[00-00-00-00-00-1d 30] closed
+INFO:openflow.of_01:[00-00-00-00-00-14 21] closed
+INFO:openflow.of_01:[00-00-00-00-00-2a 43] closed
+INFO:openflow.of_01:[00-00-00-00-00-11 18] closed
+INFO:openflow.of_01:[00-00-00-00-00-2c 45] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-10 17] closed
+INFO:openflow.of_01:[00-00-00-00-00-27 40] closed
+INFO:openflow.of_01:[00-00-00-00-00-25 38] closed
+INFO:openflow.of_01:[00-00-00-00-00-20 33] closed
+INFO:openflow.of_01:[00-00-00-00-00-15 22] closed
+INFO:core:Going down...
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.
