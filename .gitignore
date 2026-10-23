@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 *.tmp
 docs/literature/papers/*
+k6.log
+night3.log
+results/measured/traffic-20261020-171300/
