@@ -236,7 +236,9 @@ def launch(topo=None, paths='shortest', block_rate='0', block_s='30', flow_log=N
 
   def start():
     tap = core.registerNew(TapEval, topo, paths, int(block_rate), int(block_s), flow_log, stats)
-    Timer(1, stats.dump, recurring=True)
+    # dump every second even when nothing changed: the harness waits for a fresh dump to take
+    # its "before the first flow" baseline, and with no traffic yet nothing would be written
+    Timer(1, lambda: stats.dump(force=True), recurring=True)
     Timer(5, tap._expire, recurring=True)
     stats.dump(force=True)
 
