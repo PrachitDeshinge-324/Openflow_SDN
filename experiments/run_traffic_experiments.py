@@ -44,10 +44,12 @@ import json
 import os
 import random
 import re
+import signal
 import socket
 import statistics
 import subprocess
 import sys
+import threading
 import time
 from functools import partial
 
@@ -493,6 +495,15 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
                                                        args.flow_timeout, outs[h.name]))
 
     st_pre = ctrl.fresh()   # before the first flow: hybrid counters start here
+    freeze = []
+    if args.pause_controller:
+      # SIGSTOP freezes POX as a crash or a long garbage-collection pause would; SIGCONT resumes it
+      p_start, p_len = args.pause_controller
+      pid = ctrl.proc.pid
+      freeze = [threading.Timer(max(0, t0 + p_start - time.time()), os.kill, (pid, signal.SIGSTOP)),
+                threading.Timer(max(0, t0 + p_start + p_len - time.time()), os.kill, (pid, signal.SIGCONT))]
+      for tm in freeze:
+        tm.start()
     time.sleep(max(0, t0 - time.time()))
     st0 = ctrl.fresh()
     s0, c0, w0 = st0['totals'], ctrl.cpu_seconds(), time.time()
@@ -503,6 +514,8 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
       data = {k: max(0, now[k] - ctrl_rules.get(k, 0)) for k in now}   # data rules only
       peak_total = max(peak_total, sum(data.values()))
       peak_switch = max(peak_switch, max(data.values()))
+    for tm in freeze:   # the controller must be running again before we read its stats
+      tm.join()
     st1 = ctrl.fresh()
     s1, c1, w1 = st1['totals'], ctrl.cpu_seconds(), time.time()
 
@@ -540,6 +553,26 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
       'hybrid': hybrid_summary(st_pre, st1, rows) if 'ingress_syn_misses' in st1.get('extra', {}) else None,
       'start_late_ms_p99': pct([r['late_ms'] for r in rows], 0.99),
     })
+    if args.pause_controller:   # flows that started while the controller was frozen
+      p_start, p_len = args.pause_controller
+      inside = [r for r in rows if p_start <= r['start'] < p_start + p_len]
+      outside = [r for r in rows if not p_start <= r['start'] < p_start + p_len]
+      def small_median(rs):
+        v = sorted(r['fct_ms'] for r in rs if r['ok'] and r['fct_ms'] is not None and r['size'] < SMALL)
+        return v[len(v) // 2] if v else None
+      done_in = [r['fct_ms'] for r in inside if r['ok'] and r['fct_ms'] is not None]
+      result['pause'] = {'start_s': p_start, 'seconds': p_len, 'flows': len(inside),
+                         'failed': sum(1 for r in inside if not r['ok']),
+                         'small_median_ms': small_median(inside),
+                         'small_median_outside_ms': small_median(outside),
+                         'max_fct_ms': max(done_in) if done_in else None,
+                         'over_1s': sum(1 for v in done_in if v > 1000)}
+      pz = result['pause']
+      fmt_ms = lambda v: '-' if v is None else '%.1f' % v
+      log('    controller frozen %g-%g s: %d flows started, %d failed, %d took over 1 s, '
+          'small-flow median %s ms (outside the freeze %s ms), slowest %s ms'
+          % (p_start, p_start + p_len, pz['flows'], pz['failed'], pz['over_1s'],
+             fmt_ms(pz['small_median_ms']), fmt_ms(pz['small_median_outside_ms']), fmt_ms(pz['max_fct_ms'])))
     if mode == 'tap':   # how many of the flows the hosts started did the controller hear of?
       # read after every flow has finished, so no copy is still on its way
       e0, e1 = st_pre.get('extra', {}), ctrl.fresh().get('extra', {})
@@ -558,6 +591,8 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
         % (c['packet_in_per_s'], c['flow_mod_per_s'], c['controller_cpu_pct'],
            c['peak_rules_total'], c['peak_rules_one_switch']))
   finally:
+    if args.pause_controller and hasattr(ctrl, 'proc') and ctrl.proc.poll() is None:
+      os.kill(ctrl.proc.pid, signal.SIGCONT)   # never leave POX frozen
     net.stop()
     ctrl.stop()
   return result
@@ -686,7 +721,18 @@ def main():
   ap.add_argument('--agent-port', type=int, default=6000, help='TCP port of controller_agent.py')
   ap.add_argument('--quick', action='store_true', help='university traffic on the tree, 10 s (smoke run)')
   ap.add_argument('--out', default=None, help='output directory')
+  ap.add_argument('--pause-controller', default=None, metavar='START:SECONDS',
+                  help='freeze POX (SIGSTOP) START seconds into the traffic for SECONDS seconds, '
+                       'then resume it; reports the flows that started while it was frozen')
   args = ap.parse_args()
+  if args.pause_controller:
+    try:
+      args.pause_controller = tuple(float(x) for x in args.pause_controller.split(':'))
+      assert len(args.pause_controller) == 2
+    except (ValueError, AssertionError):
+      sys.exit('--pause-controller takes START:SECONDS, e.g. 10:5')
+    if args.controller_host:
+      sys.exit('--pause-controller works only with POX on this machine')
 
   if os.geteuid() != 0:
     sys.exit("Mininet needs root: run with sudo")
@@ -694,6 +740,8 @@ def main():
     sys.exit("POX not found at %s (clone it there or set POX_DIR)" % POX_DIR)
   if args.quick:
     args.scenarios, args.duration = ['tree-d2-f4:university'], 10
+  if args.pause_controller and sum(args.pause_controller) >= args.duration:
+    sys.exit('--pause-controller must end before --duration (%d s)' % args.duration)
   args.max_bytes = args.max_mb * 10**6
   args.netem = netem_available()
   scenarios = []

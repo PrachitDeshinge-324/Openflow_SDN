@@ -2,6 +2,8 @@
 
 CS G525 Advanced Computer Networks, Project SA7, Group 2. Written 19 Nov 2026 for the final presentation on 20 Nov.
 
+> **Status, 19 Nov afternoon.** Steps 1 and 2 are done: the tap controller ran on four networks (18 runs), as fast as proactive, 100% of connections heard of. Results: `docs/Tap_Experiment.md`. Next: Step 3a (`--pause-controller`) and the demo (`demo/freeze_demo.py`).
+
 **How to use this file:** Section 4 is the work list for today, in order. Section 8 is the timeline.
 
 Versions 1 and 2 (a flow-table model; a limit on what prediction can add) are kept as supporting material in Section 7. They are true but small. This version is a controller that is already written and checked offline.

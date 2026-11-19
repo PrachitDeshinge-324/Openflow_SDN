@@ -87,3 +87,13 @@ See `docs/Granularity_Baseline_Experiment.md`. `traffic-20261020-171300/` is an 
 | `traffic-20261021-050401/` | **Granularity** | **Abilene ISP** | 5 | Best performance |
 | `traffic-20261021-060910/` | **Granularity** | **University, uniform pairs (control)** | 5 | Best performance |
 | `traffic-20261023-070549/` | **T12 + granularity** | **Fat-tree k=6 with reactive-pair / reactive-dst, counter, oracle, proactive (12 controllers)** | 3 (seeds 7-9) | Best performance |
+
+## T13: tap (forward first, tell the controller)
+
+| Folder | Test | What it holds | Runs | Mode |
+|---|---|---|---|---|
+| `traffic-20261119-112325/`, `-113446/`, `-114426/` | T13 (checks) | Quick 10 s runs: first real run of the tap controller, and the fix of its counting bug. Not used for results | 1 | Best performance |
+| `traffic-20261119-114525/` | **T13** | **University tree: reactive-sp, reactive-pair, reactive-dst, proactive, tap** | 5 | Best performance |
+| `traffic-20261119-120616/` | **T13** | **Fat-tree k=4, web search (proactive-ecmp)** | 5 | Best performance |
+| `traffic-20261119-123520/` | **T13** | **Abilene ISP** | 5 | Best performance |
+| `traffic-20261119-125611/` | **T13** | **Fat-tree k=6, web search, 5% load** | 3 (seeds 7-9) | Best performance |

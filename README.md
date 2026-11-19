@@ -10,12 +10,15 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `controllers/reactive_eval.py` | POX module: reactive (on-demand) flow installation, instrumented |
 | `controllers/proactive_eval.py` | POX module: proactive flow installation from a known topology, instrumented |
 | `controllers/hybrid_eval.py` | POX module: budgeted hybrid (Step 4). Reactive on shortest paths, plus pair rules for the top K host pairs chosen by a weighted counter; or a fixed "oracle" list of pairs |
+| `controllers/tap_eval.py` | POX module (T13): destination rules installed in advance, plus a copy of every TCP SYN / FIN / RST to the controller. Nothing waits for the controller, and it still hears of every connection |
 | `controllers/sa7_common.py` | Shared stats/topology helpers for the modules |
 | `experiments/run_experiments.py` | **Measured** evaluation: latency, flow-table occupancy, controller load under churn |
 | `experiments/plot_results.py` | Plots for a measured run |
 | `experiments/run_path_experiments.py` | **Path quality** (Review II): path stretch, throughput and link balance on a fat-tree and the Abilene ISP map |
 | `experiments/path_topologies.py`, `experiments/plot_paths.py` | Multi-path networks (fat-tree, Abilene, any Topology Zoo `.gml`) and plots for the path experiment |
 | `experiments/run_traffic_experiments.py`, `experiments/workloads.py`, `experiments/plot_traffic.py` | **Realistic traffic** (Step 2): university, data-centre web search and data mining workloads from published measurements, and real Abilene ISP traffic |
+| `experiments/test_tap_offline.py`, `experiments/tap_check.py`, `experiments/tap_summary.py` | Tap controller: checks without a switch, flow-by-flow check of what the controller heard, and the comparison table from result folders |
+| `demo/freeze_demo.py` | Live demo: freeze the controller during traffic; new connections hang under reactive, not under tap |
 | `experiments/repeats.py` | Mean and 95% confidence interval over repeated runs (`--repeats`) |
 | `experiments/controller_agent.py` | Runs POX on a second PC for the traffic experiment (`--controller-host`) |
 | `experiments/abilene_tm.py`, `data/abilene/` | Real Abilene traffic matrices (Zhang et al., IMC 2005) turned into hourly city-to-city traffic |
@@ -35,6 +38,8 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `docs/literature/` | Literature review (14 papers, PDFs in `papers/`) and the survey of 28 prediction/ML rule papers |
 | `docs/Test_Catalogue.md` | Every test in one place: question, setup, closest paper (what it found and missed), what we add, results, limits, raw data |
 | `docs/Granularity_Baseline_Experiment.md` | Reactive with wildcard (pair / destination) rules vs the budgeted hybrid: results for four scenarios and what changes in the claims |
+| `docs/Tap_Experiment.md` | T13: forward first, tell the controller. Tap against reactive, wildcard and proactive on four networks |
+| `docs/Novelty_Plan.md` | Plan for the final presentation (19-20 Nov) |
 | `docs/Viva_Guide.md` | How to explain the project: where each answer lives, the numbers to know, a presentation split, likely questions |
 | `results/measured/INDEX.md` | Which result folder belongs to which test (T1–T12), with runs and power mode |
 | `docs/Deep_Dive_T4_T7_T11.md` | Full study guide for the three tests to know best (T4 spanning-tree cost, T7 budgeted hybrid, T11 where reactive time goes): concepts, worked examples, all numbers, Q&A, practice plan |
