@@ -1,186 +1,179 @@
-# Novelty plan: a model that predicts our testbed before we run it
+# Novelty plan (version 3): forward first, tell the controller in parallel
 
 CS G525 Advanced Computer Networks, Project SA7, Group 2. Written 19 Nov 2026 for the final presentation on 20 Nov.
 
-**How to use this file:** open Claude Code in this repo with Opus 5.5 and paste the prompt in Section 7. Sections 3 to 5 are the work list it follows. Sections 1, 2 and 6 are for us.
+**How to use this file:** Section 4 is the work list for today, in order. Section 8 is the timeline.
+
+Versions 1 and 2 (a flow-table model; a limit on what prediction can add) are kept as supporting material in Section 7. They are true but small. This version is a controller that is already written and checked offline.
 
 ---
 
 ## 1. The one point
 
-> **A switch's flow table is a cache with a timeout. One 60-line model built on that idea reproduces all 46 of our measured wildcard runs to within 0.1 percentage points, so we used it to predict experiments before running them, and to answer the SA7 question at 1,024 hosts, which no laptop can emulate.**
+> **Every strategy we tested makes the network choose: either the first packet waits for the controller (reactive), or the controller never learns which flows exist (proactive, wildcard rules). That choice is not necessary. A switch rule can have two actions: forward the packet, and send a copy to the controller. We built a controller that does this for the first and last packet of every TCP connection. Nobody waits, the controller hears of every flow, and it needs fewer rules than proactive.**
 
-What the professor sees, in order:
+The slide is one table (Section 2) in which the last row has no bad column, then a live demo: **freeze the controller during traffic.** With a reactive controller new connections hang. With ours nothing happens.
 
-1. One scatter plot: predicted hit rate against measured hit rate, 46 runs, 5 networks and workloads, every point on the diagonal.
-2. A git commit with tonight's predictions, time-stamped *before* the Mininet run, next to the measured values from that run.
-3. One equation with no fitted parameters that gives the same answer to within about 3 points.
-4. A map of which strategy wins from 16 to 1,024 hosts.
+## 2. What it is and what is already checked
 
-It also turns our negative result (the counter adds nothing over plain pair rules) into an explained one: the equation says why.
+`controllers/tap_eval.py` (written 19 Nov):
 
-## 2. What is already checked (19 Nov, on the stored results)
+- **Forwarding:** one destination rule per host on every switch, installed when the switch connects. On the fat-tree each switch picks among equal-cost next hops by a hash of the destination.
+- **Tap:** at the switch a host is attached to, three more rules per host with a higher priority. They match TCP packets to that host with SYN (not ACK), FIN or RST set. Actions: output to the host **and** send a 128-byte copy to the controller.
+- **Result:** the first packet is forwarded at once. The controller gets one PACKET_IN when a connection starts and one or two when it ends. No rule is installed per flow.
+- **A reactive decision is still possible:** `--block_rate=N` drops a source that opens more than N connections in a second, with a rule at its own switch.
 
-`experiments/model_validate.py` replays the flow schedules stored in the result folders through a timeout cache (idle 10 s, hard 30 s). It needs no Mininet and runs in seconds.
+TCP-flag matching is not in OpenFlow 1.0. It is the Open vSwitch field `NXM_NX_TCP_FLAGS` (Open vSwitch 2.1 and later; we run 3.7.1), sent as a Nicira flow-mod. POX 0.7.0 has it (`pox/openflow/nicira.py`). The connection stays OpenFlow 1.0.
 
-| Scenario (folder) | Rules | Runs | Measured hit % | Model hit % |
+**Checked offline** (`python3 experiments/test_tap_offline.py [topology.json]`, no switch needed):
+
+- every rule packs into a valid message;
+- from every switch, forwarding reaches every host with no loop, on all four networks, and uses every link direction;
+- SYN starts a flow, a repeated SYN does not count twice, FIN from either side or RST ends it;
+- a source above the rate limit gets exactly one drop rule.
+
+**Not checked yet: anything on a real switch.** Step 1 below is the first real run. Until it passes, nothing here is a result.
+
+**Rules needed** (from the offline test; proactive from our measured tables):
+
+| Network | Proactive, pair rules | Tap: forwarding + tap rules | Busiest switch: proactive / tap |
+| --- | --- | --- | --- |
+| University tree (16 hosts) | 624 | 80 + 48 = 128 | - / 28 |
+| Fat-tree k=4 (16 hosts) | 1,072 | 320 + 48 = 368 | - / 22 |
+| Abilene (11 hosts) | 386 | 121 + 33 = 154 | - / 14 |
+| Fat-tree k=6 (54 hosts) | 13,230 | 2,430 + 162 = 2,592 | 312 / 63 |
+
+**The table for the slide** (university tree, Zipf; rows 1 to 4 are our measured values from `Granularity_Baseline_Experiment.md`; row 5 is to be measured tonight):
+
+| Controller | Small-flow median | Flows whose first packet waits | Rules | Flows the controller hears of |
 | --- | --- | --- | --- | --- |
-| University, Zipf (`traffic-20261020-171718`) | pair / dst | 5 | 97.9 / 99.6 | 97.9 / 99.6 |
-| Fat-tree k=4, web search (`traffic-20261020-183215`) | pair / dst | 5 | 86.1 / 93.6 | 86.0 / 93.6 |
-| Abilene ISP (`traffic-20261021-050401`) | pair / dst | 5 | 96.5 / 97.8 | 96.4 / 97.8 |
-| University, uniform (`traffic-20261021-060910`) | pair / dst | 5 | 98.0 / 99.6 | 98.0 / 99.6 |
-| Fat-tree k=6 (`traffic-20261023-070549`) | pair / dst | 3 | 50.8 / 59.3 | 50.8 / 59.3 |
+| Reactive, exact rules | 52.5 ms | all, at every switch | 10,987 | 100% |
+| Reactive, pair rules | 1.49 ms | 2.1% | 624 | 2.1% |
+| Reactive, destination rules | 1.47 ms | 0.4% | 80 | 0.4% |
+| Proactive | 1.49 ms | none | 624 | 0% |
+| **Tap** | expect about 1.5 ms | **none** | **128** | **expect 100%** |
 
-Mean error per run is 0.0 to 0.1 points in every row.
+"Hears of" for the wildcard rows is 100 minus the hit rate: the controller only sees a flow that misses.
 
-Also checked with throwaway scripts (not in the repo; Step 1 rebuilds them properly):
+Expected cost, to report honestly: about 3 PACKET_INs per flow (about 600 per second on the university workload). None of them delays a packet.
 
-- **The schedule regenerates exactly.** `workloads.make_schedule` with seed string `fattree-k6-websearch-<seed>` gives 613 / 618 / 695 flows for seeds 7 / 8 / 9, the same as the stored runs. So the model can generate traffic for networks we never ran.
-- **Peak rules, k=6, pair rules:** model 1,252 / 1,276 / 1,410, measured 1,178 / 1,204 / 1,366. The model is 3 to 6% high.
-- **Closed form (Section 3, Step 2) against the replay:** k=6 49.8 to 51.5 vs 48.5 to 52.6 (per seed, up to 3 points apart); k=8 46.9 vs 46.9; k=12 (432 hosts) 45.3 vs 45.5; k=6 at 30% load 76.7 vs 73.2.
-- **Scale, 5% load, pair rules:** hit rate stays near 46% at k=8 and k=12, while proactive needs 76,672 rules at k=8 (128 hosts) against about 3,000 for pair rules.
-- **Headroom:** a hindsight oracle on top of pair rules reaches 76 to 80% at a 5% budget at k=8. Online policies cannot see those pairs before their first flow.
+## 3. Is it new? What to say
 
-**Be honest about what the 0.1 means.** The hit rate is almost a function of the schedule alone, so a replay should match. The finding is that nothing else matters: Open vSwitch timers, POX delay and TCP do not move the hit rate. The closed form, the rule counts and the blind runs are the harder tests, and they are less exact.
+Checked on 19 Nov by web search. Read the first item in full today (BITS library); we only have its abstract.
 
-## 3. Work list for today (in this order)
+| Prior work | What it does | What differs here |
+| --- | --- | --- |
+| **PARD** (Rzepka et al., JNSM 2020; row 10 of our literature review) | Coarse proactive rules so packets are forwarded before the controller decides; the controller is notified and installs a detailed rule per flow in the background | **Same principle. Say so first.** Ours installs no rule per flow, and also reports when a flow ends, by matching TCP flags. We did not find PARD compared on one testbed with reactive, proactive, wildcard and budgeted hybrids under published traffic |
+| DevoFlow (SIGCOMM 2011) | Wildcard rules by default; the controller is told only about significant flows | It gives up per-flow visibility on purpose. Ours keeps it |
+| Wang, Butnariu, Rexford (Hot-ICE 2011) | Notes OpenFlow cannot match TCP flags; the controller inspects the SYN reactively | That is the reactive wait we remove. Open vSwitch added the match later |
+| NetFlow / sFlow / IPFIX | Flow records exported by the switch | Records arrive after the flow or by sampling, outside the control loop. Ours arrives at flow start, as a PACKET_IN the controller can act on |
 
-Each step ends with something that can go on a slide. Stop after any step and the talk still works.
+**Wording to use:** "The principle is PARD's. Our contribution is a version with no per-flow state, built on a real software switch, and the first side-by-side measurement of this idea against the others on our testbed. We did not find either in the literature we searched." Do not say "novel architecture".
 
-### Step 1. Turn the check into a model (`experiments/flow_table_model.py`)
+If the full text of PARD shows it already uses flag matching with no per-flow rules, change the claim to "we implement and measure PARD against the alternatives". The table and the demo still stand.
 
-Start from `experiments/model_validate.py`. Keep what is validated and add:
+## 4. Work list for today (in this order)
 
-- **Schedule source:** either a result folder (`<tag>-sched-<host>.txt`, flow times from `flows_detail`) or `workloads.make_schedule` directly. The seed string is `'%s-%s-%d' % (network, workload, seed)`; hosts are `h1..hN` sorted by number; `edge_of` maps each host to its edge switch name (see `run_one` in `run_traffic_experiments.py`).
-- **Topologies without Mininet:** fat-tree for any even k (k³/4 hosts, k/2 per edge switch; path length 1 / 3 / 5 switches for same edge / same pod / other pod), the depth-2 tree, and Abilene from a stored `*-topo.json`.
-- **Outputs per run:** hit rate at the sender's switch, peak and mean rules over all switches, peak rules on one switch, misses per second over all switches (a lower bound on PACKET_IN/s).
-- **Modes:** `pair`, `dst`, `exact` (hit rate 0 by construction), and a pre-installed set on top of pair rules (hindsight top-K, and the counter of `hybrid_eval.py` with a pair fallback).
-- A rule for pair (a, b) is refreshed by flows a→b **and** b→a (the ACKs). For `dst` rules, every switch on the path is touched for both end hosts. This is already in `model_validate.py`; keep it.
-
-**Done when:** `python3 experiments/flow_table_model.py --validate` prints the Section 2 table plus predicted and measured peak rules and PACKET_IN/s for every stored `reactive-pair` and `reactive-dst` run, and writes `docs/figures/model_vs_measured.png` (predicted on x, measured on y, diagonal line, one point per run, 46 points for the hit rate).
-
-Say plainly in the output where the model is worse. PACKET_IN/s will be under-predicted when several packets of a flow arrive before the rule does; report the ratio.
-
-### Step 2. The equation (`closed_form()` in the same file)
-
-For a rule with refresh rate r (flows per second in both directions) and idle timeout T, Poisson arrivals:
-
-- probability a new flow misses, steady state: `exp(-r T)`
-- in a run of length D that starts with empty tables: `[(1 - exp(-r T)) / r + (D - T) exp(-r T)] / D`
-- hit rate = `1 - Σ λ_i · miss_i / Σ λ_i`; expected rules in the table = `Σ (1 - exp(-r_i T)) × path length`
-
-With Zipf popularity, `λ_i = Λ / (i^s · H)`. For the reverse direction use the mean pair rate (the ranking is random, so the reverse pair is an average pair).
-
-**Done when:** a table in the write-up shows closed form vs replay vs measured for the five scenarios. Expect agreement within about 3 points.
-
-Then write the two consequences, each in two sentences, with numbers from the model:
-
-1. **Why the counter added nothing.** Pre-installing pair i saves `λ_i · exp(-r_i T)` misses per second. For a busy pair that is zero: its rule never expires. The budget went to pairs that were already cached.
-2. **Where the misses are.** Pairs with `λ < 1/T` (fewer than one flow per timeout). A counter learns a pair from its first flow, and for most of these pairs there is no second flow in the run. Only knowledge from before the run can help, which is why only the oracle wins at k=6.
-
-### Step 3. Blind prediction (start the Mininet run before the evening)
-
-1. With the model, predict hit rate and peak rules for the runs below. Write them to `docs/Model_Blind_Predictions.md` as a table with an empty "Measured" column.
-2. **Commit and push that file before starting Mininet.** The commit time is the proof.
-3. Run on the usual laptop (Best performance mode, lid open, sleep off):
+### Step 1. First real run (15 minutes, on the laptop, before anything else)
 
 ```bash
-sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k6:websearch --modes reactive-pair reactive-dst --load 0.05 --pair-zipf 1 --seed 12 --repeats 3
+python3 experiments/test_tap_offline.py
 ```
 
 ```bash
-sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k6:websearch --modes reactive-pair reactive-dst --load 0.10 --pair-zipf 1 --repeats 3
+sudo python3 experiments/run_traffic_experiments.py --quick --modes proactive reactive-dst tap
+```
+
+Pass when the `tap` run shows: 0 failed flows; `tap: controller heard of N of N flows` at or near 100%; `0 switch errors`; small-flow FCT close to proactive's.
+
+If the switch refuses the tap rules (errors in `*-tap-pox.log`, 0 flows heard):
+
+1. Check by hand that this Open vSwitch accepts the match: `sudo ovs-ofctl add-flow s1 "priority=200,tcp,tcp_flags=+syn-ack,dl_dst=00:00:00:00:00:01,actions=output:1,controller:128"`.
+2. If that works, the problem is the Nicira flow-mod from POX. Fallback A: have the harness install the tap rules with `ovs-ofctl` after the switches connect (the PACKET_INs still reach POX).
+3. Fallback B, pure OpenFlow 1.0, no flags: the tap rule is `dl_dst=host` at the host's switch with the same two actions; on each copy the controller installs an exact-match rule (output only, idle 10 s) at that one switch so later packets of the flow are not copied. This is PARD's design; the claim becomes "implemented and measured".
+
+Say in the write-up which variant ran.
+
+### Step 2. The main comparison (start it as soon as Step 1 passes; it runs for hours)
+
+Add `tap` to the same batches that produced the granularity tables, so every controller runs for every seed:
+
+```bash
+sudo python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university --pair-zipf 1 --repeats 5 --modes reactive-sp reactive-pair reactive-dst proactive tap
 ```
 
 ```bash
-sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k4:datamining --modes reactive-pair reactive-dst --pair-zipf 1 --repeats 3
+sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k4:websearch --pair-zipf 1 --repeats 5 --modes reactive-sp reactive-pair reactive-dst proactive-ecmp tap
 ```
 
-   - Run 1: new seeds (12 to 14) on a known setup. Safest; do it first.
-   - Run 2: a load we never ran. If the laptop drops flows at 10%, report it and keep run 1.
-   - Run 3: a workload never run with wildcard rules.
-4. Fill in the "Measured" column in a second commit. Do not edit the predictions. If one misses, show the miss; that is the honest version and still a good slide.
+```bash
+sudo python3 experiments/run_traffic_experiments.py --scenarios abilene:isp --pair-zipf 1 --repeats 5 --modes reactive-sp reactive-pair reactive-dst proactive tap
+```
 
-Check first that `--modes` together with `--repeats` works with a 10-second smoke run (`--duration 10 --repeats 1`).
+```bash
+sudo python3 experiments/run_traffic_experiments.py --scenarios fattree-k6:websearch --load 0.05 --pair-zipf 1 --repeats 3 --modes reactive-sp reactive-pair reactive-dst proactive-ecmp tap
+```
 
-### Step 4. The scale map (`docs/figures/model_scale_map.png`)
+Report per scenario: small-flow median with 95% interval, failed flows, PACKET_IN/s, controller CPU, peak rules (total and busiest switch), and the share of flows the controller heard of. If tap is slower than proactive anywhere, report it and look for the reason (the fat-tree uses destination-hash paths, proactive-ecmp uses pair-hash paths).
 
-Use the replay with generated schedules; 3 seeds each.
+### Step 3. The two experiments that show why it matters
 
-- Fat-tree k = 4, 6, 8, 10, 12, 16 (16 to 1,024 hosts), web search, Zipf 1, loads 5% and 30%. k=16 is slow in pure Python: use the closed form there if the replay takes more than a few minutes, and say so in the caption.
-- Per size: hit rate for pair and dst rules; total rules and busiest-switch rules for pair, dst and proactive-pair (`Σ path length` over all ordered pairs).
-- Draw a horizontal line at 1,500 rules per switch (the hardware table in DevoFlow, already cited in the Viva guide). The size where proactive crosses it is the headline number.
+Both need a small addition to `run_traffic_experiments.py`. Test each with a 10 s run first.
 
-**Done when:** one figure with two panels (hit rate vs hosts; rules on the busiest switch vs hosts, log scale) and a 5-row table.
+**3a. Controller frozen (`--pause-controller START:SECONDS`).** Send SIGSTOP to the POX process START seconds into the traffic and SIGCONT after SECONDS. Per controller, report failed flows and the small-flow median for flows that started inside the window. Run: university tree, `--pause-controller 10:10`, modes `reactive-sp reactive-pair reactive-dst proactive tap`, 3 seeds. Expected: exact-match reactive loses or stalls every new flow in the window; wildcard reactive stalls the new pairs; proactive and tap are untouched; tap's count of flows heard drops for that window (copies are lost) and recovers. Report what actually happens, including if the switch disconnects.
+
+**3b. Control-channel delay (`--ctrl-delay MS`).** Add delay to OpenFlow traffic only (netem on the loopback device with a filter on TCP port 6633, both directions; or on the controller-facing interface with `--controller-host`). Sweep 0, 5, 20, 50 ms on the university tree, same five modes, 3 seeds. One figure: small-flow median against control-channel delay, one line per controller. Expected: reactive lines rise, proactive and tap stay flat. This is also the "controller on another machine" question (T9), answered as a sweep.
+
+### Step 4. The live demo (`demo/run_demo.py`)
+
+Add a third act after reactive and proactive, on the same 4-host tree:
+
+1. Tap controller starts; show `ovs-ofctl dump-flows s2`: the forwarding rules and the three tap rules per host.
+2. `h1` opens a TCP connection to `h4`. Show: first-packet time as proactive's, and the controller's line "flow h1 -> h4 started / ended".
+3. Freeze the controller (`kill -STOP`), open another connection: it works. Repeat the same freeze in the reactive act: the connection hangs until `kill -CONT`.
+4. Optional: start the controller with `--block_rate=5`, let `h1` open 20 connections quickly, show the log line "Blocked h1" and the drop rule.
+
+Keep it under 3 minutes. Rehearse on the presenting laptop.
 
 ### Step 5. Write-up and pointers
 
-- `docs/Flow_Table_Model.md`: same layout as the other experiment files (why, model, validation, blind test, scale map, what it does not show). Short sentences, every number traceable to a command.
-- One row each in `README.md`, `docs/Test_Catalogue.md` (new T13), `docs/Viva_Guide.md` (cheat sheet + two questions from Section 6), `docs/Final_Report.md` (contribution 5 and a new 4.7).
-- Run everything once from a clean clone before committing.
+- `docs/Tap_Experiment.md`, same layout as the other experiment files: why, design, prior work (Section 3), results, limits.
+- New T13 in `docs/Test_Catalogue.md`; rows in `README.md`, `results/measured/INDEX.md`, `docs/Viva_Guide.md`, `docs/Final_Report.md` (contribution 5, Section 4.5 with the delay sweep).
+- Delete the two `:Zone.Identifier` files that came with the last commit on `main`.
 
-## 4. What the model does not cover (say this before being asked)
+## 5. Limits (say them before being asked)
 
-- **Flow completion time.** The model predicts hits, rules and control load, not milliseconds.
-- **Exact-match reactive.** Its hit rate is 0 by construction; nothing to predict.
-- **The counter hybrid with exact fallback** as measured in T7. Step 1 adds the counter with a pair fallback, which is a prediction with no measurement behind it unless there is time to run it.
-- **Hardware.** Still emulation. The model inherits that.
-- **The oracle uses hindsight** inside the same run, so "100% at a 10% budget" at k≥8 only means fewer than 10% of pairs ever appear. Do not quote it as achievable.
+- **TCP only.** UDP has no SYN. A UDP flow would need the fallback B rule.
+- **No byte counts per flow.** The controller knows start, end and duration. To count bytes for a chosen flow it must install one rule for it.
+- **Decide-before-forward is not possible.** A packet is forwarded before the controller sees it. An access list known in advance is a pre-installed drop rule (as in any proactive design). A decision taken from behaviour, like the rate block, takes effect a few milliseconds late.
+- **A switch extension, not standard OpenFlow 1.0.** OpenFlow 1.5 has the match as a standard field; hardware switches of the OpenFlow 1.0 era do not.
+- **Three control messages per flow.** They do not delay packets, but a controller still has to read them. Give the measured CPU.
+- **Destination rules.** Per-switch rules grow with the number of hosts (63 on the busiest switch at 54 hosts). Prefix aggregation is the known fix and is not built.
+- **Emulation,** as everywhere in the project.
 
-## 5. Prior work: check before presenting
+## 6. The questions
 
-The mathematics is not ours, and we must say so. From memory, to be verified today (find the PDF, add it to `docs/literature/`, cite the page):
+- *Is this new?* The principle is PARD's (2020). New here: no per-flow rule, flow end reported too, built on Open vSwitch, and measured against reactive, proactive, wildcard and hybrid controllers on one testbed.
+- *Isn't this just proactive plus port mirroring?* Yes, and that is the point: a PACKET_IN did two jobs, asking and telling. Only the asking is slow. Keeping the telling costs three rules per host.
+- *Why not NetFlow?* NetFlow reports after the flow. The copy arrives at flow start, inside the OpenFlow session, so the controller can act on it. The block demo shows that.
+- *What if the controller must approve a flow first?* Then that flow needs a reactive rule, and pays for it. Our measurements say what it pays (T5, T11).
+- *What does the controller do with the knowledge?* In this project: a complete flow log (start, end, duration) and the rate block. Anything a reactive controller does after the first packet (accounting, rerouting a large flow) is possible in the same way.
+- *Why did the budgeted hybrid and prediction not get there?* They try to guess which rule will be needed. Section 7: with wildcard rules that guess is worth very little. Not having to wait removes the need to guess.
 
-- Che, Tung, Wang, "Hierarchical Web Caching Systems", IEEE JSAC 2002: the characteristic-time approximation.
-- Fofack, Nain, Neglia, Towsley, "Analysis of TTL-based Cache Networks", ValueTools 2012.
-- Metter et al., "Analytical Model for SDN Signaling Traffic and Flow Table Occupancy", IEEE TNSM 2017: a timeout model for flow tables.
+**Do not say:** "novel architecture", "better than PARD" (we did not run PARD's variant unless fallback B is used), or any number before it is in a committed table.
 
-**What we claim:** not the formula. We claim (a) the test of it on a real Open vSwitch + POX testbed with published traffic, at three rule granularities, to 0.1 points; (b) predictions committed before the measurement; (c) its use to explain why counter-based pre-installation fails and where prediction still has room. If a search finds a paper that did (a) to (c), change the wording to "we reproduce and extend".
+## 7. Supporting material from versions 1 and 2 (one backup slide at most)
 
-## 6. The slide and the questions
-
-**The slide (90 seconds).** Left: `model_vs_measured.png`. Right: the blind-prediction table with the two commit hashes. One line under it: "Flow table = timeout cache. Miss probability = exp(-rate × timeout)."
-
-Say: "Until last week our model and our measurements were two separate things. Now one model predicts the testbed. We wrote down tonight's results before running them. Here is the commit, here is the measurement."
-
-Then the scale map: "This is the experiment our laptops cannot run."
-
-**Questions to expect.**
-
-- *Is 0.1 points surprising?* Partly not: the hit rate is fixed by the schedule. The result is that the real switch and controller add nothing to it. The equation and the blind runs are the real tests.
-- *Is this new?* The formula is from caching theory. The validation on a testbed, the pre-registered prediction and the explanation of the counter's failure are ours.
-- *Why trust the 1,024-host numbers?* Same code that matched 46 runs, same traffic generator; and the closed form agrees with it at every size we could run both. It is still a prediction, and we label it so.
-- *Does it predict delay?* No. Hits, rules and control load only.
-- *Then which strategy should a network use?* Read it off the map: below the 1,500-rule line proactive fits and wins; above it, destination rules, and pre-installation only helps with knowledge from before the run.
-
-**Do not say:** "our model is exact", "we invented the formula", "the hybrid reaches 80%" (that is hindsight), or any number that is not in a committed table.
-
-## 7. Prompt to paste into Opus 5.5
-
-```
-Read docs/Novelty_Plan.md fully, then docs/Granularity_Baseline_Experiment.md,
-experiments/model_validate.py, experiments/workloads.py and controllers/hybrid_eval.py.
-
-Carry out Section 3 of docs/Novelty_Plan.md, Steps 1 to 5, in order. Rules:
-- Run experiments/model_validate.py first and confirm it reproduces the table in Section 2.
-- You have no Mininet here. For Step 3, produce the predictions file and commit it, then stop
-  and give me the three commands to run on the laptop. When I paste the results folder names
-  back, fill in the measured column in a new commit without touching the predictions.
-- Every number in a document must come from a command you ran; print the command next to it.
-- Report honestly where the model is off (rule counts, PACKET_IN/s). Do not tune anything to
-  improve the fit: the model has no fitted parameters and must stay that way.
-- Match the writing style of the existing docs (short plain sentences, tables, no hype).
-- Commit after each step with a clear message.
-The presentation is tomorrow, so finish Step 1 and Step 3's prediction commit first, then
-Steps 2 and 4 while the laptop runs, then Step 5.
-```
+- `experiments/model_validate.py`: a replay of the stored schedules through a timeout cache reproduces all 46 measured wildcard runs to 0.1 points of hit rate. The formula behind it is known (Metter et al., IEEE TNSM 2017; Zarek, MSc thesis, Toronto 2012).
+- With a wildcard fallback, one pre-installed rule saves at most 1/(e·T) controller requests per second (Poisson arrivals, idle timeout T). On the university tree a 25% budget can add at most about 1.4 points of hit rate. This is why the counter and the oracle added nothing over pair rules. Numbers from throwaway scripts on 19 Nov; reproduce before quoting.
+- Tried and dropped: pre-installing the pairs that miss most instead of the busiest. In steady state it is worse than the ordinary counter.
 
 ## 8. Timeline for today
 
 | When | What | Who |
 | --- | --- | --- |
-| First 2 hours | Steps 1 and 3 (predictions committed, pushed) | Opus + one of us reviewing |
-| Then | Start the three Mininet runs on the laptop | Whoever has the Best-performance laptop |
-| While it runs | Steps 2 and 4 | Opus |
-| Evening | Fill in measured values, Step 5, slide | All |
-| Before sleeping | Rehearse the 90 seconds twice; rerun `--validate` on the presenting laptop | Presenter |
+| Now | Step 1 on the laptop (15 min). Get PARD's full text from the library | Laptop owner; one reader |
+| Then | Start the Step 2 batch (hours) | Laptop owner |
+| While it runs | Step 3 options and Step 4 demo; read PARD and fix the claim wording | Two of us |
+| Evening | Step 3 runs (about an hour), results into Step 5, the slide | All |
+| Before sleeping | Rehearse the demo twice on the presenting laptop | Presenter |

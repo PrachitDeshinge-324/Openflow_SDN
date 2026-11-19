@@ -78,13 +78,17 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #   hybrid-NN     : hybrid_eval, weighted counter keeps the top NN% of host pairs pre-installed
 #   oracle-NN     : upper bound for any predictor: pre-install the NN% of pairs that really
 #                   carry the most flows in this run's schedule, from the start
+#   tap           : tap_eval: destination rules installed in advance, plus a copy of every TCP
+#                   SYN / FIN / RST to the controller from the receiver's switch. No flow waits
+#                   and no rule is installed per flow, yet the controller hears of every flow
 #   random-NN     : no knowledge: pre-install a random NN% of host pairs (both directions of
 #                   each chosen pair), from the start; the baseline a smart choice must beat
 MODE_LABEL = dict(MODE_LABEL)
 MODE_LABEL.update({'reactive-long': 'Reactive, long timeouts',
                    'reactive-sp': 'Reactive on shortest paths (hybrid, budget 0%)',
                    'reactive-pair': 'Reactive on shortest paths, pair rules',
-                   'reactive-dst': 'Reactive on shortest paths, destination rules'})
+                   'reactive-dst': 'Reactive on shortest paths, destination rules',
+                   'tap': 'Forward first, tell the controller (destination rules + SYN/FIN copies)'})
 SPANNING_TREE_MODES = ('reactive', 'reactive-long')
 
 
@@ -107,6 +111,9 @@ def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of
   if mode in ('proactive', 'proactive-ecmp'):
     return ['proactive_eval', '--topo=%s' % topo_file, '--granularity=pair',
             '--paths=%s' % ('ecmp' if mode == 'proactive-ecmp' else 'shortest')]
+  if mode == 'tap':   # tap_eval: nobody waits, the controller still hears of every TCP connection
+    return ['tap_eval', '--topo=%s' % topo_file, '--paths=%s' % paths,
+            '--flow_log=%s' % os.path.join(run_dir, '%s-flowlog.jsonl' % tag)]
   if mode == 'reactive-long':
     return ['openflow.discovery', 'openflow.spanning_tree', '--no-flood', '--hold-down',
             'reactive_eval', '--match=exact', '--idle_timeout=%d' % args.long_idle,
@@ -462,7 +469,7 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
       for h in net.hosts:   # host discovery: one broadcast per host
         h.cmd('ping -n -b -c 1 -W 1 10.255.255.255 > /dev/null 2>&1')
       time.sleep(0.5)
-    elif mode.startswith('proactive'):
+    elif mode.startswith('proactive') or mode == 'tap':
       wait_for(lambda: sum(1 for s in ctrl.stats()['switches'].values()
                            if s['install_ms'] is not None) >= len(net.switches), 30)
     else:   # hybrid: wait until every switch has connected to the controller
@@ -533,6 +540,14 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
       'hybrid': hybrid_summary(st_pre, st1, rows) if 'ingress_syn_misses' in st1.get('extra', {}) else None,
       'start_late_ms_p99': pct([r['late_ms'] for r in rows], 0.99),
     })
+    if mode == 'tap':   # how many of the flows the hosts started did the controller hear of?
+      e0, e1 = st_pre.get('extra', {}), st1.get('extra', {})
+      seen = e1.get('flows_seen', 0) - e0.get('flows_seen', 0)
+      result['tap'] = {'flows_seen': seen, 'flows_ended': e1.get('flows_ended', 0) - e0.get('flows_ended', 0),
+                       'seen_pct': 100.0 * seen / max(1, len(rows)), 'tap_rules': e1.get('tap_rules'),
+                       'switch_errors': e1.get('switch_errors', 0)}
+      log('    tap: controller heard of %d of %d flows (%.1f%%), %d switch errors'
+          % (seen, len(rows), result['tap']['seen_pct'], result['tap']['switch_errors']))
     f, c = result['fct'], result['control']
     fmt = lambda d, k: '%.1f' % d[k] if k in d else '-'
     log('    flows: %d done, %d failed | FCT small (<100KB) mean %s p99 %s ms | large (>10MB) mean %s ms'
