@@ -2,7 +2,7 @@
 
 CS G525 Advanced Computer Networks, Project SA7, Group 2. Written 19 Nov 2026 for the final presentation on 20 Nov.
 
-> **Status, 19 Nov afternoon.** Steps 1 and 2 are done: the tap controller ran on four networks (18 runs), as fast as proactive, 100% of connections heard of. Results: `docs/Tap_Experiment.md`. Next: Step 3a (`--pause-controller`) and the demo (`demo/freeze_demo.py`).
+> **Status, 19 Nov evening.** Steps 1, 2, 3a and 4 are done: four networks (18 runs), the freeze test (3 runs) and the live demo. Results and the presentation script: `docs/Tap_Experiment.md` (Section 8). Not done: 3b (control-channel delay sweep).
 
 **How to use this file:** Section 4 is the work list for today, in order. Section 8 is the timeline.
 

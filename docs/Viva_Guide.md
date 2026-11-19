@@ -35,6 +35,8 @@ Published papers propose many things in between, but each was tested on its own 
 4. **A perfect predictor (the oracle) would add only 5–11 percentage points** at those budgets. So ML prediction has little room on this traffic.
 5. **On our small networks, proactive is still best.** On a larger fat-tree (54 hosts) it needs 13,230 rules in total against reactive's 2,058. Per switch that still fits a hardware table; at a few hundred hosts it stops fitting, and then a budget is needed.
 
+6. **Forward first, tell the controller (T13, 19 Nov).** Our tap controller forwards with rules installed in advance and copies each connection's SYN / FIN / RST to the controller. It is as fast as proactive on three of four networks, the controller heard of all 46,641 connections, it needs 128 rules where proactive needs 624, and a 5-second controller freeze does not slow it (reactive: 5 s per new connection).
+
 **What we do not claim:**
 - the hybrid is not a new algorithm: it is close to CacheFlow and PARD;
 - it does not beat proactive on small networks;
@@ -151,6 +153,18 @@ The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactiv
 
 ---
 
+**Tap controller, T13** (`docs/Tap_Experiment.md`; small-flow median, mean of runs):
+
+| | University | Abilene | Fat-tree k=6 |
+| --- | --- | --- | --- |
+| Tap / proactive median | 1.0 / 0.9 ms | 46.1 / 46.0 ms | 5.3 / 5.0 ms |
+| Tap / proactive rules | 128 / 624 | 154 / 386 | 2,592 / 13,230 |
+| Connections heard of: tap / destination rules | 100% / 0.4% | 100% / 2.2% | 100% / 40.7% |
+
+- k=4 fat-tree is the exception: tap 39.3 ± 21.9 ms vs proactive 29.6 ± 5.5 ms (one bad run; per-destination paths suspected).
+- Controller frozen 5 s: reactive median 5,016 to 5,995 ms for new connections, tap 1.3 to 2.0 ms.
+- Cost: about 3 PACKET_INs per connection, 14% POX CPU at 200 connections/s.
+
 ## 7. Questions to expect, with short answers
 
 **About the setup**
@@ -181,6 +195,15 @@ The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactiv
 - **How is your hybrid different from CacheFlow?** CacheFlow caches policy rules with dependencies, on hardware with Zipf traffic. Ours pre-installs host-pair rules chosen by a decaying counter. We do not claim it is better; we use it to measure what a budget buys.
 - **Where do the traffic parameters come from?** Every one has a row in `docs/Realism_Sources.md`, with the paper and how we checked it (in the PDF, online, or in the data file). Example: the SURGE ISP flow sizes match Table 1 and Section 4 of Barford & Crovella 1998.
 
+**About the tap controller (T13)**
+- **Is it new?** The principle is PARD's (2020): coarse rules forward first, the controller learns in the background. Ours needs no per-flow rule, also reports flow ends, and is measured against the alternatives on one testbed. We say "we did not find this in the literature we searched", not "novel".
+- **Isn't it just proactive plus mirroring?** Yes. A PACKET_IN asks and tells; only asking is slow. Keeping the telling costs three rules per host.
+- **How can a switch match SYN in OpenFlow 1.0?** It cannot. It is the Open vSwitch extension `tcp_flags` (Nicira match), which POX supports; OpenFlow 1.5 made it standard.
+- **Why not NetFlow?** NetFlow reports after the flow, or sampled. The copy arrives as the connection starts, inside the OpenFlow session, so the controller can act on it (the rate block).
+- **What if a flow must be approved first?** Then it needs a reactive rule and pays the wait. Tap is for networks where forwarding is known and the controller needs to know, not to decide.
+- **Why is it slower on the k=4 fat-tree?** One run had 3 failed flows; without it tap equals proactive. Large flows were slower in 4 of 5 runs, probably because tap chooses paths per destination. Not confirmed.
+- **What does it cost?** About 3 copies per connection: 14% of POX's CPU at 200 new connections per second.
+
 **About what is missing**
 - **Multiple PCs?** The tool is ready and tested (`controller_agent.py`, `--controller-host`, WSL2 networking documented). The run across two laptops is scheduled; answer with its date and, once done, its result.
 - **Biggest limitations?** Emulation, not hardware; POX single-threaded; small networks; generated traffic (except the ISP volumes, which are real); Zipf pair popularity is an assumption from CacheFlow.
@@ -192,5 +215,6 @@ The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactiv
 - "Our hybrid beats proactive." It does not, on our networks.
 - "We used machine learning." We did not; we measured the upper bound for it.
 - "This is a novel algorithm." The contribution is the comparison.
+- "The tap controller is a new idea." The principle is PARD's; say what differs.
 - "Results are on real hardware." They are emulated.
 - Any number that is not in a table in the repo.

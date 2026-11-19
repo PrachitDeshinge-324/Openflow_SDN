@@ -103,7 +103,7 @@ Details of every paper: `docs/literature/Literature_Review_IdleHybrid.md` and `d
 | T10 | Reproducibility on several machines | most papers above | Done |
 | T11 | Reactive's cost split: path vs setup | DIFANE (setup), Al-Fares / Hedera (path) | Done (3 networks × 5 runs) |
 | T12 | A larger network (fat-tree k = 6) | DevoFlow, CacheFlow | Done (3 runs) |
-| T13 | Forward first, tell the controller (tap) | PARD, DevoFlow | Done (4 networks; 5 runs, 3 at k = 6) |
+| T13 | Forward first, tell the controller (tap), and a frozen controller | PARD, DevoFlow | Done (4 networks; 5 runs, 3 at k = 6; freeze test 3 runs) |
 
 ---
 
@@ -785,7 +785,7 @@ In the earlier Balanced-mode single runs, the setup parts were 52 / 78 / 26 ms a
 
 **Closest paper.** PARD (Rzepka et al., JNSM 2020): coarse proactive rules forward first, the controller installs a detailed rule per flow in the background. Same principle; tap installs no per-flow rule and also reports flow ends. Abstract only so far.
 
-**Results** (19 Nov, `traffic-20261119-114525/`, `-120616/`, `-123520/`, `-125611/`): as fast as proactive on all four networks; the controller heard of 100% of connections in all 18 runs (46,641 of 46,641); 128 rules against proactive's 624 on the university tree and 2,592 against 13,230 at 54 hosts. At 54 hosts tap is 1.4 to 1.9 times faster than wildcard reactive with 2.4 to 3.4 times fewer PACKET_INs. Cost: about 3 copies per connection (14% controller CPU at 200 connections/s).
+**Results** (19 Nov, `traffic-20261119-114525/`, `-120616/`, `-123520/`, `-125611/`): small-flow median equal to proactive's on the university tree, Abilene and the 54-host fat-tree (1.0 vs 0.9, 46.1 vs 46.0, 5.3 vs 5.0 ms); slower on the k=4 fat-tree (39.3 ± 21.9 vs 29.6 ± 5.5 ms, one bad run). The controller heard of 100% of connections in all 18 runs (46,641 of 46,641). 128 rules against proactive's 624 on the university tree, 2,592 against 13,230 at 54 hosts. At 54 hosts destination and pair rules have 2.4 and 4.4 times tap's median and 2.4 and 3.4 times its PACKET_INs. **Controller frozen 5 s** (`traffic-20261119-175235/`, 3 runs): 3,029 of 3,030 new connections took over 1 s under exact-match reactive (median 5 to 6 s); under tap the median stayed 1.3 to 2.0 ms and the controller still heard of every connection. Cost: about 3 copies per connection (14% controller CPU at 200 connections/s).
 
 **Limits.** TCP only; no per-flow byte counts; an Open vSwitch extension; destination-based paths (large flows slower on the k=4 fat-tree in 4 of 5 runs, cause not confirmed). Details: `docs/Tap_Experiment.md`.
 

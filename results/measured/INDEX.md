@@ -97,3 +97,4 @@ See `docs/Granularity_Baseline_Experiment.md`. `traffic-20261020-171300/` is an 
 | `traffic-20261119-120616/` | **T13** | **Fat-tree k=4, web search (proactive-ecmp)** | 5 | Best performance |
 | `traffic-20261119-123520/` | **T13** | **Abilene ISP** | 5 | Best performance |
 | `traffic-20261119-125611/` | **T13** | **Fat-tree k=6, web search, 5% load** | 3 (seeds 7-9) | Best performance |
+| `traffic-20261119-175235/` | **T13 (freeze)** | **University tree, controller frozen 10-15 s: reactive-sp, reactive-dst, proactive, tap** | 3 (seeds 7-9) | Best performance |
