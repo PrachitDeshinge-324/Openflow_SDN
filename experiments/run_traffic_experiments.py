@@ -541,7 +541,8 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
       'start_late_ms_p99': pct([r['late_ms'] for r in rows], 0.99),
     })
     if mode == 'tap':   # how many of the flows the hosts started did the controller hear of?
-      e0, e1 = st_pre.get('extra', {}), st1.get('extra', {})
+      # read after every flow has finished, so no copy is still on its way
+      e0, e1 = st_pre.get('extra', {}), ctrl.fresh().get('extra', {})
       seen = e1.get('flows_seen', 0) - e0.get('flows_seen', 0)
       result['tap'] = {'flows_seen': seen, 'flows_ended': e1.get('flows_ended', 0) - e0.get('flows_ended', 0),
                        'seen_pct': 100.0 * seen / max(1, len(rows)), 'tap_rules': e1.get('tap_rules'),

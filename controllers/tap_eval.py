@@ -181,6 +181,9 @@ class TapEval(object):
         self.flows[key] = now
         extra['flows_seen'] += 1
         extra['ingress_new_flows'] += 1
+        if self.flow_log:
+          self.flow_log.write(json.dumps({'event': 'start', 'at': now, 'src': key[0], 'dst': key[1],
+                                          'sport': key[2], 'dport': key[3]}) + '\n')
         self._watch_source(packet.src, now)
     elif tcp.FIN or tcp.RST:
       for k in (key, (key[1], key[0], key[3], key[2])):   # either side may close first
@@ -188,7 +191,7 @@ class TapEval(object):
         if start is not None:
           extra['flows_ended'] += 1
           if self.flow_log:
-            self.flow_log.write(json.dumps({'start': start, 'end': now, 'src': k[0], 'dst': k[1],
+            self.flow_log.write(json.dumps({'event': 'end', 'start': start, 'end': now, 'src': k[0], 'dst': k[1],
                                             'sport': k[2], 'dport': k[3]}) + '\n')
           break
     extra['flows_active'] = len(self.flows)
