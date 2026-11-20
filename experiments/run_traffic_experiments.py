@@ -78,7 +78,8 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #                   of a pair hit it (no prediction; tests whether wildcards alone explain the hybrid)
 #   reactive-dst  : the same with the destination MAC only
 #   hybrid-NN     : hybrid_eval, weighted counter keeps the top NN% of host pairs pre-installed
-#   oracle-NN     : upper bound for any predictor: pre-install the NN% of pairs that really
+#   oracle-NN     : hindsight reference (the best FIXED set with an exact-match fallback; not a bound for
+#                   a predictor that changes its set): pre-install the NN% of pairs that really
 #                   carry the most flows in this run's schedule, from the start
 #   proactive-dst : tap_eval --taps=off: the same destination rules as tap, without the copies
 #   tap           : tap_eval: destination rules installed in advance, plus a copy of every TCP
@@ -100,7 +101,7 @@ def mode_label(mode):
   if mode.startswith('hybrid-'):
     return 'Hybrid, counter keeps top %s%% of pairs' % mode.split('-', 1)[1]
   if mode.startswith('oracle-'):
-    return 'Oracle, busiest %s%% of pairs (upper bound)' % mode.split('-', 1)[1]
+    return 'Oracle, busiest %s%% of pairs (hindsight)' % mode.split('-', 1)[1]
   if mode.startswith('random-'):
     return 'Random %s%% of pairs (no knowledge)' % mode.split('-', 1)[1]
   return MODE_LABEL[mode]
@@ -620,6 +621,10 @@ def write_markdown(results, meta, run_dir):
               100 * a['load'], a['max_bytes'] // 10**6,
               'Zipf %.1f' % a['pair_zipf'] if a.get('pair_zipf') else 'uniform'), '',
            'Controller: %s' % where, '']
+  if 'git_commit' in meta:   # batches from 20 Nov 2026 on
+    lines[-1:-1] = ['CPU: %s, %s threads | code: commit %s%s' % (
+      meta.get('cpu_model') or 'unknown', meta.get('cpu_threads'), (meta.get('git_commit') or 'unknown')[:10],
+      ' with uncommitted changes' if meta.get('git_dirty') else ''), '']
   if n_rep > 1:
     lines += ['**Every value is the mean of %d runs (seeds %d to %d, a new flow schedule each time) '
               '± the half-width of its 95%% confidence interval (Student\'s t).**'
@@ -682,6 +687,38 @@ def write_markdown(results, meta, run_dir):
   with open(path, 'w') as fh:
     fh.write('\n'.join(lines) + '\n')
   return path
+
+
+def environment_info():
+  """CPU and code version of this batch, for the reproduction table. Never fails the batch."""
+  info = {'cpu_model': None, 'cpu_threads': os.cpu_count(), 'git_commit': None, 'git_dirty': None}
+  try:
+    with open('/proc/cpuinfo') as f:
+      for line in f:
+        if line.lower().startswith(('model name', 'hardware', 'cpu model')):
+          info['cpu_model'] = line.split(':', 1)[1].strip()
+          break
+  except OSError:
+    pass
+  if not info['cpu_model']:   # ARM: /proc/cpuinfo has no model line
+    try:
+      out = subprocess.run(['lscpu'], capture_output=True, text=True, timeout=10).stdout
+      names = [l.split(':', 1)[1].strip() for l in out.splitlines()
+               if l.startswith(('Model name', 'Vendor ID'))]
+      info['cpu_model'] = ' / '.join(n for n in names if n and n != '-') or None
+    except (OSError, subprocess.SubprocessError):
+      pass
+  repo = os.path.dirname(HERE)
+  git = ['git', '-c', 'safe.directory=*', '-C', repo]   # the harness runs under sudo
+  try:
+    info['git_commit'] = subprocess.run(git + ['rev-parse', 'HEAD'], capture_output=True,
+                                        text=True, timeout=10).stdout.strip() or None
+    status = subprocess.run(git + ['status', '--porcelain', '--untracked-files=no'],
+                            capture_output=True, text=True, timeout=10).stdout
+    info['git_dirty'] = bool(status.strip()) if info['git_commit'] else None
+  except (OSError, subprocess.SubprocessError):
+    pass
+  return info
 
 
 def main():
@@ -790,6 +827,7 @@ def main():
             'uname': ' '.join(os.uname()), 'python': sys.version.split()[0],
             'ovs': subprocess.run(['ovs-vsctl', '--version'], capture_output=True,
                                   text=True).stdout.split('\n')[0]}
+    meta.update(environment_info())
     with open(os.path.join(run_dir, 'traffic.json'), 'w') as fh:
       json.dump({'meta': meta, 'results': results}, fh, indent=1)
 
