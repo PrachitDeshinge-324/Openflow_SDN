@@ -88,6 +88,22 @@ See `docs/Granularity_Baseline_Experiment.md`. `traffic-20261020-171300/` is an 
 | `traffic-20261021-060910/` | **Granularity** | **University, uniform pairs (control)** | 5 | Best performance |
 | `traffic-20261023-070549/` | **T12 + granularity** | **Fat-tree k=6 with reactive-pair / reactive-dst, counter, oracle, proactive (12 controllers)** | 3 (seeds 7-9) | Best performance |
 
+## LSTM predictor (22 Oct; branch `lstm-baseline`, not yet in the main tables)
+
+Machine: `prachit` (Ubuntu VM, aarch64, kernel 7.3, Open vSwitch 4.0.0), **not** the laptop of the
+T13 and granularity batches, so absolute times compare only within these folders. Model:
+`results/lstm_datacenter.npz` (`experiments/train_lstm.py`, trained on seeds 101-110 of the university,
+web-search and data-mining workloads, 16 hosts; the evaluation seeds 7-11 are not in training).
+Fallback for both rows: exact-match rules (`--match=exact`). 60 s of arrivals, load 30%, Zipf 1.
+
+| Folder | Test | What it holds | Runs | Mode |
+|---|---|---|---|---|
+| `traffic-20261022-083359/` | LSTM (superseded) | University tree: hybrid-25 vs lstm-25, **first variant without the online warm-up**. Kept for the record, not for results | 5 (seeds 7-11) | VM |
+| `traffic-20261022-101219/` | **LSTM** | **University tree: hybrid-25 (counter) vs lstm-25 (10 intervals of online fine-tuning, then the LSTM ranks pairs). The code of this run is the one on branch `lstm-baseline`; its `traffic.md` regenerates identically from `traffic.json`** | 5 (seeds 7-11) | VM |
+
+Aborted starts on the same day (`-065700`, `-071719`, `-082217`: missing `--model_file`; `-184851`: fat-tree,
+interrupted before a summary) are kept on the machine and ignored in `.gitignore`.
+
 ## T13: tap (forward first, tell the controller)
 
 | Folder | Test | What it holds | Runs | Mode |
