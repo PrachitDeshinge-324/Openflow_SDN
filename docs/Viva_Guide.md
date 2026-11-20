@@ -35,7 +35,7 @@ Published papers propose many things in between, but each was tested on its own 
 4. **A perfect predictor (the oracle) would add only 5–11 percentage points** at those budgets. So ML prediction has little room on this traffic.
 5. **On our small networks, proactive is still best.** On a larger fat-tree (54 hosts) it needs 13,230 rules in total against reactive's 2,058. Per switch that still fits a hardware table; at a few hundred hosts it stops fitting, and then a budget is needed.
 
-6. **Forward first, tell the controller (T13, 19 Nov).** Our tap controller forwards with rules installed in advance and copies each connection's SYN / FIN / RST to the controller. It is as fast as proactive on three of four networks, the controller heard of all 46,641 connections, it needs 128 rules where proactive needs 624, and a 5-second controller freeze does not slow it (reactive: 5 s per new connection).
+6. **Forward first, tell the controller (T13, 19 Nov).** Our tap controller forwards with rules installed in advance and copies each connection's SYN / FIN / RST to the controller. On three of four networks its small-flow median is at most 0.2 to 0.9 ms above proactive's (paired per-seed differences, 95% bounds; not equal: tap was slower in 11 of 13 seeds), the controller heard of all 46,641 connections, it needs 128 rules where proactive needs 624, and a 5-second controller freeze does not slow it (reactive: 5 s per new connection).
 
 **What we do not claim:**
 - the hybrid is not a new algorithm: it is close to CacheFlow and PARD;
@@ -180,7 +180,7 @@ The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactiv
 
 **About the results**
 - **What is the hit rate?** The share of new TCP connections whose first packet found a rule at the sender's switch, so it never went to the controller. We count the SYN packets that reached the controller.
-- **What is the oracle, and isn't it cheating?** It cheats on purpose. It reads the future flow schedule and installs the busiest pairs before the run. No real controller can do that. It gives the best hit rate any predictor could reach with the same budget. Same idea as Belady's optimal algorithm in caching.
+- **What is the oracle, and isn't it cheating?** It cheats on purpose. It reads the future flow schedule and installs the busiest pairs before the run. No real controller can do that. With an exact-match fallback (our hybrid) that is the best **fixed** set for the budget: every flow of a pair it leaves out misses. It is not a bound for a predictor that changes its set during the run (the LSTM, or a counter re-ranking every second), and in the scale model, where the fallback is pair rules, a history counter beat it in 4 of 30 runs. So: a hindsight reference, not an upper bound. (Not Belady's algorithm, which is the best *dynamic* eviction policy.)
 - **Why didn't you use ML?**
   - The oracle shows that at 25–50% budgets a perfect predictor adds only 5–11 points over a simple counter on our traffic.
   - ML could matter for traffic where one flow predicts flows on *other* pairs (microservice call chains), but only at a scale where most pairs are idle, which needs hundreds of hosts.
@@ -202,7 +202,7 @@ The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactiv
 - **How can a switch match SYN in OpenFlow 1.0?** It cannot. It is the Open vSwitch extension `tcp_flags` (Nicira match), which POX supports; OpenFlow 1.5 made it standard.
 - **Why not NetFlow?** NetFlow reports after the flow, or sampled. The copy arrives as the connection starts, inside the OpenFlow session, so the controller can act on it (the rate block).
 - **What if a flow must be approved first?** Then it needs a reactive rule and pays the wait. Tap is for networks where forwarding is known and the controller needs to know, not to decide.
-- **Why is it slower on the k=4 fat-tree?** One run had 3 failed flows; without it tap equals proactive. Large flows were slower in 4 of 5 runs, probably because tap chooses paths per destination. Not confirmed.
+- **Why is it slower on the k=4 fat-tree?** One run (seed 8) had 3 failed flows and a 70 ms median. Without it the paired difference is +0.7 ± 6.9 ms (4 seeds): not resolved, which is not the same as equal, and dropping a run after seeing it must be said. Large flows were slower in 4 of 5 runs, probably because tap chooses paths per destination. Not confirmed.
 - **What does it cost?** About 3 copies per connection: 14% of POX's CPU at 200 new connections per second.
 
 **About what is missing**

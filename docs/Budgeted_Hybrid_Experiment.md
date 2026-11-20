@@ -22,7 +22,7 @@ The parameters, and the paper behind each, are in
 | `reactive-long` | same, but idle 60 s, hard 300 s | same | "just keep rules longer" (#6) |
 | `reactive-sp` | `hybrid_eval --budget=0`: reactive, but on the shortest path (it knows the topology) | one per TCP connection per switch | the 0% point of the sweep; separates "reactive" from "spanning tree" |
 | `hybrid-NN` | `hybrid_eval --budget=NN%`: reactive for everything, plus pair rules for the top NN% of host pairs chosen by a weighted counter | at most NN% of all host pairs × path length, plus the reactive rules | #7 |
-| `oracle-NN` | `hybrid_eval --pairs_file`: pre-installs the NN% of pairs that **really** carry the most flows in this run, before the first flow | as `hybrid-NN` | the best any predictor (counter, ML, anything) could do with the same budget |
+| `oracle-NN` | `hybrid_eval --pairs_file`: pre-installs the NN% of pairs that **really** carry the most flows in this run, before the first flow | as `hybrid-NN` | the best **fixed** set for the budget, in hindsight (with this exact-match fallback). Not a bound for a predictor that changes its set during the run |
 | `random-NN` | `hybrid_eval --pairs_file`: pre-installs a **random** NN% of host pairs (both directions of each chosen pair) before the first flow, with no knowledge of the traffic | as `hybrid-NN` | the baseline: how much of the gain comes from *choosing* the pairs well (add `--random-baseline` to the sweep, or `--modes random-10 random-25 random-50`) |
 | `proactive` / `proactive-ecmp` | `proactive_eval`: every pair pre-installed | all pairs | the other end |
 

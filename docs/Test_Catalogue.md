@@ -552,7 +552,7 @@ At a 25% budget, against reactive on shortest paths (University / Fat-tree / Abi
 - **Detailed documents:** `docs/Budgeted_Hybrid_Experiment.md` (Sections 1 and 4.0); Review II Section 6; figure `docs/figures/step4_hit_rate.png`.
 
 **If asked.**
-- **"What is the oracle, and isn't it cheating?"** It cheats on purpose. It knows the future flow schedule, so it gives the best hit rate any predictor could reach with the same budget. Same idea as Belady's optimal algorithm in caching.
+- **"What is the oracle, and isn't it cheating?"** It cheats on purpose. It reads the future flow schedule and installs the busiest pairs before the run. No real controller can do that. With an exact-match fallback (our hybrid) that is the best **fixed** set for the budget: every flow of a pair it leaves out misses. It is not a bound for a predictor that changes its set during the run (the LSTM, or a counter re-ranking every second), and in the scale model, where the fallback is pair rules, a history counter beat it in 4 of 30 runs. So: a hindsight reference, not an upper bound. (Not Belady's algorithm, which is the best *dynamic* eviction policy.)
 - **"Why is CacheFlow's hit rate higher?"** CacheFlow counts packets of policy rules on traces with a strong skew. We count new connections between host pairs, on 110–240 pairs. Same direction, smaller effect.
 
 ---
