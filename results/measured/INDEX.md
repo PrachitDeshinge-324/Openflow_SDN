@@ -101,6 +101,8 @@ Fallback for both rows: exact-match rules (`--match=exact`). 60 s of arrivals, l
 | `traffic-20261022-083359/` | LSTM (superseded) | University tree: hybrid-25 vs lstm-25, **first variant without the online warm-up**. Kept for the record, not for results | 5 (seeds 7-11) | VM |
 | `traffic-20261022-101219/` | **LSTM** | **University tree: hybrid-25 (counter) vs lstm-25 (10 intervals of online fine-tuning, then the LSTM ranks pairs). The code of this run is the one on branch `lstm-baseline`; its `traffic.md` regenerates identically from `traffic.json`** | 5 (seeds 7-11) | VM |
 
+| `traffic-20261120-151236/` | **LSTM (live re-check)** | **Seed 7 again, same code, same flow schedule (identical hash, 12,270 flows). Hit rate: counter 66.9 (22 Oct: 66.3), LSTM 66.6 (65.5); LSTM - counter -0.3 points (22 Oct seed 7: -0.8). Wasted installs 227 vs 66 (22 Oct: 190 vs 60). Small-flow median 3.47 / 3.87 ms (3.54 / 3.90). The tail is not reproduced: 158 (counter) and 582 (LSTM) small flows took >= 200 ms (22 Oct: 4 and 4), in bursts (counter 55-60 s; LSTM 30-35 s and 40-45 s), p99 about 210 ms (about 45). Not the controller (PACKET_IN handling p95 121 us, as before), not the traffic generator (start lateness p99 1.6 ms). Cause not found; the VM kernel changed (7.3.0-9 to 7.3.0-11). So: hit rate and installs reproduce; small-flow mean and p99 on this VM do not, and are not reported for the LSTM** | 1 (seed 7) | VM |
+
 Aborted starts on the same day (`-065700`, `-071719`, `-082217`: missing `--model_file`; `-184851`: fat-tree,
 interrupted before a summary) are kept on the machine and ignored in `.gitignore`.
 
