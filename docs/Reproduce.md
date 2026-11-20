@@ -58,8 +58,16 @@ Table III summary rows: `python3 experiments/tap_summary.py <folders>`.
 The replay and statistics scripts are deterministic: re-running them gives the committed outputs
 exactly (checked 20 Nov 2026).
 
+## LSTM predictor (§IV-B "A learned predictor")
+
+| Paper | Folder(s) | Command | Machine |
+|---|---|---|---|
+| LSTM vs counter, campus tree, 25% | `traffic-20261022-101219` (5 seeds); re-check `traffic-20261120-151236` (seed 7) | `sudo python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university --modes hybrid-25 lstm-25 --duration 60 --pair-zipf 1 --repeats 5 --lstm-model results/lstm_datacenter.npz` | prachit (VM) |
+| Model | `results/lstm_datacenter.npz` | `python3 experiments/train_lstm.py --workloads university websearch datamining --out results/lstm_datacenter.npz` (seeds 101-110 by default) | any |
+| Paired numbers | | `python3 experiments/paired_stats.py results/measured/traffic-20261022-101219 --pairs lstm-25:hybrid-25 --metrics hit_rate` | any |
+
+Only hit rate and installs are reported for this batch (see `results/measured/INDEX.md`).
+
 ## Not in the paper
 
-- LSTM predictor (`lstm-NN` modes): branch `lstm-baseline`, folder `traffic-20261022-101219`, VM; see
-  `results/measured/INDEX.md`.
 - T9 (controller on a second PC): not run; see the paper's limitations.

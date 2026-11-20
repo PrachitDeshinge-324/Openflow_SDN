@@ -72,7 +72,7 @@ None of these compared their idea, on the same testbed and traffic, against the 
 | Caching popular rules | CacheFlow (SOSR 2016) | 90% hits with < 5% of rules on Zipf traffic | Our budgeted hybrid, on host pairs |
 | Timeouts and eviction | SmartTime (DEBS 2014), AH-IHTA (2020) | Tuned timeouts cut controller load | Our long-timeout baseline |
 | Hybrid installation | PARD (2020), Kim et al. (2022) | Hybrids cut first-packet delay | Our budgeted hybrid |
-| Prediction / ML | Batista et al. (2024), others in our survey | Predictors beat plain reactive, mostly on IoT traffic; rarely compared with a simple counter | Our oracle bound instead of an ML model |
+| Prediction / ML | Batista et al. (2024), others in our survey | Predictors beat plain reactive, mostly on IoT traffic; rarely compared with a simple counter | Our oracle (a hindsight reference, not a bound) and a small LSTM ranking: 1.2 points below the counter in hit rate, 5 of 5 seeds (`docs/Reproduce.md`) |
 | Realistic traffic | Benson et al. (IMC 2010), DCTCP, VL2, pFabric, Abilene TMs (Zhang et al., IMC 2005) | Published workloads and real matrices | Our four workloads (`docs/Realism_Sources.md`) |
 
 ---

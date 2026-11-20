@@ -3,7 +3,8 @@
 **Target claim:** published flow-rule predictors (ML and heuristic) are mostly compared against exact-match reactive only. A reactive controller with pair or destination rules, with no prediction, gets most of that gain. We give the benchmark, the trivial baseline and an oracle bound that a predictor must be judged against, and we map where prediction has real room.
 
 **Status, 20 Nov 2026 (today's submission version):**
-- Draft written: `paper/paper.tex` (IEEE conference format, about 4,100 words; compile on Overleaf with `paper/scale_hit_rate.pdf`).
+- Draft written: `paper/paper.tex` (IEEE conference format, now about 5,900 words with tables; compile on Overleaf with `paper/scale_hit_rate.pdf`).
+- Done 20 Nov: paired per-seed statistics (Table IV, 4.2 in part), oracle reworded as a hindsight reference, 120 s run-length check (3.3 by replay), Zipf 0 / 0.5 / 1.5 sweep (3.2 in part: the regime depends on skew), bound for fixed sets on a pair-rule fallback (1.1 by replay; the testbed version is not fair in our controller), LSTM in the paper (2.1, hit rate and installs only), `docs/Reproduce.md` (5.1 in part).
 - 1.2 done in code: harness mode `proactive-dst` (`tap_eval --taps=off`, from commit c10d330e). Still to run: `sudo bash experiments/paper_batch.sh`, then replace the two red `\pending{}` marks in Section VI of the paper.
 - 3.1 done by simulation: `experiments/scale_sim.py` (fat-tree k = 4 to 16, 16 to 1,024 hosts), on the replay model that reproduces all 46 measured wildcard runs (mean absolute error at most 0.1 points). Figure: `docs/figures/scale_hit_rate.pdf`.
 - 0.1 partly: the paper counts the 11 pre-installation papers of the survey; full text of the 9 abstract-only ones is still to read.
