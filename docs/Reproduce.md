@@ -51,6 +51,7 @@ Table III summary rows: `python3 experiments/tap_summary.py <folders>`.
 | Table IV (paired differences) and every "paired difference" in the text | `python3 experiments/paired_stats.py --paper` | printed table; method in the script's docstring |
 | §V replay model validation (46 runs, error at most 0.1 points) | `python3 experiments/model_validate.py` | printed per folder |
 | Fig. 1 and §V scale sweep (k = 4 to 16) | `python3 experiments/scale_sim.py`, then `python3 docs/figures/make_scale_figure.py` | `docs/figures/scale_sim.json`, `scale_hit_rate.pdf` |
+| §IV-B "Prediction on top of pair rules" (bound for fixed sets on a pair-rule fallback) | `python3 experiments/pair_fallback_replay.py` | printed table (replay of the stored schedules of the measured reactive-pair runs) |
 | §VII (limitations) run-length check (120 s of arrivals) | `python3 experiments/scale_sim.py --ks 4 6 8 --duration 120 --out docs/figures/scale_sim_duration120.json` | `docs/figures/scale_sim_duration120.json` (compare with the k = 4-8 rows of `scale_sim.json`) |
 
 The replay and statistics scripts are deterministic: re-running them gives the committed outputs
