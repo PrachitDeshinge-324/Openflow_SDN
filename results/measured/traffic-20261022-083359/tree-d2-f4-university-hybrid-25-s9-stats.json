@@ -1,0 +1,85 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.25,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/prachit/projects/Openflow_SDN/results/measured/traffic-20261022-083359/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "exact",
+    "strategy": "counter",
+    "model_file": null
+  },
+  "pid": 297969,
+  "uptime_s": 66.54581451416016,
+  "written_at": 1792658395.6417463,
+  "totals": {
+    "packet_in": 68006,
+    "flow_mod": 68549,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 18403,
+      "flow_mod": 18586,
+      "packet_out": 0,
+      "connected_at": 1792658329.2568393,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 12389,
+      "flow_mod": 12451,
+      "packet_out": 0,
+      "connected_at": 1792658329.2820108,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 10530,
+      "flow_mod": 10621,
+      "packet_out": 0,
+      "connected_at": 1792658329.2988474,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 13871,
+      "flow_mod": 13984,
+      "packet_out": 0,
+      "connected_at": 1792658329.326754,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 12813,
+      "flow_mod": 12907,
+      "packet_out": 0,
+      "connected_at": 1792658329.3498507,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 67889,
+    "mean": 81.81618699845927,
+    "p50": 74.16699918394443,
+    "p95": 116.37500028882641,
+    "max": 8599.416998549714
+  },
+  "extra": {
+    "budget_pairs": 60,
+    "total_pairs": 240,
+    "pair_installs": 150,
+    "pair_removals": 90,
+    "wasted_installs": 77,
+    "pairs_installed": 60,
+    "ingress_syn_misses": 4456,
+    "ingress_new_flows": 27749
+  }
+}

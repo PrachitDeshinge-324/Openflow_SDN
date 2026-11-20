@@ -1,0 +1,89 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.25,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/prachit/projects/Openflow_SDN/results/measured/traffic-20261022-101219/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "exact",
+    "strategy": "lstm",
+    "model_file": "/home/prachit/projects/Openflow_SDN/results/lstm_datacenter.npz",
+    "warmup_intervals": 10
+  },
+  "pid": 587080,
+  "uptime_s": 69.53127384185791,
+  "written_at": 1792664366.9569483,
+  "totals": {
+    "packet_in": 67603,
+    "flow_mod": 69624,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 18400,
+      "flow_mod": 19044,
+      "packet_out": 0,
+      "connected_at": 1792664297.5889535,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 11195,
+      "flow_mod": 11475,
+      "packet_out": 0,
+      "connected_at": 1792664297.6109703,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 13546,
+      "flow_mod": 13972,
+      "packet_out": 0,
+      "connected_at": 1792664297.63486,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 11548,
+      "flow_mod": 11877,
+      "packet_out": 0,
+      "connected_at": 1792664297.6377783,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 12914,
+      "flow_mod": 13256,
+      "packet_out": 0,
+      "connected_at": 1792664297.6847456,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 67470,
+    "mean": 84.42608170486807,
+    "p50": 74.83399895136245,
+    "p95": 122.95799933781382,
+    "max": 13682.041999345529
+  },
+  "extra": {
+    "budget_pairs": 60,
+    "total_pairs": 240,
+    "pair_installs": 431,
+    "pair_removals": 371,
+    "wasted_installs": 225,
+    "pairs_installed": 60,
+    "ingress_syn_misses": 4529,
+    "ingress_new_flows": 27415,
+    "lstm_warmup_intervals": 10,
+    "lstm_intervals": 10,
+    "lstm_warmup_complete": true
+  }
+}

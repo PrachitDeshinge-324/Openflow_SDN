@@ -34,6 +34,7 @@ lab network you trust, and stop it (Ctrl-C) when the experiments are done.
 """
 
 import argparse
+import base64
 import json
 import os
 import platform
@@ -107,8 +108,13 @@ def start(req, run_root):
   run_dir = os.path.join(run_root, tag)
   os.makedirs(run_dir, exist_ok=True)
   for name, text in req.get('files', {}).items():
-    with open(os.path.join(run_dir, os.path.basename(name)), 'w') as f:
-      f.write(text)
+    path = os.path.join(run_dir, os.path.basename(name))
+    if isinstance(text, dict) and text.get('encoding') == 'base64':   # binary file (LSTM model)
+      with open(path, 'wb') as f:
+        f.write(base64.b64decode(text['data']))
+    else:
+      with open(path, 'w') as f:
+        f.write(text)
   args = [a.replace('{dir}', run_dir) for a in req['args']]
   modules = [a for a in args if not a.startswith('-')]
   bad = [m for m in modules if m not in ALLOWED_MODULES]

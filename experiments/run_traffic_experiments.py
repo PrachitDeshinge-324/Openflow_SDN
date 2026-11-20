@@ -40,6 +40,7 @@ Output: results/measured/traffic-<timestamp>/ (traffic.md, traffic.json, plots).
 """
 
 import argparse
+import base64
 import json
 import os
 import random
@@ -100,6 +101,8 @@ SPANNING_TREE_MODES = ('reactive', 'reactive-long')
 def mode_label(mode):
   if mode.startswith('hybrid-'):
     return 'Hybrid, counter keeps top %s%% of pairs' % mode.split('-', 1)[1]
+  if mode.startswith('lstm-'):
+    return 'Hybrid, LSTM forecasts top %s%% of pairs' % mode.split('-', 1)[1]
   if mode.startswith('oracle-'):
     return 'Oracle, busiest %s%% of pairs (hindsight)' % mode.split('-', 1)[1]
   if mode.startswith('random-'):
@@ -125,12 +128,18 @@ def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of
     return ['openflow.discovery', 'openflow.spanning_tree', '--no-flood', '--hold-down',
             'reactive_eval', '--match=exact', '--idle_timeout=%d' % args.long_idle,
             '--hard_timeout=%d' % args.long_hard]
-  if mode in ('reactive-sp', 'reactive-pair', 'reactive-dst') or mode.startswith('hybrid-'):
-    budget = float(mode.split('-', 1)[1]) / 100.0 if mode.startswith('hybrid-') else 0.0
+  if (mode in ('reactive-sp', 'reactive-pair', 'reactive-dst') or
+      mode.startswith('hybrid-') or mode.startswith('lstm-')):
+    budgeted = mode.startswith(('hybrid-', 'lstm-'))
+    budget = float(mode.split('-', 1)[1]) / 100.0 if budgeted else 0.0
     match = {'reactive-pair': 'pair', 'reactive-dst': 'dst'}.get(mode, 'exact')
-    return ['hybrid_eval', '--topo=%s' % topo_file, '--budget=%g' % budget,
+    module = ['hybrid_eval', '--topo=%s' % topo_file, '--budget=%g' % budget,
             '--decay=%g' % args.decay, '--hysteresis=%g' % args.hysteresis, '--paths=%s' % paths,
-            '--match=%s' % match]
+            '--match=%s' % match, '--strategy=%s' % ('lstm' if mode.startswith('lstm-') else 'counter')]
+    if mode.startswith('lstm-'):
+      module.append('--model_file=%s' % os.path.abspath(args.lstm_model))
+      module.append('--warmup_intervals=%d' % args.lstm_warmup)
+    return module
   if mode.startswith('oracle-'):
     counts = {}
     for _, src, dst, _ in flows:   # a TCP flow uses both directions (data, then the reply)
@@ -221,8 +230,13 @@ class AgentPox(object):
     for a in module:   # input files (topology, oracle pairs) are sent along with the command
       key, eq, value = a.partition('=')
       if eq and os.path.isfile(value):
-        with open(value) as f:
-          files[os.path.basename(value)] = f.read()
+        if key == '--model_file':   # binary: sent as base64
+          with open(value, 'rb') as f:
+            files[os.path.basename(value)] = {
+              'encoding': 'base64', 'data': base64.b64encode(f.read()).decode('ascii')}
+        else:
+          with open(value) as f:
+            files[os.path.basename(value)] = f.read()
         a = '%s={dir}/%s' % (key, os.path.basename(value))
       sent.append(a)
     agent_call(host, port, {'cmd': 'start', 'tag': tag, 'args': sent, 'files': files})
@@ -672,6 +686,44 @@ def write_markdown(results, meta, run_dir):
         r['network'], r['workload'], mode_label(r['mode']), h['budget_pairs'], h['total_pairs'],
         v(r, ('hybrid', 'hit_rate_pct')), v(r, ('hybrid', 'pair_installs'), 0),
         v(r, ('hybrid', 'wasted_installs'), 0)))
+  lstm_modes = sorted({r['mode'] for r in results if r['mode'].startswith('lstm-')})
+  comparisons = []
+  for lstm_mode in lstm_modes:
+    counter_mode = 'hybrid-' + lstm_mode.split('-', 1)[1]
+    scenarios = sorted({(r['network'], r['workload']) for r in results if r['mode'] == lstm_mode})
+    for network, workload in scenarios:
+      lstm_runs = {r.get('seed'): r for r in results if r['network'] == network and
+                   r['workload'] == workload and r['mode'] == lstm_mode}
+      counter_runs = {r.get('seed'): r for r in results if r['network'] == network and
+                      r['workload'] == workload and r['mode'] == counter_mode}
+      paired = [(lstm_runs[seed], counter_runs[seed]) for seed in sorted(set(lstm_runs) & set(counter_runs))]
+      if not paired:
+        continue
+      hit_delta = [repeats.get(lstm, ('hybrid', 'hit_rate_pct')) -
+                   repeats.get(counter, ('hybrid', 'hit_rate_pct')) for lstm, counter in paired]
+      fct_delta = [repeats.get(lstm, ('fct', 'small', 'p50_ms')) -
+                   repeats.get(counter, ('fct', 'small', 'p50_ms')) for lstm, counter in paired
+                   if repeats.get(lstm, ('fct', 'small', 'p50_ms')) is not None and
+                   repeats.get(counter, ('fct', 'small', 'p50_ms')) is not None]
+      packet_delta = [repeats.get(lstm, ('control', 'packet_in_per_s')) -
+                      repeats.get(counter, ('control', 'packet_in_per_s')) for lstm, counter in paired]
+      comparisons.append((network, workload, lstm_mode, len(paired), hit_delta, fct_delta, packet_delta))
+  if comparisons:
+    def delta_fmt(values, precision=1):
+      mean, half = repeats.mean_ci(values)
+      if mean is None:
+        return '-'
+      text = ('%+.*f' % (precision, mean))
+      return text + (' ± %.*f' % (precision, half) if half is not None else '')
+
+    lines += ['', '## LSTM vs weighted counter (paired by seed; delta = LSTM - counter)', '',
+              'Negative flow-time and PACKET_IN deltas favor the LSTM; positive hit-rate deltas favor it. '
+              'Intervals use paired seeds.', '',
+              '| Network | Workload | Budget | Paired runs | Hit-rate delta (pp) | Small p50 delta (ms) | PACKET_IN/s delta |',
+              '| --- | --- | --- | --- | --- | --- | --- |']
+    for network, workload, mode, count, hit, fct, packet in comparisons:
+      lines.append('| %s | %s | %s%% | %d | %s | %s | %s |' % (
+        network, workload, mode.split('-', 1)[1], count, delta_fmt(hit), delta_fmt(fct), delta_fmt(packet, 0)))
   if n_rep > 1:
     lines += ['', '## Every run', '',
               '| Network | Workload | Controller | Seed | Failed | Small p50 / p99 (ms) | PACKET_IN/s | '
@@ -738,6 +790,12 @@ def main():
                   help='hybrid budgets, %% of all host pairs')
   ap.add_argument('--random-baseline', action='store_true',
                   help='budget sweep: also pre-install a random NN%% of pairs at each budget')
+  ap.add_argument('--lstm-baseline', action='store_true',
+                  help='budget sweep: also rank pairs with a pretrained LSTM at each budget')
+  ap.add_argument('--lstm-model', default=None,
+                  help='trained .npz model from experiments/train_lstm.py (required for LSTM modes)')
+  ap.add_argument('--lstm-warmup', type=int, default=10,
+                  help='intervals to fine-tune online before switching to frozen LSTM inference')
   ap.add_argument('--granularity-baselines', action='store_true',
                   help='budget sweep: also run reactive-pair and reactive-dst (reactive on shortest paths '
                        'with wildcard rules, no pre-installation)')
@@ -794,12 +852,20 @@ def main():
       modes = (['reactive', 'reactive-long', 'reactive-sp'] +
                (['reactive-pair', 'reactive-dst'] if args.granularity_baselines else []) +
                ['hybrid-%d' % b for b in args.budgets] + ['oracle-%d' % b for b in args.budgets] +
+               (['lstm-%d' % b for b in args.budgets] if args.lstm_baseline else []) +
                (['random-%d' % b for b in args.budgets] if args.random_baseline else []) +
                ['proactive-ecmp' if 'fattree' in net_name else 'proactive'])
     else:
       modes = args.modes or (['reactive', 'proactive', 'proactive-ecmp'] if 'fattree' in net_name
                              else ['reactive', 'proactive'])
     scenarios += [(net_name, workload, m) for m in modes]
+  needs_lstm = args.lstm_baseline or any(mode.startswith('lstm-') for _, _, mode in scenarios)
+  if needs_lstm and not args.lstm_model:
+    ap.error('LSTM modes require --lstm-model; train one with experiments/train_lstm.py')
+  if needs_lstm and not os.path.isfile(args.lstm_model):
+    ap.error('LSTM model file not found: %s' % args.lstm_model)
+  if args.lstm_warmup < 0:
+    ap.error('--lstm-warmup must be non-negative')
   if args.repeats < 1:
     sys.exit("--repeats must be at least 1")
   controller = controller_info(args)

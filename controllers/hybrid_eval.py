@@ -42,6 +42,7 @@ Usage (from the pox/ directory):
       [--paths=shortest|ecmp] [--match=exact|pair|dst] [--idle_timeout=10] [--hard_timeout=30] [--stats_file=...]
 """
 
+import os
 import time
 import zlib
 
@@ -53,6 +54,7 @@ from pox.lib.recoco import Timer
 from pox.lib.util import dpid_to_str
 
 from sa7_common import ControllerStats, load_link_weights, load_topology, shortest_paths
+from lstm_predictor import PairActivityLSTM
 
 log = core.getLogger("hybrid_eval")
 
@@ -62,7 +64,8 @@ PAIR_PRIORITY = 100   # pre-installed pair rules; reactive rules are exact match
 class HybridEval(object):
 
   def __init__(self, topo_file, budget, decay, interval, hysteresis, paths,
-               idle_timeout, hard_timeout, stats, pairs_file=None, match='exact'):
+               idle_timeout, hard_timeout, stats, pairs_file=None, match='exact', strategy='counter',
+               model_file=None, warmup_intervals=10):
     self.hosts, self.adj = load_topology(topo_file)
     self.weights = load_link_weights(topo_file)
     self.by_mac = {EthAddr(h['mac']): h for h in self.hosts}
@@ -79,6 +82,11 @@ class HybridEval(object):
         self.static_pairs = [tuple(l.split()[:2]) for l in f if l.strip()]
       self.budget = len(self.static_pairs)
     self.score = {}        # (src mac, dst mac) -> weighted activity
+    self.strategy = strategy
+    self.predictor = PairActivityLSTM.load(model_file) if strategy == 'lstm' else None
+    self.lstm_warmup_intervals = warmup_intervals
+    self.lstm_intervals = 0
+    self.lstm_warmup_started = False
     self.active = set()    # pairs active in the current interval
     self.installed = {}    # pair -> {'path': [...], 'used': bool, 'packets': int}
     self._path_cache = {}
@@ -86,6 +94,8 @@ class HybridEval(object):
     stats.extra.update(budget_pairs=self.budget, total_pairs=n_pairs, pair_installs=0,
                        pair_removals=0, wasted_installs=0, pairs_installed=0,
                        ingress_syn_misses=0, ingress_new_flows=0)
+    if self.predictor:
+      stats.extra.update(lstm_warmup_intervals=warmup_intervals, lstm_intervals=0)
     core.openflow.addListeners(self)
     Timer(interval, self._tick, recurring=True)
     log.info("Hybrid: %d hosts, budget %d of %d pairs, decay %.2f, every %.1f s",
@@ -221,9 +231,24 @@ class HybridEval(object):
       self.stats.extra['pairs_installed'] = len(self.installed)
       self.stats.dirty = True
       return
-    # 1. weighted counter
-    for pair in set(self.score) | self.active:
-      self.score[pair] = self.decay * self.score.get(pair, 0.0) + (1.0 if pair in self.active else 0.0)
+    # 1. Rank pairs using recent activity or the online next-interval forecast.
+    if self.predictor:
+      warming_up = self.lstm_intervals < self.lstm_warmup_intervals
+      ranking = self.predictor.update(set(self.score) | self.active, self.active, learn=warming_up)
+      if warming_up:
+        for pair in set(self.score) | self.active:
+          self.score[pair] = self.decay * self.score.get(pair, 0.0) + (1.0 if pair in self.active else 0.0)
+      else:
+        self.score.update({pair: probability / max(1.0 - probability, 1e-6)
+                           for pair, probability in ranking.items()})
+      self.lstm_warmup_started = self.lstm_warmup_started or bool(self.active)
+      if self.lstm_warmup_started and self.lstm_intervals < self.lstm_warmup_intervals:
+        self.lstm_intervals += 1
+      self.stats.extra['lstm_intervals'] = self.lstm_intervals
+      self.stats.extra['lstm_warmup_complete'] = self.lstm_intervals >= self.lstm_warmup_intervals
+    else:
+      for pair in set(self.score) | self.active:
+        self.score[pair] = self.decay * self.score.get(pair, 0.0) + (1.0 if pair in self.active else 0.0)
     self.active = set()
     for pair in [p for p, s in self.score.items() if s < 1e-3 and p not in self.installed]:
       del self.score[pair]
@@ -253,22 +278,30 @@ class HybridEval(object):
 
 def launch(topo=None, budget='0.25', decay='0.97', interval='1', hysteresis='1.5',
            paths='shortest', idle_timeout='10', hard_timeout='30', stats_file=None, pairs_file=None,
-           match='exact'):
+           match='exact', strategy='counter', model_file=None, warmup_intervals='10'):
   if not topo:
     raise RuntimeError("hybrid_eval needs --topo=<topology.json>")
   if paths not in ('shortest', 'ecmp'):
     raise RuntimeError("--paths must be shortest or ecmp")
   if match not in ('exact', 'pair', 'dst'):
     raise RuntimeError("--match must be exact, pair or dst")
+  if strategy not in ('counter', 'lstm'):
+    raise RuntimeError("--strategy must be counter or lstm")
+  if strategy == 'lstm' and (not model_file or not os.path.isfile(model_file)):
+    raise RuntimeError("--strategy=lstm requires --model_file=<trained .npz file>")
+  if int(warmup_intervals) < 0:
+    raise RuntimeError("--warmup_intervals must be non-negative")
   config = {'budget': float(budget), 'decay': float(decay), 'interval': float(interval),
             'hysteresis': float(hysteresis), 'paths': paths, 'idle_timeout': int(idle_timeout),
-            'hard_timeout': int(hard_timeout), 'topo': topo, 'pairs_file': pairs_file, 'match': match}
+            'hard_timeout': int(hard_timeout), 'topo': topo, 'pairs_file': pairs_file, 'match': match,
+            'strategy': strategy, 'model_file': model_file,
+            'warmup_intervals': int(warmup_intervals)}
   stats = ControllerStats('hybrid', config, stats_file)
 
   def start():
     core.registerNew(HybridEval, topo, float(budget), float(decay), float(interval),
                      float(hysteresis), paths, int(idle_timeout), int(hard_timeout), stats,
-                     pairs_file, match)
+                     pairs_file, match, strategy, model_file, int(warmup_intervals))
     Timer(1, stats.dump, recurring=True)
     stats.dump(force=True)
 
