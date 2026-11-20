@@ -1,7 +1,22 @@
 __pycache__/
 *.pyc
 *.tmp
+
 docs/literature/papers/*
+
 k6.log
 night3.log
+
+# Editor settings (per person)
+.vscode/
+
+# Measured results ARE tracked: every folder in results/measured/ that a document cites must be
+# committed (see results/measured/INDEX.md). Only runs that never finished are ignored here.
 results/measured/traffic-20261020-171300/
+# 22 Oct LSTM starts that stopped before writing traffic.md (missing --model_file, or interrupted)
+results/measured/traffic-20261022-065700/
+results/measured/traffic-20261022-071719/
+results/measured/traffic-20261022-082217/
+results/measured/traffic-20261022-184851/
+# Scratch copies of 17 Oct runs on one machine, cited by no document
+results/measured2/
