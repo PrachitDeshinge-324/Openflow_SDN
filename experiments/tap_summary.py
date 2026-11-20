@@ -21,7 +21,7 @@ import statistics
 import sys
 
 T95 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262}
-ORDER = ['reactive', 'reactive-sp', 'reactive-pair', 'reactive-dst', 'proactive', 'proactive-ecmp', 'tap']
+ORDER = ['reactive', 'reactive-sp', 'reactive-pair', 'reactive-dst', 'proactive', 'proactive-ecmp', 'proactive-dst', 'tap']
 
 
 def mean_ci(xs):

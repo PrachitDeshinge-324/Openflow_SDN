@@ -80,6 +80,7 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #   hybrid-NN     : hybrid_eval, weighted counter keeps the top NN% of host pairs pre-installed
 #   oracle-NN     : upper bound for any predictor: pre-install the NN% of pairs that really
 #                   carry the most flows in this run's schedule, from the start
+#   proactive-dst : tap_eval --taps=off: the same destination rules as tap, without the copies
 #   tap           : tap_eval: destination rules installed in advance, plus a copy of every TCP
 #                   SYN / FIN / RST to the controller from the receiver's switch. No flow waits
 #                   and no rule is installed per flow, yet the controller hears of every flow
@@ -90,7 +91,8 @@ MODE_LABEL.update({'reactive-long': 'Reactive, long timeouts',
                    'reactive-sp': 'Reactive on shortest paths (hybrid, budget 0%)',
                    'reactive-pair': 'Reactive on shortest paths, pair rules',
                    'reactive-dst': 'Reactive on shortest paths, destination rules',
-                   'tap': 'Forward first, tell the controller (destination rules + SYN/FIN copies)'})
+                   'tap': 'Forward first, tell the controller (destination rules + SYN/FIN copies)',
+                   'proactive-dst': 'Proactive, one rule per destination (tap without its copy rules)'})
 SPANNING_TREE_MODES = ('reactive', 'reactive-long')
 
 
@@ -113,6 +115,8 @@ def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of
   if mode in ('proactive', 'proactive-ecmp'):
     return ['proactive_eval', '--topo=%s' % topo_file, '--granularity=pair',
             '--paths=%s' % ('ecmp' if mode == 'proactive-ecmp' else 'shortest')]
+  if mode == 'proactive-dst':   # tap_eval without its copy rules: proactive, one rule per destination
+    return ['tap_eval', '--topo=%s' % topo_file, '--paths=%s' % paths, '--taps=off']
   if mode == 'tap':   # tap_eval: nobody waits, the controller still hears of every TCP connection
     return ['tap_eval', '--topo=%s' % topo_file, '--paths=%s' % paths,
             '--flow_log=%s' % os.path.join(run_dir, '%s-flowlog.jsonl' % tag)]

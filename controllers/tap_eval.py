@@ -41,6 +41,8 @@ always 0: no connection waits for the controller.
 Usage (from the pox/ directory):
   PYTHONPATH=../controllers python3 pox.py tap_eval --topo=/path/topo.json \\
       [--paths=shortest|ecmp] [--block_rate=0] [--block_s=30] [--flow_log=F] [--stats_file=...]
+      [--taps=off]   forwarding rules only: proactive with one rule per destination, the
+                     fair baseline for tap's rule count and speed
 """
 
 import json
@@ -70,11 +72,12 @@ TAPS = ((TCP_SYN, TCP_SYN | TCP_ACK), (TCP_FIN, TCP_FIN), (TCP_RST, TCP_RST))
 
 class TapEval(object):
 
-  def __init__(self, topo_file, paths, block_rate, block_s, flow_log, stats, listen=True):
+  def __init__(self, topo_file, paths, block_rate, block_s, flow_log, stats, listen=True, taps=True):
     self.hosts, self.adj = load_topology(topo_file)
     self.weights = load_link_weights(topo_file)
     self.by_mac = {EthAddr(h['mac']): h for h in self.hosts}
     self.paths = paths
+    self.taps = taps         # False: forwarding rules only (= proactive with destination rules)
     self.block_rate, self.block_s = block_rate, block_s
     self.flow_log = open(flow_log, 'w') if flow_log else None
     self.stats = stats
@@ -113,7 +116,7 @@ class TapEval(object):
       fwd = of.ofp_flow_mod(match=of.ofp_match(dl_dst=EthAddr(h['mac'])), priority=FWD_PRIORITY)
       fwd.actions.append(of.ofp_action_output(port=port))
       yield 'fwd', fwd
-      if dpid != h['dpid']:
+      if not self.taps or dpid != h['dpid']:
         continue
       for value, mask in TAPS:   # the host's own switch: every flow to it passes here once
         tap = nx.nx_flow_mod(priority=TAP_PRIORITY)
@@ -226,16 +229,20 @@ class TapEval(object):
       self.flow_log.flush()
 
 
-def launch(topo=None, paths='shortest', block_rate='0', block_s='30', flow_log=None, stats_file=None):
+def launch(topo=None, paths='shortest', block_rate='0', block_s='30', flow_log=None, stats_file=None,
+           taps='on'):
   if not topo:
     raise RuntimeError("tap_eval needs --topo=<topology.json>")
   if paths not in ('shortest', 'ecmp'):
     raise RuntimeError("--paths must be shortest or ecmp")
-  config = {'topo': topo, 'paths': paths, 'block_rate': int(block_rate), 'block_s': int(block_s)}
-  stats = ControllerStats('tap', config, stats_file)
+  if taps not in ('on', 'off'):
+    raise RuntimeError("--taps must be on or off")
+  config = {'topo': topo, 'paths': paths, 'block_rate': int(block_rate), 'block_s': int(block_s), 'taps': taps}
+  stats = ControllerStats('tap' if taps == 'on' else 'proactive-dst', config, stats_file)
 
   def start():
-    tap = core.registerNew(TapEval, topo, paths, int(block_rate), int(block_s), flow_log, stats)
+    tap = core.registerNew(TapEval, topo, paths, int(block_rate), int(block_s), flow_log, stats,
+                           taps=(taps == 'on'))
     # dump every second even when nothing changed: the harness waits for a fresh dump to take
     # its "before the first flow" baseline, and with no traffic yet nothing would be written
     Timer(1, lambda: stats.dump(force=True), recurring=True)

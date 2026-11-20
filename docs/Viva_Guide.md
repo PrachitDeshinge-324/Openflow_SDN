@@ -158,7 +158,7 @@ The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactiv
 | | University | Abilene | Fat-tree k=6 |
 | --- | --- | --- | --- |
 | Tap / proactive median | 1.0 / 0.9 ms | 46.1 / 46.0 ms | 5.3 / 5.0 ms |
-| Tap / proactive rules | 128 / 624 | 154 / 386 | 2,592 / 13,230 |
+| Rules: proactive per pair / per destination / tap | 624 / 80 / 128 | 386 / 121 / 154 | 13,230 / 2,430 / 2,592 |
 | Connections heard of: tap / destination rules | 100% / 0.4% | 100% / 2.2% | 100% / 40.7% |
 
 - k=4 fat-tree is the exception: tap 39.3 ± 21.9 ms vs proactive 29.6 ± 5.5 ms (one bad run; per-destination paths suspected).
@@ -196,7 +196,8 @@ The first single runs (Balanced mode) gave 55.7 / 155 / 113 / 120 ms for reactiv
 - **Where do the traffic parameters come from?** Every one has a row in `docs/Realism_Sources.md`, with the paper and how we checked it (in the PDF, online, or in the data file). Example: the SURGE ISP flow sizes match Table 1 and Section 4 of Barford & Crovella 1998.
 
 **About the tap controller (T13)**
-- **Is it new?** The principle is PARD's (2020): coarse rules forward first, the controller learns in the background. Ours needs no per-flow rule, also reports flow ends, and is measured against the alternatives on one testbed. We say "we did not find this in the literature we searched", not "novel".
+- **Is it new?** No part of it is: forwarding first is PARD's idea (2020), copying SYN / FIN / RST is Everflow's (SIGCOMM 2015, for monitoring). We combine them inside the control loop, with no per-flow rule, and measure it against every alternative on one testbed.
+- **Does it really need fewer rules than proactive?** Only than per-pair proactive. A proactive with one rule per destination needs exactly tap's forwarding rules; tap adds 3 per host (48 on the university tree).
 - **Isn't it just proactive plus mirroring?** Yes. A PACKET_IN asks and tells; only asking is slow. Keeping the telling costs three rules per host.
 - **How can a switch match SYN in OpenFlow 1.0?** It cannot. It is the Open vSwitch extension `tcp_flags` (Nicira match), which POX supports; OpenFlow 1.5 made it standard.
 - **Why not NetFlow?** NetFlow reports after the flow, or sampled. The copy arrives as the connection starts, inside the OpenFlow session, so the controller can act on it (the rate block).

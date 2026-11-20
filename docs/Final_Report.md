@@ -29,7 +29,7 @@ We compare them **side by side on one testbed** (Mininet, Open vSwitch, POX):
 3. **A budgeted hybrid helps when traffic is skewed.** Pre-installing the busiest 25% of host pairs, chosen by a simple counter, removes 54–66% of controller trips, with 2.0–2.4× fewer rules than reactive.
 4. **Choosing the pairs is what pays:** random pre-installation buys only its budget share, and a perfect predictor would add only 5–11 percentage points over the counter at those budgets. This bounds what ML prediction could gain on this traffic.
 5. **At 54 hosts, proactive's rule count (13,230) is 12× that of 16 hosts;** a 2% budget gives a 40% hit rate with 8× fewer rules.
-6. **The trade-off between waiting and knowing is not necessary.** A controller that forwards with pre-installed rules and receives a copy of each connection's SYN, FIN and RST matches proactive's flow completion times on three of four networks, hears of 100% of connections (46,641 of 46,641), needs 2.5 to 5× fewer rules than proactive, and is not slowed by a 5-second controller freeze, which stalls every new connection under reactive.
+6. **The trade-off between waiting and knowing is not necessary.** A controller that forwards with pre-installed rules and receives a copy of each connection's SYN, FIN and RST matches proactive's flow completion times on three of four networks, hears of 100% of connections (46,641 of 46,641), costs only 3 rules per host more than a proactive controller with one rule per destination, and is not slowed by a 5-second controller freeze, which stalls every new connection under reactive.
 
 ---
 
@@ -56,7 +56,7 @@ None of these compared their idea, on the same testbed and traffic, against the 
 2. **Path quality:** reactive (spanning tree) against proactive shortest paths and ECMP, on a fat-tree and the real Abilene map (Step 1).
 3. **Flow completion times and controller load under realistic traffic:** university, web search, data mining, and real ISP traffic matrices (Step 2).
 4. **The in-between strategies:** long timeouts, a budgeted popular-pair hybrid, and an oracle that bounds any predictor. We also split reactive's cost into a **path** part and a **setup** part (Step 4).
-5. **Forward first, tell the controller (T13):** a controller that keeps per-connection visibility without per-connection waiting, built on Open vSwitch's TCP-flag match, measured against all the above and under a frozen controller. The principle is PARD's; we found no version without per-flow rules measured this way.
+5. **Forward first, tell the controller (T13):** a controller that keeps per-connection visibility without per-connection waiting, built on Open vSwitch's TCP-flag match, measured against all the above and under a frozen controller. Both parts exist (PARD forwards first, Everflow mirrors SYN / FIN / RST); we combine them in the control loop and measure the result.
 6. *TODO (data):* the effect of running the controller on a separate machine.
 
 ---
@@ -209,6 +209,7 @@ Further findings:
 | Fat-tree k=4 | 29.6 ± 5.5 ms / 1,072 | 39.3 ± 21.9 ms / 368 | 100% / 6.4% |
 
 - **Visibility without waiting:** the controller heard of 46,641 of 46,641 connections; no packet waited for it.
+- **Rules:** fewer than proactive with one rule per host pair, but 3 per host more than proactive with one rule per destination (80, 121, 2,430 forwarding rules), which is the fair baseline; its speed run is pending.
 - **Controller frozen for 5 s** (university, 3 runs): under exact-match reactive 3,029 of 3,030 new connections took over 1 s (median 5.0 to 6.0 s); under tap the median stayed 1.3 to 2.0 ms, as under proactive.
 - **Cost:** about 3 PACKET_INs per connection (14% of POX's CPU at 200 connections/s).
 - **Limits:** TCP only; no per-flow byte counts; an Open vSwitch extension; slower on the k=4 fat-tree (one bad run; per-destination paths suspected).

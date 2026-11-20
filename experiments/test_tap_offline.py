@@ -29,6 +29,9 @@ for dpid in t.adj:
     if kind == 'fwd':
       table[(dpid, str(msg.match.dl_dst))] = msg.actions[0].port
 H, S = len(t.hosts), len(t.adj)
+off = tap_eval.TapEval(topo_file, 'ecmp', 0, 30, None, ControllerStats('x', {}, None), listen=False, taps=False)
+assert all(kind == 'fwd' for d in off.adj for kind, _ in off.rules_for(d))
+assert sum(1 for d in off.adj for _ in off.rules_for(d)) == H * S
 assert sum(fwd.values()) == H * S and sum(taps.values()) == 3 * H
 print('rules: %d forwarding (%d hosts x %d switches) + %d tap = %d total; busiest switch %d'
       % (sum(fwd.values()), H, S, sum(taps.values()), sum(fwd.values()) + sum(taps.values()),

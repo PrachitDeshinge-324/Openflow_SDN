@@ -115,7 +115,7 @@ Live version: `sudo python3 demo/freeze_demo.py`. One run on 19 Nov: reactive 20
 ## 5. What it shows
 
 1. **The trade-off is not necessary.** On the university tree, Abilene and the 54-host fat-tree, tap's small-flow median equals proactive's within the interval (1.0 vs 0.9, 46.1 vs 46.0, 5.3 vs 5.0 ms). The controller heard of every connection in all 21 tap runs. No other controller we measured has both.
-2. **It needs fewer rules than proactive:** 128 against 624 on the university tree, 154 against 386 on Abilene, 2,592 against 13,230 at 54 hosts (busiest switch 63 against 312).
+2. **Its rule cost is 3 rules per host on top of the cheapest proactive.** Against our proactive controller (one rule per host pair) tap needs fewer rules: 128 against 624 on the university tree, 154 against 386 on Abilene, 2,592 against 13,230 at 54 hosts. But that difference is rule granularity, not tapping: a proactive controller with one rule per destination needs exactly tap's forwarding rules (80, 121, 2,430), so tap costs 48, 33 and 162 rules more than it. The fair speed baseline is `proactive-dst` (tap with `--taps=off`); its run is pending (Section 9).
 3. **At 54 hosts it beats every reactive variant.** Wildcard rules are rarely reused there (hit rate 51 to 59%), so destination and pair rules have 2.4 and 4.4 times tap's small-flow median, send 2.4 and 3.4 times more PACKET_INs, and hear of fewer than half the connections.
 4. **It survives a frozen controller** like proactive does, and unlike reactive (5 s against 1.4 ms median), without losing track of a single connection.
 5. **The cost is reading, not waiting.** About 3 copies per connection: 602 PACKET_IN/s and 14% CPU at about 200 new connections per second. None delays a packet. Destination rules are cheaper on small networks because they hear of almost nothing.
@@ -133,12 +133,13 @@ Live version: `sudo python3 demo/freeze_demo.py`. One run on 19 Nov: reactive 20
 
 | Paper | What it does | Difference |
 | --- | --- | --- |
+| Everflow (Zhu et al., SIGCOMM 2015) | Match-and-mirror on commodity switches to trace packets in a large data centre; as we recall, it traces TCP flows by their SYN, FIN and RST packets, mirrored to analysis servers | **The flag-matching copy is Everflow's idea.** There it feeds monitoring servers, outside the control loop; here it feeds the SDN controller and replaces reactive setup. Verify the details in the paper before quoting it |
 | PARD (Rzepka et al., JNSM 2020) | Coarse proactive rules forward packets before the controller decides; the controller installs a detailed rule per flow in the background | Same principle. Tap installs no rule per flow, reports flow ends too, and is measured here against reactive, proactive and wildcard controllers. We have read only PARD's abstract; check the full text before claiming any difference beyond that |
 | DevoFlow (SIGCOMM 2011) | Wildcard rules by default; the controller hears only of significant flows | Gives up per-flow visibility on purpose |
 | Wang, Butnariu, Rexford (Hot-ICE 2011) | Notes that OpenFlow 1.0 cannot match TCP flags; the controller checks the SYN reactively | That is the reactive wait tap removes |
 | NetFlow / IPFIX | Flow records exported by the switch | After the flow or sampled, outside the control loop |
 
-**How to say it:** "The principle is PARD's. Our version needs no per-flow rule, reports flow ends, runs on a real software switch, and is measured against the alternatives on one testbed. We did not find that in the literature we searched." Not "a novel architecture".
+**How to say it:** "Both parts exist: forwarding first is PARD's idea, copying SYN, FIN and RST is Everflow's. We combine them so the SDN controller keeps per-connection visibility with no per-flow rules and no waiting, and we measure that against every other strategy on one testbed." Not "a novel architecture".
 
 ## 8. For the presentation (about 3 minutes)
 
@@ -152,6 +153,7 @@ Live version: `sudo python3 demo/freeze_demo.py`. One run on 19 Nov: reactive 20
 
 ## 9. Next
 
+0. **Run `proactive-dst`** (tap with its copy rules off) on the four networks, next to tap, so speed and rules are compared at the same granularity.
 1. Tap with pair-hash ECMP paths, to test the large-flow explanation on the k=4 fat-tree.
 2. Read PARD in full and fix the wording of Section 7.
 3. Freeze test on the 54-host fat-tree, where wildcard rules miss half the time.
