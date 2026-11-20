@@ -19,7 +19,7 @@ first packet finds a rule at the sender's switch) of:
 first_flow_ceiling = share of flows that are not the first flow of their pair (the most a
 rule installed on the first miss can ever hit), and flows per active pair, the quantity that decides whether a first-miss rule is reused.
 
-  python3 experiments/scale_sim.py [--ks 4 6 8 12 16] [--loads 0.05 0.3] [--seeds 7 8 9] [--out F]
+  python3 experiments/scale_sim.py [--ks 4 6 8 12 16] [--loads 0.05 0.3] [--seeds 7 8 9] [--zipf 1] [--out F]
 """
 
 import argparse
@@ -129,6 +129,7 @@ def main():
   ap.add_argument('--seeds', nargs='+', type=int, default=[7, 8, 9])
   ap.add_argument('--duration', type=float, default=30.0)
   ap.add_argument('--budgets', nargs='+', type=float, default=[2, 10])
+  ap.add_argument('--zipf', type=float, default=1.0, help='pair-popularity Zipf exponent (0 = uniform)')
   ap.add_argument('--out', default=os.path.join(HERE, '..', 'docs', 'figures', 'scale_sim.json'))
   args = ap.parse_args()
   rows = []
@@ -139,7 +140,7 @@ def main():
     for load in args.loads:
       for seed in args.seeds:
         t0 = time.time()
-        flows = schedule(hosts, args.duration, load, seed)
+        flows = schedule(hosts, args.duration, load, seed, zipf=args.zipf)
         counts = {}
         for _, a, b, _ in flows:
           counts[(a, b)] = counts.get((a, b), 0) + 1
@@ -154,7 +155,7 @@ def main():
           row['oracle+%g' % b] = simulate(flows, sw, path, 'pair', pre=pre)
         # a realisable predictor: count pairs in the previous window (same pair popularity,
         # new arrivals) and pre-install the busiest B% of pairs; pair rules for the rest
-        past = schedule(hosts, args.duration, load, seed + 1000, rank_seed=seed)
+        past = schedule(hosts, args.duration, load, seed + 1000, zipf=args.zipf, rank_seed=seed)
         pc = {}
         for _, a, d, _ in past:
           pc[(a, d)] = pc.get((a, d), 0) + 1

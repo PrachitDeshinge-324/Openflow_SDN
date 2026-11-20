@@ -1,0 +1,43 @@
+k= 4 hosts=  16 load=0.05 seed=7 flows=   191 flows/pair= 4.55  pair  73.3  dst  78.5  hist+2  76.4 oracle+2  75.9  hist+10  86.4 oracle+10  92.1  (0 s)
+k= 4 hosts=  16 load=0.05 seed=8 flows=   177 flows/pair= 4.92  pair  79.1  dst  83.6  hist+2  81.9 oracle+2  81.9  hist+10  89.8 oracle+10  94.4  (0 s)
+k= 4 hosts=  16 load=0.05 seed=9 flows=   181 flows/pair= 4.53  pair  77.3  dst  82.9  hist+2  81.2 oracle+2  80.1  hist+10  87.8 oracle+10  91.7  (0 s)
+k= 4 hosts=  16 load=0.30 seed=7 flows=  1132 flows/pair=10.68  pair  91.0  dst  94.1  hist+2  91.4 oracle+2  91.4  hist+10  93.3 oracle+10  93.2  (0 s)
+k= 4 hosts=  16 load=0.30 seed=8 flows=  1111 flows/pair=11.57  pair  90.5  dst  93.6  hist+2  91.0 oracle+2  91.0  hist+10  92.9 oracle+10  92.9  (0 s)
+k= 4 hosts=  16 load=0.30 seed=9 flows=  1154 flows/pair=10.69  pair  91.4  dst  93.8  hist+2  91.9 oracle+2  91.9  hist+10  93.5 oracle+10  93.6  (0 s)
+k= 6 hosts=  54 load=0.05 seed=7 flows=   663 flows/pair= 7.21  pair  84.2  dst  85.2  hist+2  90.8 oracle+2  94.9  hist+10  92.0 oracle+10 100.0  (0 s)
+k= 6 hosts=  54 load=0.05 seed=8 flows=   649 flows/pair= 6.62  pair  82.7  dst  84.0  hist+2  88.9 oracle+2  93.7  hist+10  91.1 oracle+10 100.0  (0 s)
+k= 6 hosts=  54 load=0.05 seed=9 flows=   644 flows/pair= 7.32  pair  84.5  dst  85.4  hist+2  90.4 oracle+2  95.2  hist+10  91.5 oracle+10 100.0  (0 s)
+k= 6 hosts=  54 load=0.30 seed=7 flows=  3760 flows/pair=13.53  pair  91.8  dst  93.1  hist+2  93.5 oracle+2  93.6  hist+10  96.7 oracle+10 100.0  (0 s)
+k= 6 hosts=  54 load=0.30 seed=8 flows=  3863 flows/pair=12.30  pair  91.1  dst  92.5  hist+2  92.8 oracle+2  92.8  hist+10  95.6 oracle+10  99.3  (0 s)
+k= 6 hosts=  54 load=0.30 seed=9 flows=  3855 flows/pair=13.25  pair  91.7  dst  93.2  hist+2  93.3 oracle+2  93.5  hist+10  95.9 oracle+10  99.9  (0 s)
+k= 8 hosts= 128 load=0.05 seed=7 flows=  1553 flows/pair= 8.77  pair  87.1  dst  87.6  hist+2  93.0 oracle+2 100.0  hist+10  93.0 oracle+10 100.0  (0 s)
+k= 8 hosts= 128 load=0.05 seed=8 flows=  1511 flows/pair= 8.39  pair  86.4  dst  87.0  hist+2  92.9 oracle+2 100.0  hist+10  92.9 oracle+10 100.0  (0 s)
+k= 8 hosts= 128 load=0.05 seed=9 flows=  1551 flows/pair= 8.71  pair  87.0  dst  87.6  hist+2  93.6 oracle+2 100.0  hist+10  93.6 oracle+10 100.0  (0 s)
+k= 8 hosts= 128 load=0.30 seed=7 flows=  9121 flows/pair=16.26  pair  93.2  dst  93.8  hist+2  96.0 oracle+2  97.5  hist+10  96.7 oracle+10 100.0  (0 s)
+k= 8 hosts= 128 load=0.30 seed=8 flows=  8910 flows/pair=16.20  pair  93.2  dst  93.9  hist+2  95.8 oracle+2  97.5  hist+10  96.5 oracle+10 100.0  (0 s)
+k= 8 hosts= 128 load=0.30 seed=9 flows=  8996 flows/pair=15.87  pair  92.9  dst  93.6  hist+2  95.5 oracle+2  97.3  hist+10  96.2 oracle+10 100.0  (0 s)
+k=12 hosts= 432 load=0.05 seed=7 flows=  5074 flows/pair=12.17  pair  91.0  dst  91.0  hist+2  95.0 oracle+2 100.0  hist+10  95.0 oracle+10 100.0  (0 s)
+k=12 hosts= 432 load=0.05 seed=8 flows=  5018 flows/pair=11.86  pair  90.7  dst  90.9  hist+2  94.9 oracle+2 100.0  hist+10  94.9 oracle+10 100.0  (0 s)
+k=12 hosts= 432 load=0.05 seed=9 flows=  4902 flows/pair=12.01  pair  90.6  dst  90.8  hist+2  94.9 oracle+2 100.0  hist+10  94.9 oracle+10 100.0  (0 s)
+k=12 hosts= 432 load=0.30 seed=7 flows= 30460 flows/pair=22.99  pair  95.1  dst  95.3  hist+2  97.4 oracle+2 100.0  hist+10  97.4 oracle+10 100.0  (1 s)
+k=12 hosts= 432 load=0.30 seed=8 flows= 30604 flows/pair=23.08  pair  95.2  dst  95.3  hist+2  97.4 oracle+2 100.0  hist+10  97.4 oracle+10 100.0  (1 s)
+k=12 hosts= 432 load=0.30 seed=9 flows= 30452 flows/pair=23.21  pair  95.2  dst  95.3  hist+2  97.5 oracle+2 100.0  hist+10  97.5 oracle+10 100.0  (1 s)
+k=16 hosts=1024 load=0.05 seed=7 flows= 11960 flows/pair=16.18  pair  93.1  dst  93.1  hist+2  96.2 oracle+2 100.0  hist+10  96.2 oracle+10 100.0  (2 s)
+k=16 hosts=1024 load=0.05 seed=8 flows= 12102 flows/pair=16.88  pair  93.4  dst  93.4  hist+2  96.3 oracle+2 100.0  hist+10  96.3 oracle+10 100.0  (2 s)
+k=16 hosts=1024 load=0.05 seed=9 flows= 12231 flows/pair=16.40  pair  93.2  dst  93.2  hist+2  96.2 oracle+2 100.0  hist+10  96.2 oracle+10 100.0  (2 s)
+k=16 hosts=1024 load=0.30 seed=7 flows= 71950 flows/pair=30.00  pair  96.3  dst  96.3  hist+2  98.0 oracle+2 100.0  hist+10  98.0 oracle+10 100.0  (4 s)
+k=16 hosts=1024 load=0.30 seed=8 flows= 72224 flows/pair=29.84  pair  96.3  dst  96.3  hist+2  98.0 oracle+2 100.0  hist+10  98.0 oracle+10 100.0  (4 s)
+k=16 hosts=1024 load=0.30 seed=9 flows= 72092 flows/pair=29.13  pair  96.2  dst  96.3  hist+2  97.8 oracle+2 100.0  hist+10  97.8 oracle+10 100.0  (4 s)
+
+mean over seeds:
+k= 4 load=0.05 flows/pair  4.66  first_flow_ceiling  78.5  pair  76.6  dst  81.7  history+2  79.9  history+10  88.0  oracle+2  79.3  oracle+10  92.7
+k= 4 load=0.30 flows/pair 10.98  first_flow_ceiling  90.9  pair  91.0  dst  93.8  history+2  91.4  history+10  93.2  oracle+2  91.4  oracle+10  93.2
+k= 6 load=0.05 flows/pair  7.05  first_flow_ceiling  85.8  pair  83.8  dst  84.9  history+2  90.0  history+10  91.5  oracle+2  94.6  oracle+10 100.0
+k= 6 load=0.30 flows/pair 13.03  first_flow_ceiling  92.3  pair  91.5  dst  92.9  history+2  93.2  history+10  96.1  oracle+2  93.3  oracle+10  99.7
+k= 8 load=0.05 flows/pair  8.63  first_flow_ceiling  88.4  pair  86.8  dst  87.4  history+2  93.1  history+10  93.1  oracle+2 100.0  oracle+10 100.0
+k= 8 load=0.30 flows/pair 16.11  first_flow_ceiling  93.8  pair  93.1  dst  93.8  history+2  95.7  history+10  96.5  oracle+2  97.4  oracle+10 100.0
+k=12 load=0.05 flows/pair 12.02  first_flow_ceiling  91.7  pair  90.8  dst  90.9  history+2  95.0  history+10  95.0  oracle+2 100.0  oracle+10 100.0
+k=12 load=0.30 flows/pair 23.09  first_flow_ceiling  95.7  pair  95.1  dst  95.3  history+2  97.4  history+10  97.4  oracle+2 100.0  oracle+10 100.0
+k=16 load=0.05 flows/pair 16.49  first_flow_ceiling  93.9  pair  93.2  dst  93.3  history+2  96.3  history+10  96.3  oracle+2 100.0  oracle+10 100.0
+k=16 load=0.30 flows/pair 29.66  first_flow_ceiling  96.6  pair  96.2  dst  96.3  history+2  97.9  history+10  97.9  oracle+2 100.0  oracle+10 100.0
+zipf 1.5: 21.64 s
