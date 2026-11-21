@@ -1,0 +1,68 @@
+INFO:tap_eval:Tap: 20 switches, 16 hosts, paths=ecmp, block above never new flows/s
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:tap_eval:Switch 00-00-00-00-00-01: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:tap_eval:Switch 00-00-00-00-00-02: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:tap_eval:Switch 00-00-00-00-00-03: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:tap_eval:Switch 00-00-00-00-00-04: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:tap_eval:Switch 00-00-00-00-00-05: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:tap_eval:Switch 00-00-00-00-00-06: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:tap_eval:Switch 00-00-00-00-00-07: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:tap_eval:Switch 00-00-00-00-00-08: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:tap_eval:Switch 00-00-00-00-00-09: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0a: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0b: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0c: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0d: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0e: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0f: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-10 17] connected
+INFO:tap_eval:Switch 00-00-00-00-00-10: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-11 18] connected
+INFO:tap_eval:Switch 00-00-00-00-00-11: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-12 19] connected
+INFO:tap_eval:Switch 00-00-00-00-00-12: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-13 20] connected
+INFO:tap_eval:Switch 00-00-00-00-00-13: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-14 21] connected
+INFO:tap_eval:Switch 00-00-00-00-00-14: 16 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-13 20] closed
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] closed
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-14 21] closed
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-12 19] closed
+INFO:openflow.of_01:[00-00-00-00-00-11 18] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-10 17] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:core:Going down...
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.

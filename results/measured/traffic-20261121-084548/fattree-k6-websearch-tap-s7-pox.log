@@ -1,0 +1,143 @@
+INFO:tap_eval:Tap: 45 switches, 54 hosts, paths=ecmp, block above never new flows/s
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:tap_eval:Switch 00-00-00-00-00-01: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:tap_eval:Switch 00-00-00-00-00-02: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:tap_eval:Switch 00-00-00-00-00-03: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:tap_eval:Switch 00-00-00-00-00-04: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:tap_eval:Switch 00-00-00-00-00-05: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:tap_eval:Switch 00-00-00-00-00-06: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:tap_eval:Switch 00-00-00-00-00-07: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:tap_eval:Switch 00-00-00-00-00-08: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:tap_eval:Switch 00-00-00-00-00-09: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0a: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0b: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0c: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0d: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0e: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0f: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-10 17] connected
+INFO:tap_eval:Switch 00-00-00-00-00-10: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-11 18] connected
+INFO:tap_eval:Switch 00-00-00-00-00-11: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-12 19] connected
+INFO:tap_eval:Switch 00-00-00-00-00-12: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-13 20] connected
+INFO:tap_eval:Switch 00-00-00-00-00-13: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-14 21] connected
+INFO:tap_eval:Switch 00-00-00-00-00-14: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-15 22] connected
+INFO:tap_eval:Switch 00-00-00-00-00-15: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-16 23] connected
+INFO:tap_eval:Switch 00-00-00-00-00-16: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-17 24] connected
+INFO:tap_eval:Switch 00-00-00-00-00-17: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-18 25] connected
+INFO:tap_eval:Switch 00-00-00-00-00-18: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-19 26] connected
+INFO:tap_eval:Switch 00-00-00-00-00-19: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-1a 27] connected
+INFO:tap_eval:Switch 00-00-00-00-00-1a: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-1b 28] connected
+INFO:tap_eval:Switch 00-00-00-00-00-1b: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-1c 29] connected
+INFO:tap_eval:Switch 00-00-00-00-00-1c: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-1d 30] connected
+INFO:tap_eval:Switch 00-00-00-00-00-1d: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-1e 31] connected
+INFO:tap_eval:Switch 00-00-00-00-00-1e: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-1f 32] connected
+INFO:tap_eval:Switch 00-00-00-00-00-1f: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-20 33] connected
+INFO:tap_eval:Switch 00-00-00-00-00-20: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-21 34] connected
+INFO:tap_eval:Switch 00-00-00-00-00-21: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-22 35] connected
+INFO:tap_eval:Switch 00-00-00-00-00-22: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-23 36] connected
+INFO:tap_eval:Switch 00-00-00-00-00-23: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-24 37] connected
+INFO:tap_eval:Switch 00-00-00-00-00-24: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-25 38] connected
+INFO:tap_eval:Switch 00-00-00-00-00-25: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-26 39] connected
+INFO:tap_eval:Switch 00-00-00-00-00-26: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-27 40] connected
+INFO:tap_eval:Switch 00-00-00-00-00-27: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-28 41] connected
+INFO:tap_eval:Switch 00-00-00-00-00-28: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-29 42] connected
+INFO:tap_eval:Switch 00-00-00-00-00-29: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-2a 43] connected
+INFO:tap_eval:Switch 00-00-00-00-00-2a: 54 forwarding rules, 0 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-2b 44] connected
+INFO:tap_eval:Switch 00-00-00-00-00-2b: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-2c 45] connected
+INFO:tap_eval:Switch 00-00-00-00-00-2c: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-2d 46] connected
+INFO:tap_eval:Switch 00-00-00-00-00-2d: 54 forwarding rules, 9 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-1a 27] closed
+INFO:openflow.of_01:[00-00-00-00-00-1c 29] closed
+INFO:openflow.of_01:[00-00-00-00-00-23 36] closed
+INFO:openflow.of_01:[00-00-00-00-00-0e 15] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-1f 32] closed
+INFO:openflow.of_01:[00-00-00-00-00-0f 16] closed
+INFO:openflow.of_01:[00-00-00-00-00-0d 14] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-22 35] closed
+INFO:openflow.of_01:[00-00-00-00-00-26 39] closed
+INFO:openflow.of_01:[00-00-00-00-00-1b 28] closed
+INFO:openflow.of_01:[00-00-00-00-00-29 42] closed
+INFO:openflow.of_01:[00-00-00-00-00-0c 13] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-28 41] closed
+INFO:openflow.of_01:[00-00-00-00-00-16 23] closed
+INFO:openflow.of_01:[00-00-00-00-00-24 37] closed
+INFO:openflow.of_01:[00-00-00-00-00-12 19] closed
+INFO:openflow.of_01:[00-00-00-00-00-18 25] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:openflow.of_01:[00-00-00-00-00-1e 31] closed
+INFO:openflow.of_01:[00-00-00-00-00-19 26] closed
+INFO:openflow.of_01:[00-00-00-00-00-2b 44] closed
+INFO:openflow.of_01:[00-00-00-00-00-13 20] closed
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-17 24] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-2d 46] closed
+INFO:openflow.of_01:[00-00-00-00-00-21 34] closed
+INFO:openflow.of_01:[00-00-00-00-00-1d 30] closed
+INFO:openflow.of_01:[00-00-00-00-00-14 21] closed
+INFO:openflow.of_01:[00-00-00-00-00-2a 43] closed
+INFO:openflow.of_01:[00-00-00-00-00-11 18] closed
+INFO:openflow.of_01:[00-00-00-00-00-2c 45] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-10 17] closed
+INFO:openflow.of_01:[00-00-00-00-00-27 40] closed
+INFO:openflow.of_01:[00-00-00-00-00-25 38] closed
+INFO:openflow.of_01:[00-00-00-00-00-20 33] closed
+INFO:openflow.of_01:[00-00-00-00-00-15 22] closed
+INFO:core:Going down...
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.

@@ -1,0 +1,57 @@
+INFO:tap_eval:Tap: 11 switches, 11 hosts, paths=shortest, block above never new flows/s
+WARNING:version:POX requires one of the following versions of Python: 3.6 3.7 3.8 3.9
+WARNING:version:You're running Python 3.14.
+WARNING:version:If you run into problems, try using a supported version.
+INFO:core:POX 0.7.0 (gar) is up.
+INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+INFO:tap_eval:Switch 00-00-00-00-00-01: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-02 3] connected
+INFO:tap_eval:Switch 00-00-00-00-00-02: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-03 4] connected
+INFO:tap_eval:Switch 00-00-00-00-00-03: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-04 5] connected
+INFO:tap_eval:Switch 00-00-00-00-00-04: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-05 6] connected
+INFO:tap_eval:Switch 00-00-00-00-00-05: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-06 7] connected
+INFO:tap_eval:Switch 00-00-00-00-00-06: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-07 8] connected
+INFO:tap_eval:Switch 00-00-00-00-00-07: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-08 9] connected
+INFO:tap_eval:Switch 00-00-00-00-00-08: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-09 10] connected
+INFO:tap_eval:Switch 00-00-00-00-00-09: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0a: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] connected
+INFO:tap_eval:Switch 00-00-00-00-00-0b: 11 forwarding rules, 3 tap rules
+INFO:openflow.of_01:[00-00-00-00-00-06 7] closed
+INFO:openflow.of_01:[00-00-00-00-00-01 2] closed
+INFO:openflow.of_01:[00-00-00-00-00-0a 11] closed
+INFO:openflow.of_01:[00-00-00-00-00-03 4] closed
+INFO:openflow.of_01:[00-00-00-00-00-08 9] closed
+INFO:openflow.of_01:[00-00-00-00-00-07 8] closed
+INFO:openflow.of_01:[00-00-00-00-00-04 5] closed
+INFO:openflow.of_01:[00-00-00-00-00-05 6] closed
+INFO:openflow.of_01:[00-00-00-00-00-02 3] closed
+INFO:openflow.of_01:[00-00-00-00-00-0b 12] closed
+INFO:openflow.of_01:[00-00-00-00-00-09 10] closed
+INFO:core:Going down...
+Traceback (most recent call last):
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 317, in cycle
+    rv = t.execute()
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 111, in execute
+    return self.gen.send(v)
+           ~~~~~~~~~~~~~^^^
+  File "/home/mrudul/Openflow_SDN/pox/pox/lib/recoco/recoco.py", line 1078, in run
+    rv = self._callback(*self._args,**self._kw)
+  File "/home/mrudul/Openflow_SDN/controllers/tap_eval.py", line 248, in <lambda>
+    Timer(1, lambda: stats.dump(force=True), recurring=True)
+                     ~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/mrudul/Openflow_SDN/controllers/sa7_common.py", line 81, in dump
+    os.replace(tmp, self.stats_file)   # atomic, so readers never see half a file
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/mrudul/Openflow_SDN/results/measured/traffic-20261121-082609/abilene-isp-tap-s9-stats.json.tmp' -> '/home/mrudul/Openflow_SDN/results/measured/traffic-20261121-082609/abilene-isp-tap-s9-stats.json'
+INFO:core:Down.
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.
+Task <Timer 3 tid:4> caused an exception and was de-scheduled
