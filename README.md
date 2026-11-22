@@ -41,9 +41,15 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `docs/Tap_Experiment.md` | T13: forward first, tell the controller. Tap against reactive, wildcard and proactive on four networks |
 | `docs/Novelty_Plan.md` | Plan for the final presentation (19-20 Nov) |
 | `docs/Viva_Guide.md` | How to explain the project: where each answer lives, the numbers to know, a presentation split, likely questions |
-| `results/measured/INDEX.md` | Which result folder belongs to which test (T1–T12), with runs and power mode |
-| `docs/Deep_Dive_T4_T7_T11.md` | Full study guide for the three tests to know best (T4 spanning-tree cost, T7 budgeted hybrid, T11 where reactive time goes): concepts, worked examples, all numbers, Q&A, practice plan |
-| `docs/Final_Report.md` | Final report (20 Nov): structure and finished sections, with `TODO (data)` where measurements are still to come |
+| `results/measured/INDEX.md` | Which result folder belongs to which test (T1–T13, LSTM), with runs, machine and power mode |
+| `docs/Final_Report.md` | Final report: structure and finished sections, with `TODO (data)` where measurements are still to come |
+| `paper/paper.tex` | Research paper draft (IEEE format): rule granularity, not prediction, explains the gains of pre-installation; the tap controller |
+| `docs/Reproduce.md` | **For each table and figure of the paper: the command, the result folders and the machine** |
+| `experiments/paired_stats.py` | Paired per-seed differences with 95% intervals between controllers (`--paper`: every comparison the paper quotes) |
+| `experiments/model_validate.py`, `experiments/scale_sim.py`, `experiments/pair_fallback_replay.py` | Trace-replay model of the rule tables: validation against the measured runs, the scale / Zipf / run-length sweeps (outputs in `docs/figures/`), and the bound for pre-installing pairs on top of pair rules |
+| `controllers/lstm_predictor.py`, `experiments/train_lstm.py`, `results/lstm_datacenter.npz` | Small LSTM that ranks host pairs for the hybrid (`hybrid_eval --strategy=lstm`, harness mode `lstm-NN`), its training script and the trained model |
+| `experiments/paper_batch.sh` | The batch for `proactive-dst` (tap without its copy rules) next to tap and proactive on four networks |
+| `docs/Paper_TODO.md` | What the paper still needs before a venue submission |
 | `docs/figures/` | Summary figures for the reports, and the script that makes them from the measured tables |
 | `docs/Controller_On_Second_PC.md` | Step 4: how to run the controller on a second PC (incl. WSL2 networking) |
 | `Project_SA7_Final_Report.md` | Report draft (Section 4 = analytical model) |
@@ -71,9 +77,8 @@ sudo modprobe openvswitch        # if this fails, see "Userspace datapath" below
 
 cd ~
 git clone https://github.com/PrachitDeshinge-324/Openflow_SDN.git
-git clone https://github.com/noxrepo/pox.git Openflow_SDN/pox
 ```
-The repo only records which POX commit to use; it does not contain POX's files, so the second clone is required.
+POX 0.7.0 (commit 5f82461) is stored in this repo under `pox/`, so no second clone is needed. (Very old copies of the repo only recorded the POX commit; if `pox/` is empty, run `git pull`, or `git clone https://github.com/noxrepo/pox.git pox`.)
 
 **Userspace datapath:** if the kernel has no `openvswitch` module, add `--switch ovs,datapath=user`
 to `mn` commands and `--datapath user` to `run_experiments.py`. Latencies are higher in that mode, so report which one you used.
