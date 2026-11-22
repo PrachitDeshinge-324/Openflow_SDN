@@ -34,6 +34,7 @@ Abbreviations:
 | A9 | Nokia Bell Labs 2019: DRL application for network latency management | DRL for placement + LSTM traffic forecast | Not named in the listing | ? | ONOS + Open vSwitch | ? | Abstract |
 | A10 | Rzepka et al., *JNSM* 2020: PARD hybrid proactive/reactive (not ML) | Hybrid method | Not in the abstract | ? | ? | ? | Abstract (paywalled) |
 | A11 | Red Hat Research 2026: on the benefits of predictable traffic in virtual switches | Studies pre-emptive installation of predicted flows in a virtual switch | Benefit **varies with the flow rate** of the traces | n/a (benefit study) | Virtual switch | Traces | Abstract |
+| A12 | Hariri, Yuksel, Mohaisen, IEEE ICMLCN 2024: RL-based speculative installation of unseen flows in SDNs | Reinforcement learning | **Not read** | ? | ? | ? | **Cited only** (found 22 Nov in the references of B1; not on arXiv, not accessible to us). Not counted in the paper's 11 |
 
 **Pattern in A:**
 - **Baselines:** reactive, other placement schemes, or unnamed "existing methods".
@@ -46,7 +47,7 @@ Abbreviations:
 
 | # | Paper | Method | Compared against | Simple baseline? | Result vs simple baseline | Tested on | Checked |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| B1 | Rouf & Yuksel, arXiv 2025: spatial encoding of flow spaces | DQN eviction + Bloom-filter encoding | **LRU, LFU** | **Yes (LFU is a counter)** | **Only ~7% (vs LRU) and ~8% (vs LFU) lower miss rate**, over 10 h of traffic | Discrete-time simulator, IoT traces; code public | Abstract |
+| B1 | Rouf & Yuksel, arXiv 2025: spatial encoding of flow spaces | DQN eviction + Bloom-filter encoding | **LRU, LFU** | **Yes (LFU is a counter)** | **Only ~7% (vs LRU) and ~8% (vs LFU) lower *normalized* miss rate** (the gap to the optimal policy: 0.512 to 0.467 vs LFU), which is **+0.95 (LFU) and +1.60 (LRU) points of hit rate**, over 10 h of traffic; reports an optimal (Belady) bound; tables of 16-32 entries | Discrete-time simulator, IoT traces; code public | **Full text** (arXiv 2509.16485, read 22 Nov) |
 | B2 | Zang et al., IEEE 2023: DRL-driven aggregate flow-entry eviction | DRL | Random, LRU | Yes (recency) | −37% overflows, −87% reinstallations, −45% signalling vs Random/LRU | ? | Abstract |
 | B3 | arXiv 1809.09003 (ACM TAAS): SDN flow entry management using RL | RL / DRL: keep in switch or controller | Multiple Bloom Filters (heuristic) | Heuristic, not LRU/LFU | −60% control overhead, +14% table-hit ratio vs MBF (4 KB table) | **Mininet emulation** | Abstract |
 | B4 | Challa, Lee, Choo, NetSoft 2016: intelligent eviction (not ML) | Multiple Bloom Filters scoring | **LRU** | Yes | +37% table-hit ratio vs LRU (2K table) | ? | Abstract |
