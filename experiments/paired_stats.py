@@ -60,6 +60,13 @@ PAPER = [
   *[(f, 'tap', 'reactive-dst', ['small_p50', 'packet_in'])
     for f in ('traffic-20261119-114525', 'traffic-20261119-120616', 'traffic-20261119-123520',
               'traffic-20261119-125611')],
+  # Section VI, second batch (21 Nov): proactive-dst = tap without its copy rules
+  *[(f, 'tap', 'proactive-dst', ['small_p50', 'small_mean'])
+    for f in ('traffic-20261121-073853', 'traffic-20261121-075657', 'traffic-20261121-082609',
+              'traffic-20261121-084548')],
+  *[(f, 'proactive-dst', p, ['small_p50'])
+    for f, p in (('traffic-20261121-073853', 'proactive'), ('traffic-20261121-075657', 'proactive-ecmp'),
+                 ('traffic-20261121-082609', 'proactive'), ('traffic-20261121-084548', 'proactive-ecmp'))],
 ]
 
 

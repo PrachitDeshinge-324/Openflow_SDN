@@ -209,7 +209,7 @@ Further findings:
 | Fat-tree k=4 | 29.6 ± 5.5 ms / 1,072 | 39.3 ± 21.9 ms / 368 | 100% / 6.4% |
 
 - **Visibility without waiting:** the controller heard of 46,641 of 46,641 connections; no packet waited for it.
-- **Rules:** fewer than proactive with one rule per host pair, but 3 per host more than proactive with one rule per destination (80, 121, 2,430 forwarding rules), which is the fair baseline; its speed run is pending.
+- **Rules:** fewer than proactive with one rule per host pair, but 3 per host more than proactive with one rule per destination (80, 121, 2,430 forwarding rules), which is the fair baseline. Against it (21 Nov batch) tap's copies cost +0.08 ms (tree) and +0.29 ms (54 hosts) in small-flow median, nothing measurable on Abilene; the k=4 fat-tree gap to proactive ECMP is the destination-hashed paths (one seed, seed 8, where tap and proactive-dst fail the same 7 flows), not the copies.
 - **Controller frozen for 5 s** (university, 3 runs): under exact-match reactive 3,029 of 3,030 new connections took over 1 s (median 5.0 to 6.0 s); under tap the median stayed 1.3 to 2.0 ms, as under proactive.
 - **Cost:** about 3 PACKET_INs per connection (14% of POX's CPU at 200 connections/s).
 - **Limits:** TCP only; no per-flow byte counts; an Open vSwitch extension; slower on the k=4 fat-tree (one bad run; per-destination paths suspected).

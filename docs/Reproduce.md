@@ -13,7 +13,7 @@ Setup first: `bash setup.sh`, then `python3 smoke_test.py` (see `INSTALL.md`).
 | **Harikrushna** | Laptop, Windows 11 + WSL2 (Ubuntu), x86_64, 16 hardware threads, Open vSwitch 3.7.1 (kernel datapath), Python 3.14.4, POX 0.7.0. Windows power mode "Best performance", sleep off. WSL2 kernel 6.18.33.2 for the October batches, **6.18.58.1** for the November batches | Every testbed table and number in the paper |
 | **prachit (VM)** | Ubuntu VM (kernel 7.3) on an Apple-silicon Mac, aarch64, 4 virtual CPUs, Open vSwitch 4.0.0, Python 3.14.8 | LSTM batch only (branch `lstm-baseline`); replay model and statistics (no timing) |
 
-The CPU model of Harikrushna was not recorded by the October and November batches. Batches started
+The CPU of Harikrushna is an AMD Ryzen 7 8840HS (16 threads), recorded by the 21 Nov batch; the October and 19 Nov batches did not record it. Batches started
 from 20 Nov 2026 on record it, with the git commit of the code, in `traffic.json` (`meta.cpu_model`,
 `meta.git_commit`, `meta.git_dirty`) and in the `CPU:` line of `traffic.md`.
 
@@ -39,7 +39,7 @@ every controller for every seed in one batch.
 | Table III, Abilene | `traffic-20261119-123520` | same as campus tree, `--scenarios abilene:isp` | Harikrushna (Nov) |
 | Table III, fat-tree k=6 | `traffic-20261119-125611` | `... --scenarios fattree-k6:websearch --load 0.05 --modes reactive-sp reactive-pair reactive-dst proactive-ecmp tap --pair-zipf 1 --repeats 3` | Harikrushna (Nov) |
 | §VI frozen controller | `traffic-20261119-175235` | `sudo python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university --modes reactive-sp reactive-dst proactive tap --pause-controller 10:5 --pair-zipf 1 --repeats 3` | Harikrushna (Nov) |
-| §VI k=4 fat-tree: proactive-dst (**pending**) | (to be added) | `sudo bash experiments/paper_batch.sh` (four networks: reactive-dst, proactive or proactive-ecmp, proactive-dst, tap) | Harikrushna |
+| §VI second tap batch (proactive-dst; k=4 explanation, cost of the copies, Table IV last rows) | `traffic-20261121-073853` (tree), `-075657` (k=4), `-082609` (Abilene), `-084548` (k=6) | `sudo bash experiments/paper_batch.sh` | Harikrushna (Nov; AMD Ryzen 7 8840HS, 16 threads, code commit 369b32d2, recorded in each folder) |
 
 Visibility ("heard") for tap: `python3 experiments/tap_check.py <folder>`.
 Table III summary rows: `python3 experiments/tap_summary.py <folders>`.

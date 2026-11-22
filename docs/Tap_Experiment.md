@@ -115,10 +115,10 @@ Live version: `sudo python3 demo/freeze_demo.py`. One run on 19 Nov: reactive 20
 ## 5. What it shows
 
 1. **The trade-off is not necessary.** On the university tree, Abilene and the 54-host fat-tree, tap's small-flow median is close to proactive's (1.0 vs 0.9, 46.1 vs 46.0, 5.3 vs 5.0 ms). Paired per seed (`experiments/paired_stats.py --paper`) the differences are +0.07 [-0.02, +0.15], +0.11 [-0.03, +0.24] and +0.33 [-0.18, +0.85] ms: not resolved, but tap was the slower one in 11 of 13 seeds, so read it as a cost of at most a fraction of a millisecond, not as equal speed. The controller heard of every connection in all 21 tap runs. No other controller we measured has both.
-2. **Its rule cost is 3 rules per host on top of the cheapest proactive.** Against our proactive controller (one rule per host pair) tap needs fewer rules: 128 against 624 on the university tree, 154 against 386 on Abilene, 2,592 against 13,230 at 54 hosts. But that difference is rule granularity, not tapping: a proactive controller with one rule per destination needs exactly tap's forwarding rules (80, 121, 2,430), so tap costs 48, 33 and 162 rules more than it. The fair speed baseline is `proactive-dst` (tap with `--taps=off`); its run is pending (Section 9).
+2. **Its rule cost is 3 rules per host on top of the cheapest proactive.** Against our proactive controller (one rule per host pair) tap needs fewer rules: 128 against 624 on the university tree, 154 against 386 on Abilene, 2,592 against 13,230 at 54 hosts. But that difference is rule granularity, not tapping: a proactive controller with one rule per destination needs exactly tap's forwarding rules (80, 121, 2,430), so tap costs 48, 33 and 162 rules more than it. The fair speed baseline is `proactive-dst` (tap with `--taps=off`). Second batch (21 Nov, `traffic-20261121-073853/-075657/-082609/-084548`, same laptop and seeds): tap minus proactive-dst is 48, 48, 33 and 162 rules (3 per host), and in small-flow median +0.08 [+0.05, +0.11] ms (tree), +0.79 [-0.69, +2.28] (k=4), -0.01 [-0.09, +0.07] (Abilene), +0.29 [+0.06, +0.51] (k=6). The copies cost a little time where it is resolved; the k=4 slowdown is not theirs: in seed 8 tap and proactive-dst fail the same 7 flows with the same 72.7-72.8 ms median, proactive ECMP 23.9 ms.
 3. **At 54 hosts it beats every reactive variant.** Wildcard rules are rarely reused there (hit rate 51 to 59%), so destination and pair rules have 2.4 and 4.4 times tap's small-flow median, send 2.4 and 3.4 times more PACKET_INs, and hear of fewer than half the connections.
 4. **It survives a frozen controller** like proactive does, and unlike reactive (5 s against 1.4 ms median), without losing track of a single connection.
-5. **The cost is reading, not waiting.** About 3 copies per connection: 602 PACKET_IN/s and 14% CPU at about 200 new connections per second. None delays a packet. Destination rules are cheaper on small networks because they hear of almost nothing.
+5. **The cost is reading, not waiting.** About 3 copies per connection: 602 PACKET_IN/s and 14% CPU at about 200 new connections per second. No packet waits for the controller, but the copy rules add a little time: +0.08 ms (tree) and +0.29 ms (54 hosts) of small-flow median against proactive-dst, nothing measurable on Abilene. Destination rules are cheaper on small networks because they hear of almost nothing.
 
 ## 6. What it does not show
 
@@ -153,7 +153,7 @@ Live version: `sudo python3 demo/freeze_demo.py`. One run on 19 Nov: reactive 20
 
 ## 9. Next
 
-0. **Run `proactive-dst`** (tap with its copy rules off) on the four networks, next to tap, so speed and rules are compared at the same granularity.
-1. Tap with pair-hash ECMP paths, to test the large-flow explanation on the k=4 fat-tree.
+0. ~~Run `proactive-dst`~~ done 21 Nov (see Section 4): the k=4 gap is destination-hashed paths, one seed.
+1. Tap with pair-hash ECMP paths, to remove the k=4 gap itself.
 2. Read PARD in full and fix the wording of Section 7.
 3. Freeze test on the 54-host fat-tree, where wildcard rules miss half the time.

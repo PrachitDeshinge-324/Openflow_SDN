@@ -116,3 +116,7 @@ interrupted before a summary) are kept on the machine and ignored in `.gitignore
 | `traffic-20261119-123520/` | **T13** | **Abilene ISP** | 5 | Best performance |
 | `traffic-20261119-125611/` | **T13** | **Fat-tree k=6, web search, 5% load** | 3 (seeds 7-9) | Best performance |
 | `traffic-20261119-175235/` | **T13 (freeze)** | **University tree, controller frozen 10-15 s: reactive-sp, reactive-dst, proactive, tap** | 3 (seeds 7-9) | Best performance |
+| `traffic-20261121-073853/` | **T13 (proactive-dst)** | **University tree: reactive-dst, proactive, proactive-dst, tap (`paper_batch.sh`). Code commit 369b32d2, clean; CPU AMD Ryzen 7 8840HS** | 5 | Best performance |
+| `traffic-20261121-075657/` | **T13 (proactive-dst)** | **Fat-tree k=4, web search: reactive-dst, proactive-ecmp, proactive-dst, tap. Seed 8: tap and proactive-dst fail the same 7 flows** | 5 | Best performance |
+| `traffic-20261121-082609/` | **T13 (proactive-dst)** | **Abilene ISP: reactive-dst, proactive, proactive-dst, tap** | 5 | Best performance |
+| `traffic-20261121-084548/` | **T13 (proactive-dst)** | **Fat-tree k=6, web search, 5% load: reactive-dst, proactive-ecmp, proactive-dst, tap** | 3 (seeds 7-9) | Best performance |
