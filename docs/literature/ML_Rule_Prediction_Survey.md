@@ -43,6 +43,35 @@ Abbreviations:
 
 ---
 
+## A'. The 11 pre-installation papers, as counted in the paper (Paper_TODO 0.1)
+
+Built 22 Nov from section A above and `Literature_Review_IdleHybrid.md`. "n/s" = not stated in the material we
+had: for **Abstract** rows that means the abstract does not say it, not that the paper lacks it. A12 (Hariri et
+al.) was found later, could not be read, and is not counted.
+
+| # | Baseline group (paper, Section II) | Baselines named | Coarse-rule reactive baseline? | Frequency counter at the same rule budget? | Upper bound / oracle? | Traffic | Network size | Evaluation | Code | Checked |
+|---|---|---|---|---|---|---|---|---|---|---|
+| A1 | Plain reactive only | Reactive mode (POX, Ryu) | No | No | No | Periodic IoT streams | small Mininet (n/s) | Emulation (Mininet) | n/s | Full text |
+| A2 | Plain reactive only | Reactive (proof of concept) | n/s | No (it is itself a simple method) | n/s | Periodic IoT | n/s | Proof of concept | n/s | Abstract |
+| A4 | Plain reactive only | Reactive (-90% installation delay) | n/s | n/s | n/s | IoT | n/s | Experimental | n/s | Abstract |
+| A5 | Reactive and other published schemes | Basic reactive cache; MobiFlow (a predictor) | No | No | No | Mobile users | Abilene, 10 users | Simulation | n/s | Full text |
+| A6 | Reactive and other published schemes | OSPF, minimum-occupied-rule-capacity, distributed (non-SDN), MoRule | n/s | n/s | n/s | Mobility | n/s | Simulation | n/s | Abstract / PDF snippet |
+| A3 | Own earlier variants | Earlier PFIM variants | n/s | n/s | n/s | Periodic IoT | n/s | n/s | n/s | Abstract |
+| A7 | No baseline named | n/s | n/s | n/s | n/s | Mobility (SDN-IoT) | n/s | n/s | n/s | Abstract |
+| A8 | No baseline named | "Existing methods" | n/s | n/s | n/s | Vehicular mobility | n/s | n/s | n/s | Abstract |
+| A9 | No baseline named | n/s | n/s | n/s | n/s | n/s | n/s | ONOS + Open vSwitch | n/s | Abstract |
+| A10 | No baseline named | n/s (paywalled) | n/s | n/s | n/s | n/s | n/s | n/s | n/s | Abstract |
+| A11 | Benefit study, no baseline | (benefit varies with flow rate) | n/a | n/a | n/a | Traces | n/s | Virtual switch | n/s | Abstract |
+
+**Counts (11 papers):** 3 compare only against plain reactive installation (A1, A2, A4); 2 against reactive and
+other published schemes (A5, A6); 1 against its own earlier variants (A3); 4 name no baseline in the material
+available (A7-A10); 1 studies the benefit without a baseline (A11). **None** of the 11 reports, in that
+material, a coarse-rule reactive baseline, a frequency counter choosing pre-installed rules under the same
+budget, or an upper bound. The two read in full (A1, A5) certainly do not. Traffic is periodic IoT or mobility
+in 8 of the 9 rows that state it.
+
+---
+
 ## B. ML for eviction, caching and timeouts (which rules to keep or remove)
 
 | # | Paper | Method | Compared against | Simple baseline? | Result vs simple baseline | Tested on | Checked |

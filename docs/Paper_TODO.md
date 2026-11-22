@@ -7,7 +7,7 @@
 - Done 20 Nov: paired per-seed statistics (Table IV, 4.2 in part), oracle reworded as a hindsight reference, 120 s run-length check (3.3 by replay), Zipf 0 / 0.5 / 1.5 sweep (3.2 in part: the regime depends on skew), bound for fixed sets on a pair-rule fallback (1.1 by replay; the testbed version is not fair in our controller), LSTM in the paper (2.1, hit rate and installs only), `docs/Reproduce.md` (5.1 in part).
 - 1.2 done: harness mode `proactive-dst` (`tap_eval --taps=off`), batch run 21 Nov on Harikrushna (`traffic-20261121-*`); the paper has no `\pending{}` marks left.
 - 3.1 done by simulation: `experiments/scale_sim.py` (fat-tree k = 4 to 16, 16 to 1,024 hosts), on the replay model that reproduces all 46 measured wildcard runs (mean absolute error at most 0.1 points). Figure: `docs/figures/scale_hit_rate.pdf`.
-- 0.1 partly: the paper counts the 11 pre-installation papers of the survey; full text of the 9 abstract-only ones is still to read.
+- 0.1 done at abstract level (22 Nov): table A' in `docs/literature/ML_Rule_Prediction_Survey.md` (11 papers; 3 / 2 / 1 / 4 / 1 by baseline group, none with a coarse-rule baseline, counter or bound). Full text of the 9 abstract-only ones is still to read (venue submission). A12 (Hariri et al. 2024) found, not accessible.
 - Before submission: author block, repository URL, check the two references marked TODO in the bibliography (Kim 2022, Rouf and Yuksel 2025).
 
 **Order matters.** Phase 0 decides whether the claim holds. Do not spend machine time on later phases before it is done.
