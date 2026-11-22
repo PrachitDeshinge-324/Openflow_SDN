@@ -934,7 +934,8 @@ def main():
         % (args.controller_host, controller['host'], controller['cpu'], controller['cpus'],
            '%.2f' % controller['rtt_ms'] if controller['rtt_ms'] is not None else '?'))
 
-  run_dir = args.out or os.path.join(REPO, 'results', 'measured', 'traffic-' + time.strftime('%Y%m%d-%H%M%S'))
+  # absolute: POX runs with cwd=pox/, so a relative path would send it the wrong topology and stats files
+  run_dir = os.path.abspath(args.out or os.path.join(REPO, 'results', 'measured', 'traffic-' + time.strftime('%Y%m%d-%H%M%S')))
   os.makedirs(run_dir, exist_ok=True)
   setLogLevel('warning')
   # tc warns that the HTB quantum is large at 100 Mbit/s; it is harmless, so hide it

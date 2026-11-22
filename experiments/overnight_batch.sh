@@ -29,10 +29,21 @@ SEEDS="7 8 9"
 RUN="python3 experiments/run_traffic_experiments.py --scenarios tree-d2-f4:university --pair-zipf 1 --repeats 1"
 
 say() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
+complete() {   # complete <folder>: traffic.json holds one result for every mode asked for
+  python3 - "$1/traffic.json" <<'PY' 2>/dev/null
+import json, sys
+d = json.load(open(sys.argv[1]))
+a = d['meta']['args']
+sys.exit(0 if d['results'] and len(d['results']) == len(a['modes']) * a['repeats']
+         and all(r.get('fct') for r in d['results']) else 1)
+PY
+}
 run() {   # run <folder> <args...>: skip if already complete
   local out="$NIGHT/$1"; shift
-  if [ -f "$out/traffic.json" ]; then say "skip $out (done)"; return 0; fi
-  rm -rf "$out"
+  if complete "$out"; then say "skip $out (done)"; return 0; fi
+  if [ -e "$out" ]; then   # an earlier, incomplete attempt: keep it aside, never delete
+    mv "$out" "$out.incomplete-$(date +%H%M%S)"; say "moved aside an incomplete $out"
+  fi
   say "run  $out: $*"
   if ! $RUN --out "$out" "$@" >> "$LOG" 2>&1; then
     say "FAILED $out (see $LOG); continuing"
@@ -47,6 +58,14 @@ python3 experiments/test_ctrl_delay.py >> "$LOG" 2>&1 || { say "test_ctrl_delay 
 { echo "git $(git -c safe.directory='*' rev-parse HEAD) dirty=$(git -c safe.directory='*' status --porcelain --untracked-files=no | wc -l)";
   uname -a; grep -m1 'model name' /proc/cpuinfo; nproc; ovs-vsctl --version | head -1; } > "$NIGHT/machine.txt"
 mn -c > /dev/null 2>&1
+# one real 10 s run through the same --out path style as the night's runs: stop now, not after 3 hours
+CHECK="$NIGHT/selfcheck-$(date +%H%M%S)"
+say "self-check: 10 s harness run with --ctrl-delay 5 into $CHECK"
+if ! python3 experiments/run_traffic_experiments.py --quick --modes reactive-dst tap --ctrl-delay 5 \
+     --out "$CHECK" >> "$LOG" 2>&1 || ! complete "$CHECK"; then
+  say "harness self-check FAILED (see $LOG and $CHECK/*-pox.log): stop"; exit 1
+fi
+say "self-check passed"
 
 if [[ "$PARTS" == *A* ]]; then
   say "A. control-channel delay sweep"
