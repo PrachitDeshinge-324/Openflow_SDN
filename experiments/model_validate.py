@@ -60,6 +60,8 @@ def load(folder):
         net=r['network']; topo=json.load(open(R+folder+'/%s-topo.json'%net))
         sw={h['name']:h['dpid'] for h in topo['hosts']}; ip={h['ip']:h['name'] for h in topo['hosts']}
         tag='%s-%s-%s-s%d'%(net,r['workload'],r['mode'],r['seed'])
+        if not any(os.path.exists(R+folder+'/%s-sched-%s.txt'%(tag,h)) for h in sw):
+            tag='%s-%s-%s'%(net,r['workload'],r['mode'])   # a run with --repeats 1 has no seed in its file names
         fct={(x['src'],round(x['start'],4)):(x['fct_ms'] or 0)/1000.0 for x in r['flows_detail']}
         flows=[]
         for h in sw:

@@ -49,6 +49,7 @@ an evaluation of reactive vs. proactive OpenFlow flow installation on Mininet + 
 | `experiments/model_validate.py`, `experiments/scale_sim.py`, `experiments/pair_fallback_replay.py` | Trace-replay model of the rule tables: validation against the measured runs, the scale / Zipf / run-length sweeps (outputs in `docs/figures/`), and the bound for pre-installing pairs on top of pair rules |
 | `controllers/lstm_predictor.py`, `experiments/train_lstm.py`, `results/lstm_datacenter.npz` | Small LSTM that ranks host pairs for the hybrid (`hybrid_eval --strategy=lstm`, harness mode `lstm-NN`), its training script and the trained model |
 | `experiments/paper_batch.sh` | The batch for `proactive-dst` (tap without its copy rules) next to tap and proactive on four networks |
+| `experiments/overnight_batch.sh`, `experiments/night_summary.py`, `experiments/test_ctrl_delay.py` | Overnight batch: control-channel delay sweep (`run_traffic_experiments.py --ctrl-delay MS`, one-way delay on the OpenFlow channel only) and the 30 s vs 120 s run-length check; its summary; and a root self-test of the delay |
 | `docs/Paper_TODO.md` | What the paper still needs before a venue submission |
 | `docs/figures/` | Summary figures for the reports, and the script that makes them from the measured tables |
 | `docs/Controller_On_Second_PC.md` | Step 4: how to run the controller on a second PC (incl. WSL2 networking) |

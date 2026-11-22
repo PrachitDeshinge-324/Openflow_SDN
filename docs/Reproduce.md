@@ -68,6 +68,15 @@ exactly (checked 20 Nov 2026).
 
 Only hit rate and installs are reported for this batch (see `results/measured/INDEX.md`).
 
+## Prepared, not yet run (22 Nov)
+
+| Question | Command | Output |
+|---|---|---|
+| Control-channel delay: how much does a distant controller cost each strategy? (Paper_TODO 1.5, stand-in for T9) | `sudo bash experiments/overnight_batch.sh A` (one-way delay 0/1/5/20/50 ms on the OpenFlow channel, university tree, reactive-sp / reactive-dst / proactive / tap, seeds 7-9, delays interleaved per seed) | `results/measured/night-<date>/ctrl-d<D>-s<S>/`; `python3 experiments/night_summary.py results/measured/night-<date>` |
+| Run length on the testbed: does the measured hit rate change from 30 s to 120 s as the replay model says? | `sudo bash experiments/overnight_batch.sh B` (reactive-pair / reactive-dst / hybrid-25 / oracle-25, seeds 7-9) | `results/measured/night-<date>/len<L>-s<S>/`; same summary, which also replays the stored schedules |
+
+Before trusting a delay run: `sudo python3 experiments/test_ctrl_delay.py` (the batch runs it first and stops if it fails).
+
 ## Not in the paper
 
 - T9 (controller on a second PC): not run; see the paper's limitations.

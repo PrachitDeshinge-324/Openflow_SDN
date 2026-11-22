@@ -419,6 +419,45 @@ def fct_summary(rows):
   return res
 
 
+# ---------------------------------------------------------------- control-channel delay
+# --ctrl-delay MS delays OpenFlow traffic only: TCP to or from OF_PORT on the loopback device, where
+# the switches meet a local POX. Both directions leave through lo once, so MS is the ONE-WAY delay and
+# the control round trip grows by 2 x MS. Host traffic uses the Mininet veth links and is not touched.
+CTRL_QDISC = 'a7:'      # our own handle, so we never remove a qdisc we did not add
+CTRL_NETEM = 'a71:'
+
+
+def _tc(cmd, check=True):
+  return subprocess.run('tc ' + cmd, shell=True, check=check, capture_output=True, text=True)
+
+
+def ctrl_delay_off():
+  if ('qdisc prio %s' % CTRL_QDISC) in _tc('qdisc show dev lo', check=False).stdout:
+    _tc('qdisc del dev lo root')
+
+
+def ctrl_delay_on(ms):
+  ctrl_delay_off()
+  show = _tc('qdisc show dev lo', check=False).stdout.strip()
+  if show and 'noqueue' not in show:
+    raise RuntimeError('lo already has a queueing discipline (%s); not replacing it' % show)
+  _tc('qdisc add dev lo root handle %s prio bands 4 priomap %s' % (CTRL_QDISC, ' '.join(['3'] * 16)))
+  _tc('qdisc add dev lo parent %s1 handle %s netem delay %gms limit 100000' % (CTRL_QDISC, CTRL_NETEM, ms))
+  for field in ('dport', 'sport'):
+    _tc('filter add dev lo parent %s protocol ip prio 1 u32 match ip %s %d 0xffff flowid %s1'
+        % (CTRL_QDISC, field, OF_PORT, CTRL_QDISC))
+
+
+def ctrl_delay_packets():
+  """Packets the netem band has delayed so far (proof that the filter matched OpenFlow traffic)."""
+  lines = _tc('-s qdisc show dev lo', check=False).stdout.splitlines()
+  for i, line in enumerate(lines):
+    if line.startswith('qdisc netem %s' % CTRL_NETEM) and i + 1 < len(lines):
+      m = re.search(r'Sent \d+ bytes (\d+) pkt', lines[i + 1])
+      return int(m.group(1)) if m else None
+  return None
+
+
 def run_one(net_name, workload, mode, args, run_dir, repeat=0):
   seed = args.seed + repeat
   tag = '%s-%s-%s' % (net_name, workload, mode) + ('-s%d' % seed if args.repeats > 1 else '')
@@ -429,6 +468,7 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
   log('=' * 70)
 
   cleanup()
+  ctrl_delay_off()   # never inherit a delay from a crashed run
   topo, delays, labels = NETWORKS[net_name]()
   factors = LINK_SPEED_FACTOR.get(net_name, {})
   for a, b, info in topo.links(withInfo=True):
@@ -466,8 +506,10 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
   result = {'network': net_name, 'workload': workload, 'mode': mode, 'seed': seed, 'repeat': repeat,
             'hosts': len(net.hosts),
             'switches': len(net.switches), 'bw_mbps': args.bw, 'schedule': info,
-            'delay_emulated': bool(delays) and args.netem}
+            'delay_emulated': bool(delays) and args.netem, 'ctrl_delay_ms': args.ctrl_delay}
   try:
+    if args.ctrl_delay:   # before the switches connect, so the handshake is delayed too
+      ctrl_delay_on(args.ctrl_delay)
     net.start()
     connected_at = time.time()
     if not net.waitConnected(timeout=30):
@@ -562,6 +604,12 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
         if start not in reported:
           rows.append({'src': name, 'start': float(start), 'size': int(size), 'unfinished': True,
                        'fct_ms': None, 'ok': False, 'late_ms': 0.0})
+    if args.ctrl_delay:
+      result['ctrl_delay_packets'] = ctrl_delay_packets()
+      if not result['ctrl_delay_packets']:
+        raise RuntimeError('--ctrl-delay: netem delayed no OpenFlow packets; the delay was not applied')
+      log('    control channel: +%g ms one way, %d OpenFlow packets delayed'
+          % (args.ctrl_delay, result['ctrl_delay_packets']))
     window = w1 - w0
     result.update({
       'fct': fct_summary(rows), 'flows_detail': rows,
@@ -614,6 +662,7 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
       os.kill(ctrl.proc.pid, signal.SIGCONT)   # never leave POX frozen
     net.stop()
     ctrl.stop()
+    ctrl_delay_off()
   return result
 
 
@@ -628,6 +677,8 @@ def write_markdown(results, meta, run_dir):
            % (ctrl.get('address'), ctrl.get('host'), ctrl.get('cpus'),
               '%.2f' % ctrl['rtt_ms'] if ctrl.get('rtt_ms') is not None else '?')
            if ctrl['where'] == 'separate PC' else 'same machine as Mininet')
+  if a.get('ctrl_delay'):
+    where += ', control channel delayed by %g ms one way (netem on lo)' % a['ctrl_delay']
   lines = ['# Realistic traffic results (%s)' % os.path.basename(run_dir.rstrip('/')), '',
            'Testbed: %s | Python %s | %s | datapath=%s | every link %d Mbit/s | %d s of arrivals | '
            'target load %.0f%% (websearch/datamining) | flows capped at %d MB | pair popularity: %s'
@@ -823,6 +874,9 @@ def main():
   ap.add_argument('--pause-controller', default=None, metavar='START:SECONDS',
                   help='freeze POX (SIGSTOP) START seconds into the traffic for SECONDS seconds, '
                        'then resume it; reports the flows that started while it was frozen')
+  ap.add_argument('--ctrl-delay', type=float, default=0.0, metavar='MS',
+                  help='add MS ms of one-way delay to the OpenFlow channel only (netem on lo, TCP port '
+                       '%d); the control round trip grows by 2 x MS. Local controller only' % OF_PORT)
   args = ap.parse_args()
   if args.pause_controller:
     try:
@@ -843,6 +897,12 @@ def main():
     sys.exit('--pause-controller must end before --duration (%d s)' % args.duration)
   args.max_bytes = args.max_mb * 10**6
   args.netem = netem_available()
+  if args.ctrl_delay < 0:
+    sys.exit('--ctrl-delay must be >= 0')
+  if args.ctrl_delay and args.controller_host:
+    sys.exit('--ctrl-delay works with a local controller only (the real network adds the delay)')
+  if args.ctrl_delay and not args.netem:
+    sys.exit('--ctrl-delay needs netem, which this kernel lacks')
   scenarios = []
   for s in args.scenarios:
     net_name, _, workload = s.partition(':')
@@ -889,6 +949,7 @@ def main():
         results.append(run_one(net_name, workload, mode, args, run_dir, repeat))
   finally:
     cleanup()
+    ctrl_delay_off()
     meta = {'args': vars(args), 'started_by': os.environ.get('SUDO_USER'), 'controller': controller,
             'uname': ' '.join(os.uname()), 'python': sys.version.split()[0],
             'ovs': subprocess.run(['ovs-vsctl', '--version'], capture_output=True,

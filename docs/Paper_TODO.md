@@ -53,6 +53,7 @@ Each task lists what to do, how it helps the paper, and when it counts as done.
 - **Done when:** a run with a limit below proactive's need shows proactive failing or degrading, and the other modes adapting.
 
 ### 1.5 Emulated control-channel delay
+- **Status 22 Nov:** code done (`--ctrl-delay MS`, self-test `experiments/test_ctrl_delay.py`, batch `experiments/overnight_batch.sh A`, summary `experiments/night_summary.py`). Not run yet.
 - **Do:** add `--control-delay MS` (netem on the controller connection).
 - **Helps:** every result so far uses loopback. A delay sweep shows how a miss gets more expensive with a distant controller, and replaces the pending second-PC test (T9) with something reproducible.
 - **Done when:** a sweep of 0 / 1 / 5 / 20 ms runs for one scenario.
