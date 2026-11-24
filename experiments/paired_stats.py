@@ -34,6 +34,10 @@ METRICS = {   # name -> (path in a result, unit)
   'hit_rate': (('hybrid', 'hit_rate_pct'), 'pp'),
   'packet_in': (('control', 'packet_in_per_s'), '/s'),
   'peak_rules': (('control', 'peak_rules_total'), 'rules'),
+  'refused': (('table', 'refused_installs'), 'installs'),
+  'evictions': (('table', 'evictions'), 'rules'),
+  'st_cost': (('table', 'smarttime_cost'), 'installs+evictions'),
+  'full_pct': (('table', 'full_samples_pct'), '%'),
 }
 
 HERE = os.path.dirname(os.path.abspath(__file__))

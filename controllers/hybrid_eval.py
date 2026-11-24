@@ -37,8 +37,16 @@ path), within a budget of K pairs for the whole network:
                     key's average hold factor (rule lifetime / active time, from FLOW_REMOVED)
                     is above 3. Paper values: 100 ms and 10 s; OpenFlow 1.0 timeouts are whole
                     seconds, so the defaults here are --st_min=1 --st_max=10. The paper uses no
-                    hard timeout; the harness passes --hard_timeout=0. Not implemented: the
-                    paper's random eviction above 95% table use (the testbed has no table cap)
+                    hard timeout; the harness passes --hard_timeout=0. Eviction: see --table_cap
+  --table_cap=N : the harness caps each switch's table at N data rules (Open vSwitch flow_limit,
+                  overflow_policy=refuse). The controller then keeps its own view of each table
+                  (FLOW_REMOVED on every reactive rule), sends the FLOW_MOD without the packet and
+                  forwards the packet with a separate PACKET_OUT, so a refused rule (table full)
+                  does not lose the packet. Counts: table_full_events (PACKET_INs that found the
+                  table full), refused_installs (OFPFMFC_ALL_TABLES_FULL errors), evictions
+  --evict=auto|none|random : what to do when a capped table is above 95% full (the SmartTime
+                  rule: delete one random reactive rule of that switch). auto = random for
+                  --timeout_policy=smarttime, none (the switch refuses) for fixed
   --pairs_file=F: "oracle" upper bound: pre-install exactly the pairs listed in F
                   (one "src_mac dst_mac" per line, e.g. the truly busiest pairs of the
                   coming traffic), keep them for the whole run, no counter
@@ -52,10 +60,11 @@ Usage (from the pox/ directory):
   PYTHONPATH=../controllers python3 pox.py hybrid_eval --topo=/path/topo.json \\
       [--budget=0.25] [--decay=0.97] [--interval=1] [--hysteresis=1.5] [--pairs_file=F] \\
       [--paths=shortest|ecmp] [--match=exact|pair|dst] [--idle_timeout=10] [--hard_timeout=30] [--stats_file=...]
-      [--timeout_policy=fixed|smarttime] [--st_min=1] [--st_max=10]
+      [--timeout_policy=fixed|smarttime] [--st_min=1] [--st_max=10] [--table_cap=0] [--evict=auto]
 """
 
 import os
+import random
 import time
 import zlib
 
@@ -78,7 +87,8 @@ class HybridEval(object):
 
   def __init__(self, topo_file, budget, decay, interval, hysteresis, paths,
                idle_timeout, hard_timeout, stats, pairs_file=None, match='exact', strategy='counter',
-               model_file=None, warmup_intervals=10, timeout_policy='fixed', st_min=1, st_max=10):
+               model_file=None, warmup_intervals=10, timeout_policy='fixed', st_min=1, st_max=10,
+               table_cap=0, evict='auto'):
     self.hosts, self.adj = load_topology(topo_file)
     self.weights = load_link_weights(topo_file)
     self.by_mac = {EthAddr(h['mac']): h for h in self.hosts}
@@ -105,6 +115,11 @@ class HybridEval(object):
     self._path_cache = {}
     self.connections = {}
     self.timeout_policy, self.st_min, self.st_max = timeout_policy, st_min, st_max
+    self.table_cap = table_cap
+    self.evict = (('random' if timeout_policy == 'smarttime' else 'none') if evict == 'auto' else evict)
+    self.table = {}        # capped tables: dpid -> {rule key: match} of the reactive rules in the switch
+    self.pending = {}      # capped tables: FLOW_MOD xid -> (dpid, rule key), to match refusals
+    self.rnd = random.Random(1)
     self.st = {}           # SmartTime: (dpid, key) -> {'n': installs, 'live': timeout or None,
                            #            'prev': last timeout, 'holds': [hold factors]}
     stats.extra.update(budget_pairs=self.budget, total_pairs=n_pairs, pair_installs=0,
@@ -113,6 +128,9 @@ class HybridEval(object):
     if timeout_policy == 'smarttime':
       stats.extra.update(st_installs=0, st_resets=0, st_duplicates=0, st_removed=0,
                          st_timeouts={})   # idle timeout (s) -> installs with it
+    if table_cap:
+      stats.extra.update(table_cap=table_cap, evict_policy=self.evict, table_full_events=0,
+                         refused_installs=0, evictions=0, reactive_installs=0)
     if self.predictor:
       stats.extra.update(lstm_warmup_intervals=warmup_intervals, lstm_intervals=0)
     core.openflow.addListeners(self)
@@ -192,11 +210,69 @@ class HybridEval(object):
     if self.timeout_policy == 'smarttime':
       msg.idle_timeout = self._smarttime_idle(dpid, msg.match)
       msg.flags |= of.OFPFF_SEND_FLOW_REM   # FLOW_REMOVED tells us when it expired, and its hold factor
-    msg.actions.append(of.ofp_action_output(port=self._out_port(path, dpid, dst)))
-    msg.data = event.ofp
+    out = of.ofp_action_output(port=self._out_port(path, dpid, dst))
+    msg.actions.append(out)
+    if self.table_cap:
+      self._capped_install(event, dpid, msg, out)
+    else:
+      msg.data = event.ofp
+      event.connection.send(msg)
+      self.stats.count(dpid, 'flow_mod')
+    self.stats.add_proc_time(time.perf_counter() - t0)
+
+  # ------------------------------------------------------------ capped tables
+
+  def _capped_install(self, event, dpid, msg, out):
+    table = self.table.setdefault(dpid, {})
+    key = self._rule_key(msg.match)
+    msg.flags |= of.OFPFF_SEND_FLOW_REM   # so the controller's view of the table stays right
+    if key not in table:
+      if len(table) >= self.table_cap:
+        self.stats.extra['table_full_events'] += 1
+      if self.evict == 'random' and table and (len(table) >= self.table_cap or
+                                               len(table) > 0.95 * self.table_cap):
+        victim = self.rnd.choice(sorted(table))
+        vmatch = table.pop(victim)
+        event.connection.send(of.ofp_flow_mod(command=of.OFPFC_DELETE_STRICT, match=vmatch,
+                                              priority=of.OFP_DEFAULT_PRIORITY))
+        self.stats.count(dpid, 'flow_mod')
+        self.stats.extra['evictions'] += 1
+        rec = self.st.get((dpid, victim))
+        if rec is not None:
+          rec['live'] = None
+      table[key] = msg.match
+    # The rule and the packet go separately: if the switch refuses the rule (table full), the
+    # packet is still forwarded, instead of waiting ~1 s for a TCP retransmission
+    msg.xid = of.generate_xid()
+    self.pending[msg.xid] = (dpid, key)
+    if len(self.pending) > 20000:
+      for x in list(self.pending)[:10000]:
+        del self.pending[x]
     event.connection.send(msg)
     self.stats.count(dpid, 'flow_mod')
-    self.stats.add_proc_time(time.perf_counter() - t0)
+    self.stats.extra['reactive_installs'] += 1
+    po = of.ofp_packet_out(in_port=event.port, action=of.ofp_action_output(port=out.port))
+    po.data = event.ofp   # POX uses the switch's buffer if there is one, else the packet bytes
+    event.connection.send(po)
+    self.stats.dirty = True
+
+  def _handle_ErrorIn(self, event):
+    if not self.table_cap:
+      return
+    err = event.ofp
+    if err.type != of.OFPET_FLOW_MOD_FAILED or err.code != of.OFPFMFC_ALL_TABLES_FULL:
+      return
+    event.should_log = False
+    self.stats.extra['refused_installs'] += 1
+    self.stats.dirty = True
+    where = self.pending.pop(err.xid, None)
+    if where is None:
+      return
+    dpid, key = where
+    self.table.get(dpid, {}).pop(key, None)
+    rec = self.st.get((dpid, key))
+    if rec is not None:
+      rec['live'] = None
 
   # ------------------------------------------------------------ SmartTime-style adaptive timeout
 
@@ -229,10 +305,12 @@ class HybridEval(object):
     return idle
 
   def _handle_FlowRemoved(self, event):
-    if self.timeout_policy != 'smarttime':
-      return
     ofp = event.ofp
     if ofp.priority == PAIR_PRIORITY:
+      return
+    if self.table_cap and ofp.reason != of.OFPRR_DELETE:   # an evicted rule has already left our view
+      self.table.get(event.dpid, {}).pop(self._rule_key(ofp.match), None)
+    if self.timeout_policy != 'smarttime':
       return
     rec = self.st.get((event.dpid, self._rule_key(ofp.match)))
     if rec is None:
@@ -347,7 +425,7 @@ class HybridEval(object):
 def launch(topo=None, budget='0.25', decay='0.97', interval='1', hysteresis='1.5',
            paths='shortest', idle_timeout='10', hard_timeout='30', stats_file=None, pairs_file=None,
            match='exact', strategy='counter', model_file=None, warmup_intervals='10',
-           timeout_policy='fixed', st_min='1', st_max='10'):
+           timeout_policy='fixed', st_min='1', st_max='10', table_cap='0', evict='auto'):
   if not topo:
     raise RuntimeError("hybrid_eval needs --topo=<topology.json>")
   if paths not in ('shortest', 'ecmp'):
@@ -358,6 +436,8 @@ def launch(topo=None, budget='0.25', decay='0.97', interval='1', hysteresis='1.5
     raise RuntimeError("--timeout_policy must be fixed or smarttime")
   if not 1 <= int(st_min) <= int(st_max) <= 65535:
     raise RuntimeError("--st_min / --st_max: whole seconds, 1 <= st_min <= st_max (OpenFlow 1.0)")
+  if int(table_cap) < 0 or evict not in ('auto', 'none', 'random'):
+    raise RuntimeError("--table_cap must be >= 0 and --evict auto, none or random")
   if strategy not in ('counter', 'lstm'):
     raise RuntimeError("--strategy must be counter or lstm")
   if strategy == 'lstm' and (not model_file or not os.path.isfile(model_file)):
@@ -369,14 +449,14 @@ def launch(topo=None, budget='0.25', decay='0.97', interval='1', hysteresis='1.5
             'hard_timeout': int(hard_timeout), 'topo': topo, 'pairs_file': pairs_file, 'match': match,
             'strategy': strategy, 'model_file': model_file,
             'warmup_intervals': int(warmup_intervals), 'timeout_policy': timeout_policy,
-            'st_min': int(st_min), 'st_max': int(st_max)}
+            'st_min': int(st_min), 'st_max': int(st_max), 'table_cap': int(table_cap), 'evict': evict}
   stats = ControllerStats('hybrid', config, stats_file)
 
   def start():
     core.registerNew(HybridEval, topo, float(budget), float(decay), float(interval),
                      float(hysteresis), paths, int(idle_timeout), int(hard_timeout), stats,
                      pairs_file, match, strategy, model_file, int(warmup_intervals),
-                     timeout_policy, int(st_min), int(st_max))
+                     timeout_policy, int(st_min), int(st_max), int(table_cap), evict)
     Timer(1, stats.dump, recurring=True)
     stats.dump(force=True)
 

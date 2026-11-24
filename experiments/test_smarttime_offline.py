@@ -42,9 +42,10 @@ def syn(src, dst, sport):
   e = ethernet(); e.src, e.dst, e.type = EthAddr(src['mac']), EthAddr(dst['mac']), 0x800; e.payload = ip
   return ethernet(e.pack())
 
-def controller(match, policy='smarttime'):
+def controller(match, policy='smarttime', cap=0, evict='auto'):
   return hybrid_eval.HybridEval(topo_file, 0.0, 0.97, 1, 1.5, 'shortest', 10, 0, ControllerStats('h', {}, None),
-                                match=match, timeout_policy=policy, st_min=1, st_max=10)
+                                match=match, timeout_policy=policy, st_min=1, st_max=10,
+                                table_cap=cap, evict=evict)
 
 a, b = hosts[0], hosts[-1]
 def miss(c, sport=40000):
@@ -87,4 +88,42 @@ print('exact-match rules: every new connection gets', seen[0], 's')
 c = controller('pair', 'fixed'); m = miss(c)
 assert (m.idle_timeout, m.hard_timeout, m.flags) == (10, 0, 0)
 json.dumps(c.stats.extra); json.dumps(controller('pair').stats.extra)
-print('fixed policy: idle 10 s, no FLOW_REMOVED flag (as before)\nall SmartTime checks passed')
+print('fixed policy: idle 10 s, no FLOW_REMOVED flag (as before)')
+
+# 6. capped table, SmartTime: rule and packet sent separately; a random rule is evicted when full
+class ErrIn(object):
+  def __init__(self, xid):
+    self.should_log = True
+    self.ofp = of.ofp_error(type=of.OFPET_FLOW_MOD_FAILED, code=of.OFPFMFC_ALL_TABLES_FULL, xid=xid)
+def miss_to(c, dst, sport=42000):
+  ev = PktIn(a['dpid'], a['port'], syn(a, dst, sport)); c._handle_PacketIn(ev); return ev.connection.sent
+c = controller('pair', cap=3)
+for i, d in enumerate(hosts[1:4]):
+  sent = miss_to(c, d, 42000 + i)
+  fm = [m for m in sent if isinstance(m, of.ofp_flow_mod) and m.command == of.OFPFC_ADD][0]
+  po = [m for m in sent if isinstance(m, of.ofp_packet_out)]
+  assert fm.data is None and len(po) == 1 and fm.flags & of.OFPFF_SEND_FLOW_REM
+assert len(c.table[a['dpid']]) == 3 and c.stats.extra['evictions'] == 0
+sent = miss_to(c, hosts[4], 42010)   # table full: evict one, then install
+dels = [m for m in sent if isinstance(m, of.ofp_flow_mod) and m.command == of.OFPFC_DELETE_STRICT]
+assert len(dels) == 1 and c.stats.extra['evictions'] == 1 and c.stats.extra['table_full_events'] == 1
+assert len(c.table[a['dpid']]) == 3
+print('capped table, SmartTime: rule without the packet + PACKET_OUT; full table -> 1 random DELETE_STRICT')
+
+# 7. capped table, fixed timeout: no eviction; a refusal (table full) is counted and leaves our view
+c = controller('pair', 'fixed', cap=2)
+miss_to(c, hosts[1]); miss_to(c, hosts[2])
+sent = miss_to(c, hosts[3])
+fm = [m for m in sent if isinstance(m, of.ofp_flow_mod)]
+assert len(fm) == 1 and fm[0].command == of.OFPFC_ADD and c.stats.extra['evictions'] == 0
+assert any(isinstance(m, of.ofp_packet_out) for m in sent)   # the packet still goes on
+c._handle_ErrorIn(ErrIn(fm[0].xid))
+assert c.stats.extra['refused_installs'] == 1 and len(c.table[a['dpid']]) == 2
+# an idle expiry frees a slot in our view
+c._handle_FlowRemoved(Removed(a['dpid'], fm[0].__class__(match=of.ofp_match(dl_src=EthAddr(a['mac']),
+                      dl_dst=EthAddr(hosts[1]['mac']))), 11.0))
+assert len(c.table[a['dpid']]) == 1
+json.dumps(c.stats.extra)
+print('capped table, fixed: no eviction, refused install counted, packet forwarded anyway')
+for m in sent: m.pack()   # every message is valid OpenFlow 1.0
+print('all SmartTime checks passed')
