@@ -21,19 +21,16 @@
 
 \title{Ask Less, Tell More: Rule Granularity, Not Prediction, Explains the Gains of OpenFlow Rule Pre-Installation}
 
-% Order as in ../paper.tex. Add \email{...} under each name if wanted.
-\author{Nisarg Vagh}
-\affiliation{\institution{BITS Pilani}\department{Department of Computer Science and Information Systems}\country{India}}
+% Four authors, one shared affiliation (acmart prints the names above a single affiliation).
 \author{Mrudul Dhaduk}
-\affiliation{\institution{BITS Pilani}\department{Department of Computer Science and Information Systems}\country{India}}
+\author{Nisarg Vagh}
 \author{Prachit Deshinge}
-\affiliation{\institution{BITS Pilani}\department{Department of Computer Science and Information Systems}\country{India}}
 \author{Mukul Saini}
 \affiliation{\institution{BITS Pilani}\department{Department of Computer Science and Information Systems}\country{India}}
-\renewcommand{\shortauthors}{Vagh, Dhaduk, Deshinge and Saini}
+\renewcommand{\shortauthors}{Dhaduk, Vagh, Deshinge and Saini}
 
 \begin{abstract}
-A reactive OpenFlow controller delays each new flow's first packet until a rule is installed; a proactive one avoids the delay but needs a rule for every host pair. Alternatives, from rule caches to learned predictors, are usually evaluated against a reactive controller that installs one exact-match rule per connection, which is almost never reused. We compare them on one emulated testbed (Mininet, Open vSwitch, POX) on a campus tree, a fat-tree and the Abilene backbone, with identical flows for every controller. Reactive installation of one rule per destination, with no prediction, finds a rule for 93.6--99.6\% of new connections at 11--16 hosts, comes within 0.3\,ms of proactive's small-flow median on the campus tree and Abilene, and beats a popularity-based hybrid and its hindsight oracle in hit rate in every seed on three networks. A trace-replay model matching all 46 measured coarse-rule runs to within 0.1 points extends the comparison to 1,024 hosts: prediction pays only where flows per host pair are few and popularity is skewed. A controller that forwards on destination rules and receives copies of TCP SYN, FIN and RST packets stays within 0.9\,ms of proactive on three of four networks and hears of all 46,641 connections.
+A reactive OpenFlow controller makes each new flow's first packet wait for a rule; a proactive one pre-installs a rule for every host pair. Alternatives, from rule caches to learned predictors, are usually compared with exact-match reactive rules, one per connection, which are almost never reused. We test them on emulated networks (Mininet, Open vSwitch, POX): a campus tree, a fat-tree and the Abilene backbone, giving every controller identical flows. Reactive destination rules, with no prediction, find a rule for 93.6--99.6\% of new connections at 11--16 hosts, come within 0.3\,ms of proactive's small-flow median on the campus tree and Abilene, and beat a popularity-based hybrid and its hindsight oracle in hit rate in every seed on three networks. A trace-replay model matching all 46 measured coarse-rule runs within 0.1 points extends this to 1,024 hosts: prediction pays only where flows per host pair are few and popularity is skewed. A destination-rule controller receiving copies of TCP SYN, FIN and RST packets stays within 0.9\,ms of proactive on three of four networks and hears of all 46,641 connections. A 50\,ms one-way control-channel delay adds over a second to exact-match reactive's small-flow median and under 0.9\,ms to tap's, proactive's and destination rules'.
 \end{abstract}
 
 \keywords{software-defined networking, OpenFlow, flow-rule installation, benchmarking, rule caching, prediction}
@@ -53,7 +50,7 @@ We ask how much of the gain remains when the baseline uses the same coarse rules
 \item \textbf{A validated scale model and the regime map.} A trace replay reproduces the hit rate of the 46 measured wildcard runs (mean absolute error at most 0.1 points); on fat-trees of up to 1,024 hosts it shows that whether prediction pays depends on pair-popularity skew as well as size: at Zipf 1 only where flows per host pair fall to 2--3 (54 hosts at 5\% load, about 432 at 30\% load), at Zipf 0 and 0.5 never, and at Zipf 1.5 by a few points at almost every size (Section~\ref{sec:scale}).
 \item \textbf{Asking versus telling.} A controller that forwards on destination rules and receives copies of TCP SYN, FIN and RST packets keeps proactive's speed and reactive's per-connection visibility (Section~\ref{sec:tap}).
 \end{enumerate}
-Of the 11 pre-installation papers in our survey (Section~\ref{sec:related}), none reports a coarse-rule reactive baseline or an upper bound in the material available to us (the full text for two of them, the abstract for nine). All code, flow schedules and per-flow results are released.\footnote{\url{https://github.com/PrachitDeshinge-324/Openflow_SDN} (to be anonymised for a double-blind venue).}
+Of the 11 pre-installation papers in our survey (Section~\ref{sec:related}), none reports a coarse-rule reactive baseline or an upper bound in the material available to us (the full text for two of them, the abstract for nine). All code, flow schedules and per-flow results are released.\footnote{\url{https://github.com/PrachitDeshinge-324/Openflow_SDN}.}
 
 \section{Background and related work}\label{sec:related}
 
@@ -69,7 +66,7 @@ Of the 11 pre-installation papers in our survey (Section~\ref{sec:related}), non
 
 \section{Benchmark design}\label{sec:design}
 
-\textbf{Testbed.} Mininet 2.3.0~\cite{mininet}, Open vSwitch 3.7.1~\cite{ovs} with the kernel datapath, POX 0.7.0 and OpenFlow 1.0, on one laptop (Windows 11 with WSL2, x86\_64, 16 hardware threads; every testbed number in this paper comes from it, with WSL2 kernel 6.18.33 for the October batches of Table~\ref{tab:granularity} and 6.18.58 for the November batches of Table~\ref{tab:tap}). The controller runs on the same machine. The repository's \texttt{docs/Reproduce.md} gives, for each table and figure, the command, the result folders and the machine. ARP tables are static and IPv6 is disabled, so neither reaches the controller.
+\textbf{Testbed.} Mininet 2.3.0~\cite{mininet}, Open vSwitch 3.7.1~\cite{ovs} with the kernel datapath, POX 0.7.0 and OpenFlow 1.0, on one laptop (Windows 11 with WSL2, x86\_64, 16 hardware threads; every testbed number in this paper comes from it, with WSL2 kernel 6.18.33 for the October batches of Table~\ref{tab:granularity} and 6.18.58 for the November batches of Tables~\ref{tab:tap} and~\ref{tab:delay}). The controller runs on the same machine. The repository's \texttt{docs/Reproduce.md} gives, for each table and figure, the command, the result folders and the machine. ARP tables are static and IPv6 is disabled, so neither reaches the controller.
 
 \textbf{Controllers.} Table~\ref{tab:controllers} lists the strategies. All topology-aware controllers share one implementation that exposes the four axes as options, so two controllers differ only in the axis being compared.
 
@@ -108,7 +105,7 @@ Tap & destination rules for every host, plus 3 rules per host that copy TCP SYN,
 \subsection{Exact-match reactive pays twice}
 Under realistic traffic, exact-match reactive sends 10.5--12.9 PACKET\_INs per flow and its small flows are 2.2--28$\times$ slower than proactive's. On networks with loops part of this is path, not setup: the spanning tree switches off 4 of Abilene's 14 links, so 70\% of pairs take a longer path (mean delay stretch 1.58, up to 4.47). Running the same exact-match controller on shortest paths splits the small-flow median penalty on Abilene into about 41\,ms of path and 10\,ms of setup. Long timeouts (60\,s/300\,s) gave no fewer controller requests and no faster flows in any of four scenarios, with 2.2--3.0$\times$ the rules: an exact-match rule is not reused by a new connection however long it lives.
 
-\subsection{Granularity explains the hybrid's gain}
+\subsection{Granularity explains the hybrid's gain}\label{sec:hybrid}
 
 \begin{table}[t]
 \caption{Coarse reactive rules against the budgeted hybrid (25\% budget). Mean of 5 runs; FCT is the small-flow median with 95\% CI.}\label{tab:granularity}
@@ -157,6 +154,46 @@ Table~\ref{tab:granularity} adds coarse-rule reactive controllers to the compari
 
 \textbf{Skew is not required.} With uniform pair popularity, pair rules still reach 98.0\% (6,093 flows over 240 pairs is about 25 flows per pair in 30\,s), while the counter falls to its budget share (24.8\%).
 
+\textbf{Longer runs.} The runs of Table~\ref{tab:granularity} have 30\,s of arrivals, equal to the hard timeout. We repeated the campus-tree comparison with 120\,s of arrivals (seeds 7--9, both lengths run in turn for each seed, in the batch of Section~\ref{sec:delay}). Pair and destination rules changed by at most 0.2 points: 97.9 to 98.0\% ($+0.1$ [$+0.1$, $+0.2$]) and 99.5 to 99.6\% ($+0.0$ [$-0.1$, $+0.2$]). The replay model of Section~\ref{sec:scale}, run on the same stored schedules, predicts $+0.1$ for both and reproduces each of these 12 runs within 0.05 points. The counter at 25\% gains $+4.7$ [$+2.3$, $+7.0$] points (62.9 to 67.6\%) but stays $30.4$ [$23.8$, $37.1$] points below pair rules at 120\,s, in every seed. The oracle at 25\% changes by $+0.0$ [$-1.8$, $+1.8$] points (69.8\% at both lengths). One of the 292,456 flows in the 120\,s runs failed, in a pair-rule run.
+
+\subsection{A distant controller}\label{sec:delay}
+The controller runs on the same laptop as the emulated network, so its control round trip is short (0.09\,ms on the OpenFlow port in the self-check below). To see what a distant controller costs each strategy, we delay the OpenFlow channel only: netem on the loopback device delays TCP packets to and from the OpenFlow port by a fixed 0, 1, 5, 20 or 50\,ms, so the control round trip grows by twice that; host traffic is not delayed. A self-check before the batch measured $+40.3$\,ms of round trip on the OpenFlow port for a 20\,ms setting, no change on another port, and 0.09\,ms on the OpenFlow port after the delay was removed; every delayed run recorded at least 231 delayed OpenFlow packets. The batch ran on the laptop of Table~\ref{tab:tap} on 24 Nov (code commit 2d767423), on the university tree with Zipf pairs, for exact-match reactive, destination rules, proactive and tap, seeds 7--9, with the five delays run in turn for each seed. No flow failed in the 60 runs, and tap heard of all 91,345 connections in its 15 runs. Table~\ref{tab:delay} and Figure~\ref{fig:delay} give the results; as elsewhere, absolute times compare only within this batch.
+
+\begin{table}[t]
+\caption{A distant controller: one-way delay added to the OpenFlow channel, university tree, seeds 7--9. Top: small-flow median, mean of 3 seeds. Bottom: paired per-seed increase over 0\,ms; bold: 95\% interval excludes zero. All in ms.}\label{tab:delay}
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Controller & 0\,ms & 1\,ms & 5\,ms & 20\,ms & 50\,ms \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Small-flow median}} \\
+Reactive, exact & 65.5 & 73.8 & 152.6 & 472.0 & 1,159.9 \\
+Reactive, dest. & 1.24 & 1.26 & 1.40 & 1.38 & 1.46 \\
+Proactive & 1.27 & 1.27 & 1.38 & 1.38 & 1.37 \\
+Tap & 1.31 & 1.32 & 1.41 & 1.41 & 1.41 \\
+\midrule
+\multicolumn{6}{@{}l}{\emph{Paired increase over 0\,ms}} \\
+Reactive, exact & -- & +8.3 & \textbf{+87.2} & \textbf{+406.5} & \textbf{+1,094.5} \\
+Reactive, dest. & -- & +0.03 & +0.16 & +0.14 & +0.23 \\
+Proactive & -- & 0.00 & +0.10 & +0.10 & +0.09 \\
+Tap & -- & 0.00 & +0.10 & +0.09 & +0.10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{ctrl_delay.pdf}
+\caption{Small-flow median against one-way control-channel delay (university tree, mean of 3 seeds with 95\% intervals; log scales, the delay axis linear below 1\,ms). reactive-sp is exact-match reactive on shortest paths; reactive-dst is destination rules. Exact-match reactive's interval at 0\,ms extends below zero and is cut off.}\label{fig:delay}
+\end{figure}
+
+\textbf{In the median, only exact-match reactive pays for distance.} Its small-flow median rises by $+87$ [$+38$, $+137$]\,ms at 5\,ms, $+407$ [$+346$, $+468$]\,ms at 20\,ms and $+1{,}094$ [$+980$, $+1{,}208$]\,ms at 50\,ms; at 50\,ms the median is over one second in every seed. At 1\,ms the increase is not resolved ($+8$ [$-36$, $+53$]\,ms), because its median without delay already varies between seeds (47.5, 49.7 and 99.2\,ms). For destination rules, proactive and tap no change of the median is resolved at any delay; the intervals lie between $-0.52$ and $+0.87$\,ms. Destination rules do pay in the tail: at 50\,ms their small-flow mean rises by $+8.5$ [$+7.8$, $+9.2$]\,ms and their 99th percentile by $+355$ [$+243$, $+468$]\,ms, while no change in proactive's or tap's mean or 99th percentile is resolved.
+
+\textbf{The slope is not explained.} From 20\,ms on, exact-match reactive's median grows by about 20--22\,ms per ms of one-way delay (20.3 at 20\,ms, 21.9 at 50\,ms), the equivalent of 10--11 control round trips per small flow. Its controller received 9.0--9.8 PACKET\_INs per flow at these delays. The logs count messages but do not record which of them lie on a flow's critical path, so we cannot attribute the slope, and we leave it unexplained.
+
+Our delay is emulated on one machine and on one network; it is not a controller on a second PC.
+
 \section{Where prediction has room: scale}\label{sec:scale}
 
 The coarse-rule result depends on each pair carrying many flows while its rule is alive. At 54 hosts this no longer holds: the hit rate of pair rules falls to 50.8$\pm$5.0\% and of destination rules to 59.3$\pm$2.4\% (3 runs, about 640 flows over 2,862 pairs). Here the counter at a 10\% budget cannot be told apart from pair rules (51.1\%; paired difference $+0.3$ [$-2.4$, $+3.0$] points, 3 seeds) while using 1.9$\times$ their rules, and only the static oracle is clearly better (77.8\%; $+27.1$ [$+23.9$, $+30.2$]).
@@ -166,7 +203,7 @@ The coarse-rule result depends on each pair carrying many flows while its rule i
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{scale_hit_rate.pdf}
-\caption{Hit rate against network size (trace replay, mean of 3 seeds). The dashed line is the share of flows that are not the first of their host pair.}\label{fig:scale}
+\caption{Hit rate against network size (trace replay, web-search workload, mean of 3 seeds). The dash-dotted grey line is the share of flows that are not the first of their host pair.}\label{fig:scale}
 \end{figure}
 
 Figure~\ref{fig:scale} shows the result.
@@ -271,10 +308,10 @@ P.-dst $-$ proactive ECMP, $k{=}4$ & FCT & +9.80 & [$-$17.55, +37.15] & 3/5 \\
 
 \textbf{When each strategy wins.} On small networks, or wherever a switch can hold one rule per destination, proactive destination rules are the smallest rule set that forwards all traffic without waiting, and on the campus tree, Abilene and the 54-host fat-tree they are as fast as pair-rule proactive within 0.1--0.5\,ms (paired: $+0.04$ [$-0.03$, $+0.10$], $-0.12$ [$-0.30$, $+0.07$], $-0.14$ [$-0.47$, $+0.19$]\,ms); on the $k{=}4$ fat-tree their destination-hashed paths lose one flow schedule badly. Coarse reactive rules come close. Exact-match reactive is justified only by per-flow policy, which our workloads do not exercise. In our model, prediction pays when pair popularity is skewed: at large scale for Zipf 1, by a few points at any size for Zipf 1.5, and not at all for near-uniform popularity. If the controller must know about each connection, tap provides that without the reactive wait, for TCP.
 
-\textbf{Limitations.} The network is emulated in software, so there is no TCAM limit and no hardware rule-update rate; POX is single-threaded, so absolute controller numbers are POX's. The testbed networks have 11--54 hosts; larger sizes come from the replay model, which is validated for hit rate only, and its predictor is given stationary pair popularity, which favours prediction. Pair popularity is an assumed Zipf distribution except for the ISP workload, and the university size distribution was read from a published plot. Each run has 30\,s of arrivals, equal to the hard timeout, so on the testbed a rule installed on a first miss never reaches its hard timeout during the run. We checked the effect with the replay model (fat-trees $k{=}4$--8, both loads, 3 seeds): with 120\,s of arrivals, pair and destination rules gain 1.3--2.2 and 0.6--3.3 points of hit rate (more flows per pair outweigh the expiries), the history counter gains 1.4--9.4, and the static oracle at 10\% changes by $-15.9$ to $+1.3$. The comparisons that decide our conclusions do not change sign: destination rules stay 4.6--5.5 points ahead of the counter at 30\% load for $k{=}4$ and 6, and 9.6--16.4 points behind it at 5\% load for $k{=}6$ and 8 (means of 3 seeds, same sign in every seed). Two close cases move: at $k{=}8$, 30\% load, destination rules lead by 0.9 points at 30\,s and tie at 120\,s (79.19 vs.\ 79.19\%), and at $k{=}4$, 5\% load, the two are within one point at both lengths and swap order. So longer runs move the point where prediction starts to pay towards slightly smaller networks. This check covers hit rate only, in the model, not the testbed. Tap covers TCP only, records start and end but not bytes, and cannot take a decision before the first packet. The controller shares the host with the emulated network; we did not vary the control-channel delay. Results come from batches on different days with the same settings; absolute times are compared only within a table.
+\textbf{Limitations.} The network is emulated in software, so there is no TCAM limit and no hardware rule-update rate; POX is single-threaded, so absolute controller numbers are POX's. The testbed networks have 11--54 hosts; larger sizes come from the replay model, which is validated for hit rate only, and its predictor is given stationary pair popularity, which favours prediction. Pair popularity is an assumed Zipf distribution except for the ISP workload, and the university size distribution was read from a published plot. Each run of Tables~\ref{tab:granularity} and~\ref{tab:tap} has 30\,s of arrivals, equal to the hard timeout, so on the testbed a rule installed on a first miss never reaches its hard timeout during the run. We checked the effect with the replay model (fat-trees $k{=}4$--8, both loads, 3 seeds): with 120\,s of arrivals, pair and destination rules gain 1.3--2.2 and 0.6--3.3 points of hit rate (more flows per pair outweigh the expiries), the history counter gains 1.4--9.4, and the static oracle at 10\% changes by $-15.9$ to $+1.3$. The comparisons that decide our conclusions do not change sign: destination rules stay 4.6--5.5 points ahead of the counter at 30\% load for $k{=}4$ and 6, and 9.6--16.4 points behind it at 5\% load for $k{=}6$ and 8 (means of 3 seeds, same sign in every seed). Two close cases move: at $k{=}8$, 30\% load, destination rules lead by 0.9 points at 30\,s and tie at 120\,s (79.19 vs.\ 79.19\%), and at $k{=}4$, 5\% load, the two are within one point at both lengths and swap order. So longer runs move the point where prediction starts to pay towards slightly smaller networks. On the testbed, 120\,s runs on the campus tree change pair and destination rules by at most 0.2 points and leave the counter 30 points below pair rules (Section~\ref{sec:hybrid}). Tap covers TCP only, records start and end but not bytes, and cannot take a decision before the first packet. The controller shares the host with the emulated network; a distant controller is emulated by delaying the OpenFlow channel on one network (Section~\ref{sec:delay}), not measured with a controller on a second machine, and the growth of exact-match reactive's delay with distance is not explained. Results come from batches on different days with the same settings; absolute times are compared only within a table.
 
 \section{Conclusion}
-In the pre-installation papers we surveyed, reported gains are measured against reactive installation with exact-match rules or against no stated baseline. When the reactive baseline uses the same coarse rules as the pre-installed ones, it reaches 86--100\% hit rates on networks of up to 16 hosts, above a budgeted popularity hybrid and its static oracle in every seed. In our validated replay model with Zipf-1 pair popularity, prediction becomes useful only when flows per host pair fall to 2--3: from 54 hosts at 5\% load and from about 432 hosts at 30\% load. It also needs skew: with near-uniform popularity it never helps, and with strong skew it adds a few points at every size. Separately, the visibility that reactive installation provides does not require making packets wait: copying connection start and end packets gives the controller every connection, at a small-flow median at most 0.2--0.9\,ms above proactive's on three of four networks. We release the benchmark so that future predictors can be measured against these baselines.
+In the pre-installation papers we surveyed, reported gains are measured against reactive installation with exact-match rules or against no stated baseline. When the reactive baseline uses the same coarse rules as the pre-installed ones, it reaches 86--100\% hit rates on networks of up to 16 hosts, above a budgeted popularity hybrid and its static oracle in every seed. In our validated replay model with Zipf-1 pair popularity, prediction becomes useful only when flows per host pair fall to 2--3: from 54 hosts at 5\% load and from about 432 hosts at 30\% load. It also needs skew: with near-uniform popularity it never helps, and with strong skew it adds a few points at every size. Separately, the visibility that reactive installation provides does not require making packets wait: copying connection start and end packets gives the controller every connection, at a small-flow median at most 0.2--0.9\,ms above proactive's on three of four networks. In the small-flow median, a distant controller costs only exact-match reactive: 50\,ms of one-way control-channel delay adds over a second to its small-flow median and less than 0.9\,ms to that of destination rules, proactive and tap. We release the benchmark so that future predictors can be measured against these baselines.
 
 \balance
 \begin{thebibliography}{99}

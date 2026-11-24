@@ -44,7 +44,7 @@ Zipf pairs unless stated. The numbers in the report come from the 5-run folders.
 | `traffic-20261015-233914/` | **T7** | **Fat-tree, web search, budget sweep** | 5 | Best performance |
 | `traffic-20261016-004215/` | **T7** | **Abilene ISP, budget sweep** | 5 | Best performance |
 | `traffic-20261016-012626/` | **T7** | **University, uniform pairs (control)** | 5 | Best performance |
-| `traffic-20261016-021112/` | T7 | Decay 0.9 instead of 0.97 (no change inside the intervals) | 1 | Best performance |
+| `traffic-20261016-021112/` | T7 | Decay 0.9 instead of 0.97 (no change inside the intervals) | 1 | not recorded |
 | `traffic-20261017-224052/` | **T7** | **Random pre-installation: university and fat-tree** | 5 | Best performance |
 | `traffic-20261017-231017/` | **T7** | **Random pre-installation: Abilene** | 5 | Best performance |
 | `traffic-20261018-001723/` | T7 | Decay 0.9, 5 runs (no change inside the intervals) | 5 | Best performance |
@@ -110,7 +110,7 @@ interrupted before a summary) are kept on the machine and ignored in `.gitignore
 
 | Folder | Test | What it holds | Runs | Mode |
 |---|---|---|---|---|
-| `traffic-20261119-112325/`, `-113446/`, `-114426/` | T13 (checks) | Quick 10 s runs: first real run of the tap controller, and the fix of its counting bug. Not used for results | 1 | Best performance |
+| `traffic-20261119-112325/`, `-113446/`, `-114426/` | T13 (checks) | Quick 10 s runs: first real run of the tap controller, and the fix of its counting bug. Not used for results | 1 | not recorded |
 | `traffic-20261119-114525/` | **T13** | **University tree: reactive-sp, reactive-pair, reactive-dst, proactive, tap** | 5 | Best performance |
 | `traffic-20261119-120616/` | **T13** | **Fat-tree k=4, web search (proactive-ecmp)** | 5 | Best performance |
 | `traffic-20261119-123520/` | **T13** | **Abilene ISP** | 5 | Best performance |
@@ -120,3 +120,14 @@ interrupted before a summary) are kept on the machine and ignored in `.gitignore
 | `traffic-20261121-075657/` | **T13 (proactive-dst)** | **Fat-tree k=4, web search: reactive-dst, proactive-ecmp, proactive-dst, tap. Seed 8: tap and proactive-dst fail the same 7 flows** | 5 | Best performance |
 | `traffic-20261121-082609/` | **T13 (proactive-dst)** | **Abilene ISP: reactive-dst, proactive, proactive-dst, tap** | 5 | Best performance |
 | `traffic-20261121-084548/` | **T13 (proactive-dst)** | **Fat-tree k=6, web search, 5% load: reactive-dst, proactive-ecmp, proactive-dst, tap** | 3 (seeds 7-9) | Best performance |
+
+## Distant controller and run length (overnight batch, 24 Nov)
+
+`experiments/overnight_batch.sh`, summary `experiments/night_summary.py`. Machine and code in `machine.txt`
+(Harikrushna, AMD Ryzen 7 8840HS, WSL2 kernel 6.18.58.1, code commit 2d767423, clean). Log: `batch.log`. Windows power mode is not recorded (the script's header asks for "Best performance").
+
+| Folder | Test | What it holds | Runs | Mode |
+|---|---|---|---|---|
+| `night-20261124/selfcheck-163036/` | check | 10 s harness run with 5 ms control delay before the batch. Not used for results | 1 | not recorded |
+| `night-20261124/ctrl-d<D>-s<S>/` | **Control delay** | **University tree, one-way OpenFlow delay D = 0/1/5/20/50 ms (netem on lo): reactive-sp, reactive-dst, proactive, tap. Figure `night-20261124/ctrl_delay.pdf`** | 3 (seeds 7-9) | not recorded |
+| `night-20261124/len<L>-s<S>/` | **Run length** | **University tree, 30 s and 120 s of arrivals: reactive-pair, reactive-dst, hybrid-25, oracle-25** | 3 (seeds 7-9) | not recorded |
