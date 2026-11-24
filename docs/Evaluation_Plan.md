@@ -52,7 +52,7 @@ Results so far are summarised in Section 3; details are in `docs/Progress_Review
 
 | # | Result |
 | --- | --- |
-| 6 | Long timeouts (60 s / 300 s) gave **no fewer controller requests and no faster flows** in 4 of 4 scenarios (significantly slower in one), with 2.2–3.0× the rules. Exact-match rules are never reused by new connections. |
+| 6 | Long timeouts (60 s / 300 s) gave **no faster flows** in 4 of 4 scenarios (resolvably slower in one) and **at most 4% fewer controller requests** (resolved on the campus tree only), with 2.2–3.0× the rules. Exact-match rules are almost never reused by new connections (paired numbers: `experiments/paired_stats.py --paper`). |
 | 7 (random) | Pre-installing a random K pairs buys only the budget share (8–10% / 19–25% / 44–54% hit rate at 10 / 25 / 50%). The counter gets 72–89% of the oracle's advantage over random. |
 | 7 | 25% of host pairs pre-installed: **54–66% hit rate**, 2.3–2.7× fewer PACKET_INs, 2.0–2.4× fewer rules than reactive on shortest paths. With uniform pairs, a budget buys only its own share. |
 | 7 (oracle) | The counter reaches **0.88–0.93 of the oracle's hit rate** at 25–50% budgets, and 0.62–0.91 at 10%. |

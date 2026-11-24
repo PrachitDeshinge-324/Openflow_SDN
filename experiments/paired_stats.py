@@ -49,6 +49,10 @@ PAPER = [
     for f, p in (('traffic-20261020-171718', 'proactive'), ('traffic-20261020-183215', 'proactive-ecmp'),
                  ('traffic-20261021-050401', 'proactive'))
     for a in ('reactive-pair', 'reactive-dst')],
+  # Section IV-A: long timeouts against plain reactive (T6 folders, 5 seeds each)
+  *[(f, 'reactive-long', 'reactive', ['packet_in', 'small_p50'])
+    for f in ('traffic-20261015-225412', 'traffic-20261015-233914', 'traffic-20261016-004215',
+              'traffic-20261016-012626')],
   # Section V: 54 hosts (3 seeds)
   ('traffic-20261023-070549', 'hybrid-10', 'reactive-pair', ['hit_rate']),
   ('traffic-20261023-070549', 'oracle-10', 'reactive-pair', ['hit_rate']),

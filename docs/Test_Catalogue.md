@@ -432,11 +432,11 @@ The first single runs (Balanced mode) gave medians of 55.7 / 155 / 113 / 120 ms 
 | Abilene | 96.8 ± 6.8 ms | 97.3 ± 6.2 ms | 16,332 vs 7,339 (2.2×) |
 | University, uniform | 23.6 ± 0.7 ms | **25.7 ± 0.8 ms** (significantly slower) | 31,644 vs 10,836 (2.9×) |
 
-PACKET_IN/s is the same within the intervals in every scenario.
+PACKET_IN/s, paired per seed (long minus normal, `experiments/paired_stats.py --paper`): university Zipf −99 [−112, −86] (5 of 5 seeds), uniform −70 [−94, −45] (5 of 5), fat-tree −5 [−13, +3], Abilene −1 [−14, +13]. So at most 4% fewer requests, resolved only on the campus tree. Small-flow median: +0.5 to +2.0 ms, resolved only for uniform pairs (+2.0 [+1.9, +2.2] ms).
 
 **What it means.**
-- No gain anywhere, and 2.2–3.0× the rules.
-- **Why:** reactive rules are exact matches, and every new TCP connection has a new source port, so a rule kept longer is never matched again. Timeouts only help when the same 5-tuple repeats, or when the rules are coarser.
+- No faster flows anywhere, at most 4% fewer controller requests, and 2.2–3.0× the rules.
+- **Why:** reactive rules are exact matches, and every new TCP connection has a new source port, so a rule kept longer is almost never matched again (the few percent of requests saved show some reuse). Timeouts only help when the same 5-tuple repeats, or when the rules are coarser.
 - This does not contradict SmartTime: their gains come from traces where rules do get reused, and from eviction under a full table.
 
 **Limits.** We tested one fixed long timeout, not SmartTime's adaptive algorithm.

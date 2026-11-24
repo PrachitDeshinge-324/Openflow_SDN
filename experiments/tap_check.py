@@ -9,6 +9,13 @@ schedule files) with the SYN copies the controller logged (<tag>-flowlog.jsonl,
 'start' records), and prints how many were missed and in which second of the run.
 Misses bunched at the very end point to the measurement window; misses spread
 over the run point to copies lost on the way to the controller.
+
+  python3 experiments/tap_check.py <folder> [WINDOW_S]
+
+A copy counts for a scheduled flow if it reaches the controller within WINDOW_S seconds
+(default 1). With a frozen controller (--pause-controller) the copies queue and are read
+when it resumes, up to the pause length late, so use a window longer than the pause
+(e.g. 6 for a 5 s pause); with the default, those late copies are reported as missed.
 """
 
 import collections
@@ -19,7 +26,7 @@ import statistics
 import sys
 
 
-def main(folder):
+def main(folder, window=1.0):
   topo = {}
   for f in glob.glob(os.path.join(folder, '*-topo.json')):
     for h in json.load(open(f))['hosts']:
@@ -54,8 +61,8 @@ def main(folder):
     missed = []
     for k, times in sched.items():
       seen = sorted(starts.get(k, []))
-      for t in sorted(times):   # greedy: each scheduled flow takes the first copy within 1 s of it
-        hit = next((i for i, s in enumerate(seen) if -0.2 < s - offset - t < 1.0), None)
+      for t in sorted(times):   # greedy: each scheduled flow takes the first copy within the window
+        hit = next((i for i, s in enumerate(seen) if -0.2 < s - offset - t < window), None)
         if hit is None:
           missed.append(t)
         else:
@@ -70,6 +77,6 @@ def main(folder):
 
 
 if __name__ == '__main__':
-  if len(sys.argv) != 2:
+  if len(sys.argv) not in (2, 3):
     sys.exit(__doc__)
-  main(sys.argv[1])
+  main(sys.argv[1], float(sys.argv[2]) if len(sys.argv) == 3 else 1.0)

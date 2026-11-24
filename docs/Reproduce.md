@@ -53,6 +53,8 @@ Table III summary rows: `python3 experiments/tap_summary.py <folders>`.
 | Fig. 1 and §V scale sweep (k = 4 to 16; Fig. 2 in `paper/sigcomm/`) | `python3 experiments/scale_sim.py`, then `python3 docs/figures/make_scale_figure.py` | `docs/figures/scale_sim.json`, `scale_hit_rate.pdf` (also copied to `paper/` and `paper/sigcomm/`) |
 | §IV-B "Prediction on top of pair rules" (bound for fixed sets on a pair-rule fallback) | `python3 experiments/pair_fallback_replay.py` | printed table (replay of the stored schedules of the measured reactive-pair runs) |
 | §V "Skew matters as much as scale" (Zipf 0, 0.5, 1.5) | `for z in 0 0.5 1.5; do python3 experiments/scale_sim.py --zipf $z --out docs/figures/scale_sim_zipf$z.json; done` | `docs/figures/scale_sim_zipf{0,0.5,1.5}.json` (Zipf 1 is `scale_sim.json`) |
+| §IV-A long timeouts vs plain reactive (paired PACKET_IN/s and small-flow median) | `python3 experiments/paired_stats.py --paper` (rows `reactive-long` - `reactive`, T6 folders `traffic-20261015-225412`, `-233914`, `traffic-20261016-004215`, `-012626`) | printed table |
+| Tap visibility in the frozen-controller runs | `python3 experiments/tap_check.py results/measured/traffic-20261119-175235 6` (a window longer than the 5 s pause; with the default 1 s window the copies read after the pause count as missed) | printed per run: 18,269 of 18,269 |
 | §VII (limitations) run-length check (120 s of arrivals) | `python3 experiments/scale_sim.py --ks 4 6 8 --duration 120 --out docs/figures/scale_sim_duration120.json` | `docs/figures/scale_sim_duration120.json` (compare with the k = 4-8 rows of `scale_sim.json`) |
 
 The replay and statistics scripts are deterministic: re-running them gives the committed outputs
