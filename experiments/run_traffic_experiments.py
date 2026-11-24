@@ -78,6 +78,11 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #   reactive-pair : reactive-sp, but each rule matches source + destination MAC, so later flows
 #                   of a pair hit it (no prediction; tests whether wildcards alone explain the hybrid)
 #   reactive-dst  : the same with the destination MAC only
+#   smarttime-exact / smarttime-pair / smarttime-dst : reactive-sp / -pair / -dst, but with a
+#                   SmartTime-style adaptive idle timeout reimplemented from Vishnoi et al., DEBS 2014
+#                   (hybrid_eval --timeout_policy=smarttime): idle = min(--st-min * 2^n, --st-max) s
+#                   after n earlier installs of the same rule on the same switch, no hard timeout,
+#                   no eviction (no table cap here). Simplifications: see docs/SmartTime_Baseline.md
 #   hybrid-NN     : hybrid_eval, weighted counter keeps the top NN% of host pairs pre-installed
 #   oracle-NN     : hindsight reference (the best FIXED set with an exact-match fallback; not a bound for
 #                   a predictor that changes its set): pre-install the NN% of pairs that really
@@ -93,6 +98,9 @@ MODE_LABEL.update({'reactive-long': 'Reactive, long timeouts',
                    'reactive-sp': 'Reactive on shortest paths (hybrid, budget 0%)',
                    'reactive-pair': 'Reactive on shortest paths, pair rules',
                    'reactive-dst': 'Reactive on shortest paths, destination rules',
+                   'smarttime-exact': 'SmartTime-style adaptive timeout, exact-match rules',
+                   'smarttime-pair': 'SmartTime-style adaptive timeout, pair rules',
+                   'smarttime-dst': 'SmartTime-style adaptive timeout, destination rules',
                    'tap': 'Forward first, tell the controller (destination rules + SYN/FIN copies)',
                    'proactive-dst': 'Proactive, one rule per destination (tap without its copy rules)'})
 SPANNING_TREE_MODES = ('reactive', 'reactive-long')
@@ -140,6 +148,10 @@ def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of
       module.append('--model_file=%s' % os.path.abspath(args.lstm_model))
       module.append('--warmup_intervals=%d' % args.lstm_warmup)
     return module
+  if mode in ('smarttime-exact', 'smarttime-pair', 'smarttime-dst'):
+    return ['hybrid_eval', '--topo=%s' % topo_file, '--budget=0', '--paths=%s' % paths,
+            '--match=%s' % mode.split('-', 1)[1], '--timeout_policy=smarttime',
+            '--st_min=%d' % args.st_min, '--st_max=%d' % args.st_max, '--hard_timeout=0']
   if mode.startswith('oracle-'):
     counts = {}
     for _, src, dst, _ in flows:   # a TCP flow uses both directions (data, then the reply)
@@ -855,6 +867,9 @@ def main():
                   help='hybrid: a newcomer must score this many times the weakest kept pair')
   ap.add_argument('--long-idle', type=int, default=60, help='reactive-long idle timeout, s')
   ap.add_argument('--long-hard', type=int, default=300, help='reactive-long hard timeout, s')
+  ap.add_argument('--st-min', type=int, default=1,
+                  help='smarttime-* modes: first idle timeout, s (the paper: 100 ms; OpenFlow 1.0: whole s)')
+  ap.add_argument('--st-max', type=int, default=10, help='smarttime-* modes: largest idle timeout, s (the paper: 10 s)')
   ap.add_argument('--pair-zipf', type=float, default=0.0,
                   help='Zipf exponent of host-pair popularity (0 = uniform destinations)')
   ap.add_argument('--tm', default=DEFAULT_TM, help='hourly traffic matrices for the isp workload '

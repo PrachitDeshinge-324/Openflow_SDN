@@ -27,6 +27,18 @@ path), within a budget of K pairs for the whole network:
   --match=pair  : the reactive rule matches source MAC + destination MAC, so later flows
                   of the same pair find it ("reactive with pair rules", no prediction)
   --match=dst   : the reactive rule matches the destination MAC only
+  --timeout_policy=fixed     : every reactive rule gets --idle_timeout / --hard_timeout (default)
+  --timeout_policy=smarttime : SmartTime-style adaptive idle timeout, reimplemented from
+                  Vishnoi et al., "Effective switch memory management in OpenFlow networks",
+                  ACM DEBS 2014 (policy "AdaptiveR"). Per switch and rule key (the --match key):
+                    idle = min(st_min * 2^n, st_max), n = earlier installs of this key on this
+                    switch (the paper's FlowRepeatCount: every PACKET_IN that installs counts,
+                    with no time window); back to st_min if the last timeout was st_max and the
+                    key's average hold factor (rule lifetime / active time, from FLOW_REMOVED)
+                    is above 3. Paper values: 100 ms and 10 s; OpenFlow 1.0 timeouts are whole
+                    seconds, so the defaults here are --st_min=1 --st_max=10. The paper uses no
+                    hard timeout; the harness passes --hard_timeout=0. Not implemented: the
+                    paper's random eviction above 95% table use (the testbed has no table cap)
   --pairs_file=F: "oracle" upper bound: pre-install exactly the pairs listed in F
                   (one "src_mac dst_mac" per line, e.g. the truly busiest pairs of the
                   coming traffic), keep them for the whole run, no counter
@@ -40,6 +52,7 @@ Usage (from the pox/ directory):
   PYTHONPATH=../controllers python3 pox.py hybrid_eval --topo=/path/topo.json \\
       [--budget=0.25] [--decay=0.97] [--interval=1] [--hysteresis=1.5] [--pairs_file=F] \\
       [--paths=shortest|ecmp] [--match=exact|pair|dst] [--idle_timeout=10] [--hard_timeout=30] [--stats_file=...]
+      [--timeout_policy=fixed|smarttime] [--st_min=1] [--st_max=10]
 """
 
 import os
@@ -65,7 +78,7 @@ class HybridEval(object):
 
   def __init__(self, topo_file, budget, decay, interval, hysteresis, paths,
                idle_timeout, hard_timeout, stats, pairs_file=None, match='exact', strategy='counter',
-               model_file=None, warmup_intervals=10):
+               model_file=None, warmup_intervals=10, timeout_policy='fixed', st_min=1, st_max=10):
     self.hosts, self.adj = load_topology(topo_file)
     self.weights = load_link_weights(topo_file)
     self.by_mac = {EthAddr(h['mac']): h for h in self.hosts}
@@ -91,9 +104,15 @@ class HybridEval(object):
     self.installed = {}    # pair -> {'path': [...], 'used': bool, 'packets': int}
     self._path_cache = {}
     self.connections = {}
+    self.timeout_policy, self.st_min, self.st_max = timeout_policy, st_min, st_max
+    self.st = {}           # SmartTime: (dpid, key) -> {'n': installs, 'live': timeout or None,
+                           #            'prev': last timeout, 'holds': [hold factors]}
     stats.extra.update(budget_pairs=self.budget, total_pairs=n_pairs, pair_installs=0,
                        pair_removals=0, wasted_installs=0, pairs_installed=0,
                        ingress_syn_misses=0, ingress_new_flows=0)
+    if timeout_policy == 'smarttime':
+      stats.extra.update(st_installs=0, st_resets=0, st_duplicates=0, st_removed=0,
+                         st_timeouts={})   # idle timeout (s) -> installs with it
     if self.predictor:
       stats.extra.update(lstm_warmup_intervals=warmup_intervals, lstm_intervals=0)
     core.openflow.addListeners(self)
@@ -170,11 +189,60 @@ class HybridEval(object):
     else:
       msg.match = of.ofp_match.from_packet(packet, event.port)
     msg.idle_timeout, msg.hard_timeout = self.idle_timeout, self.hard_timeout
+    if self.timeout_policy == 'smarttime':
+      msg.idle_timeout = self._smarttime_idle(dpid, msg.match)
+      msg.flags |= of.OFPFF_SEND_FLOW_REM   # FLOW_REMOVED tells us when it expired, and its hold factor
     msg.actions.append(of.ofp_action_output(port=self._out_port(path, dpid, dst)))
     msg.data = event.ofp
     event.connection.send(msg)
     self.stats.count(dpid, 'flow_mod')
     self.stats.add_proc_time(time.perf_counter() - t0)
+
+  # ------------------------------------------------------------ SmartTime-style adaptive timeout
+
+  def _rule_key(self, match):
+    if self.match_mode == 'pair':
+      return (str(match.dl_src), str(match.dl_dst))
+    if self.match_mode == 'dst':
+      return str(match.dl_dst)
+    return (str(match.dl_src), str(match.dl_dst), match.dl_type, match.nw_proto,
+            str(match.nw_src), str(match.nw_dst), match.tp_src, match.tp_dst)
+
+  def _smarttime_idle(self, dpid, match):
+    rec = self.st.setdefault((dpid, self._rule_key(match)),
+                             {'n': 0, 'live': None, 'prev': None, 'holds': []})
+    if rec['live'] is not None:
+      # The rule is still in the switch (no FLOW_REMOVED yet): a second packet of the same
+      # flow reached us before the first FLOW_MOD took effect. Not a repeat: same timeout.
+      self.stats.extra['st_duplicates'] += 1
+      return rec['live']
+    idle = min(self.st_min * 2 ** rec['n'], self.st_max)
+    if (rec['prev'] == self.st_max and rec['holds'] and
+        sum(rec['holds']) / len(rec['holds']) > 3):
+      idle = self.st_min
+      self.stats.extra['st_resets'] += 1
+    rec['n'] += 1
+    rec['live'] = rec['prev'] = idle
+    self.stats.extra['st_installs'] += 1
+    hist = self.stats.extra['st_timeouts']
+    hist[str(idle)] = hist.get(str(idle), 0) + 1
+    return idle
+
+  def _handle_FlowRemoved(self, event):
+    if self.timeout_policy != 'smarttime':
+      return
+    ofp = event.ofp
+    if ofp.priority == PAIR_PRIORITY:
+      return
+    rec = self.st.get((event.dpid, self._rule_key(ofp.match)))
+    if rec is None:
+      return
+    life = ofp.duration_sec + ofp.duration_nsec / 1e9
+    active = life - ofp.idle_timeout if ofp.reason == of.OFPRR_IDLE_TIMEOUT else life
+    rec['holds'].append(life / active if active > 0 else float('inf'))
+    rec['live'] = None
+    self.stats.extra['st_removed'] += 1
+    self.stats.dirty = True
 
   def _handle_FlowStatsReceived(self, event):
     # Packet counters of our pre-installed pair rules at the sender's switch
@@ -278,13 +346,18 @@ class HybridEval(object):
 
 def launch(topo=None, budget='0.25', decay='0.97', interval='1', hysteresis='1.5',
            paths='shortest', idle_timeout='10', hard_timeout='30', stats_file=None, pairs_file=None,
-           match='exact', strategy='counter', model_file=None, warmup_intervals='10'):
+           match='exact', strategy='counter', model_file=None, warmup_intervals='10',
+           timeout_policy='fixed', st_min='1', st_max='10'):
   if not topo:
     raise RuntimeError("hybrid_eval needs --topo=<topology.json>")
   if paths not in ('shortest', 'ecmp'):
     raise RuntimeError("--paths must be shortest or ecmp")
   if match not in ('exact', 'pair', 'dst'):
     raise RuntimeError("--match must be exact, pair or dst")
+  if timeout_policy not in ('fixed', 'smarttime'):
+    raise RuntimeError("--timeout_policy must be fixed or smarttime")
+  if not 1 <= int(st_min) <= int(st_max) <= 65535:
+    raise RuntimeError("--st_min / --st_max: whole seconds, 1 <= st_min <= st_max (OpenFlow 1.0)")
   if strategy not in ('counter', 'lstm'):
     raise RuntimeError("--strategy must be counter or lstm")
   if strategy == 'lstm' and (not model_file or not os.path.isfile(model_file)):
@@ -295,13 +368,15 @@ def launch(topo=None, budget='0.25', decay='0.97', interval='1', hysteresis='1.5
             'hysteresis': float(hysteresis), 'paths': paths, 'idle_timeout': int(idle_timeout),
             'hard_timeout': int(hard_timeout), 'topo': topo, 'pairs_file': pairs_file, 'match': match,
             'strategy': strategy, 'model_file': model_file,
-            'warmup_intervals': int(warmup_intervals)}
+            'warmup_intervals': int(warmup_intervals), 'timeout_policy': timeout_policy,
+            'st_min': int(st_min), 'st_max': int(st_max)}
   stats = ControllerStats('hybrid', config, stats_file)
 
   def start():
     core.registerNew(HybridEval, topo, float(budget), float(decay), float(interval),
                      float(hysteresis), paths, int(idle_timeout), int(hard_timeout), stats,
-                     pairs_file, match, strategy, model_file, int(warmup_intervals))
+                     pairs_file, match, strategy, model_file, int(warmup_intervals),
+                     timeout_policy, int(st_min), int(st_max))
     Timer(1, stats.dump, recurring=True)
     stats.dump(force=True)
 
