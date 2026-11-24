@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s8/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "dst",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 1196108,
+  "uptime_s": 129.81944727897644,
+  "written_at": 1795542353.4962795,
+  "totals": {
+    "packet_in": 1575,
+    "flow_mod": 1505,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 383,
+      "flow_mod": 362,
+      "packet_out": 0,
+      "connected_at": 1795542223.8871615,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 178,
+      "flow_mod": 164,
+      "packet_out": 0,
+      "connected_at": 1795542223.9820838,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 442,
+      "flow_mod": 427,
+      "packet_out": 0,
+      "connected_at": 1795542224.0939488,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 371,
+      "flow_mod": 361,
+      "packet_out": 0,
+      "connected_at": 1795542224.1647532,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 201,
+      "flow_mod": 191,
+      "packet_out": 0,
+      "connected_at": 1795542224.296409,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 1505,
+    "mean": 255.73676478255874,
+    "p50": 210.2409998769872,
+    "p95": 457.46199975837953,
+    "max": 26486.76999979216
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 108,
+    "ingress_new_flows": 804
+  }
+}

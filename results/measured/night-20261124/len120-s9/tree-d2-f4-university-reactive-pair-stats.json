@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s9/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "pair",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 1402691,
+  "uptime_s": 129.87812161445618,
+  "written_at": 1795543036.190542,
+  "totals": {
+    "packet_in": 5465,
+    "flow_mod": 5384,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 1530,
+      "flow_mod": 1508,
+      "packet_out": 0,
+      "connected_at": 1795542906.5342607,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 1022,
+      "flow_mod": 1009,
+      "packet_out": 0,
+      "connected_at": 1795542906.6337285,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 991,
+      "flow_mod": 975,
+      "packet_out": 0,
+      "connected_at": 1795542906.75398,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 996,
+      "flow_mod": 981,
+      "packet_out": 0,
+      "connected_at": 1795542906.878135,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 926,
+      "flow_mod": 911,
+      "packet_out": 0,
+      "connected_at": 1795542907.0021803,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 5384,
+    "mean": 289.31077953635304,
+    "p50": 252.37999943783507,
+    "p95": 512.4439994688146,
+    "max": 16059.839999797987
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 478,
+    "ingress_new_flows": 1962
+  }
+}

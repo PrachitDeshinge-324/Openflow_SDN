@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "pair",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 888347,
+  "uptime_s": 129.78483772277832,
+  "written_at": 1795541376.9150152,
+  "totals": {
+    "packet_in": 5553,
+    "flow_mod": 5476,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 1443,
+      "flow_mod": 1422,
+      "packet_out": 0,
+      "connected_at": 1795541247.3711503,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 1102,
+      "flow_mod": 1085,
+      "packet_out": 0,
+      "connected_at": 1795541247.4581223,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 1059,
+      "flow_mod": 1043,
+      "packet_out": 0,
+      "connected_at": 1795541247.5557246,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 953,
+      "flow_mod": 940,
+      "packet_out": 0,
+      "connected_at": 1795541247.7179313,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 996,
+      "flow_mod": 986,
+      "packet_out": 0,
+      "connected_at": 1795541247.826354,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 5476,
+    "mean": 294.2739872190253,
+    "p50": 257.809999766323,
+    "p95": 516.8829998183355,
+    "max": 21523.857999909524
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 479,
+    "ingress_new_flows": 1953
+  }
+}

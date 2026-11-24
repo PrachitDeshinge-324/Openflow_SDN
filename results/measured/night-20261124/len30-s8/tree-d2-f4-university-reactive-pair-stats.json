@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s8/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "pair",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 1091233,
+  "uptime_s": 40.60942888259888,
+  "written_at": 1795541881.3748875,
+  "totals": {
+    "packet_in": 1147,
+    "flow_mod": 1065,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 271,
+      "flow_mod": 255,
+      "packet_out": 0,
+      "connected_at": 1795541841.0143058,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 217,
+      "flow_mod": 201,
+      "packet_out": 0,
+      "connected_at": 1795541841.090328,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 263,
+      "flow_mod": 247,
+      "packet_out": 0,
+      "connected_at": 1795541841.2258875,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 214,
+      "flow_mod": 195,
+      "packet_out": 0,
+      "connected_at": 1795541841.3340833,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 182,
+      "flow_mod": 167,
+      "packet_out": 0,
+      "connected_at": 1795541841.4471595,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 1065,
+    "mean": 319.71279998847444,
+    "p50": 278.5180004138965,
+    "p95": 533.3339995559072,
+    "max": 16037.20700040867
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 126,
+    "ingress_new_flows": 380
+  }
+}

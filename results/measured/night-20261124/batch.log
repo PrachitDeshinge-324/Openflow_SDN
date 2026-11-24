@@ -1,0 +1,853 @@
+[16:30:33] self-checks
+[PASS] port 6633 RTT +40.3 ms (want about +40)
+[PASS] port 6634 RTT +0.0 ms (want about 0)
+[PASS] netem counted 35 packets (want > 0)
+[PASS] after removal port 6633 RTT 0.09 ms (want < 2)
+[PASS] after removal lo qdisc: 'qdisc noqueue 0: root refcnt 2' (ours gone)
+OK
+[16:30:36] self-check: 10 s harness run with --ctrl-delay 5 into results/measured/night-20261124/selfcheck-163036
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 1944 flows in 10 s (194.4 flows/s), offered 75.9 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 79% leave the edge switch
+    control channel: +5 ms one way, 985 OpenFlow packets delayed
+    flows: 1944 done, 0 failed | FCT small (<100KB) mean 4.9 p99 54.7 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 1944 flows in 10 s (194.4 flows/s), offered 75.9 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 79% leave the edge switch
+    control channel: +5 ms one way, 9973 OpenFlow packets delayed
+    tap: controller heard of 1944 of 1944 flows (100.0%), 0 switch errors
+    flows: 1944 done, 0 failed | FCT small (<100KB) mean 4.0 p99 33.9 ms | large (>10MB) mean - ms
+    controller: 537 PACKET_IN/s, 0 FLOW_MOD/s, CPU 12.5% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/selfcheck-163036/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/selfcheck-163036/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/selfcheck-163036/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/selfcheck-163036/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/selfcheck-163036/traffic_control.png
+[16:31:39] self-check passed
+[16:31:39] A. control-channel delay sweep
+[16:31:39] run  results/measured/night-20261124/ctrl-d0-s7: --seed 7 --ctrl-delay 0 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 51.6 p99 139.6 ms | large (>10MB) mean - ms
+    controller: 2415 PACKET_IN/s, 2415 FLOW_MOD/s, CPU 79.4% | rules: peak 11195 total, 3538 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.1 p99 41.5 ms | large (>10MB) mean - ms
+    controller: 7 PACKET_IN/s, 7 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.1 p99 40.7 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    tap: controller heard of 6088 of 6088 flows (100.0%), 0 switch errors
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.2 p99 40.9 ms | large (>10MB) mean - ms
+    controller: 595 PACKET_IN/s, 0 FLOW_MOD/s, CPU 15.2% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s7/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s7/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s7/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s7/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s7/traffic_control.png
+[16:35:05] run  results/measured/night-20261124/ctrl-d1-s7: --seed 7 --ctrl-delay 1 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +1 ms one way, 181012 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 72.4 p99 197.4 ms | large (>10MB) mean - ms
+    controller: 2066 PACKET_IN/s, 2065 FLOW_MOD/s, CPU 74.3% | rules: peak 11215 total, 3538 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +1 ms one way, 1098 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.4 p99 41.4 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 1 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +1 ms one way, 236 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.3 p99 41.4 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +1 ms one way, 30477 OpenFlow packets delayed
+    tap: controller heard of 6088 of 6088 flows (100.0%), 0 switch errors
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.5 p99 42.8 ms | large (>10MB) mean - ms
+    controller: 599 PACKET_IN/s, 0 FLOW_MOD/s, CPU 15.5% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s7/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s7/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s7/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s7/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s7/traffic_control.png
+[16:38:32] run  results/measured/night-20261124/ctrl-d5-s7: --seed 7 --ctrl-delay 5 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +5 ms one way, 149681 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 144.2 p99 257.6 ms | large (>10MB) mean - ms
+    controller: 1825 PACKET_IN/s, 1824 FLOW_MOD/s, CPU 66.9% | rules: peak 11241 total, 3544 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +5 ms one way, 1122 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.7 p99 49.3 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 1 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +5 ms one way, 236 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.1 p99 40.9 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +5 ms one way, 30839 OpenFlow packets delayed
+    tap: controller heard of 6088 of 6088 flows (100.0%), 0 switch errors
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.5 p99 43.3 ms | large (>10MB) mean - ms
+    controller: 594 PACKET_IN/s, 0 FLOW_MOD/s, CPU 15.0% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s7/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s7/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s7/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s7/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s7/traffic_control.png
+[16:42:00] run  results/measured/night-20261124/ctrl-d20-s7: --seed 7 --ctrl-delay 20 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +20 ms one way, 136472 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 429.0 p99 565.1 ms | large (>10MB) mean - ms
+    controller: 1771 PACKET_IN/s, 1770 FLOW_MOD/s, CPU 58.5% | rules: peak 11448 total, 3603 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +20 ms one way, 1106 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 8.4 p99 111.8 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +20 ms one way, 253 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.3 p99 41.5 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +20 ms one way, 30675 OpenFlow packets delayed
+    tap: controller heard of 6088 of 6088 flows (100.0%), 0 switch errors
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.1 p99 41.2 ms | large (>10MB) mean - ms
+    controller: 593 PACKET_IN/s, 0 FLOW_MOD/s, CPU 14.5% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s7/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s7/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s7/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s7/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s7/traffic_control.png
+[16:45:26] run  results/measured/night-20261124/ctrl-d50-s7: --seed 7 --ctrl-delay 50 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +50 ms one way, 131762 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 1034.0 p99 1316.7 ms | large (>10MB) mean - ms
+    controller: 1818 PACKET_IN/s, 1818 FLOW_MOD/s, CPU 59.0% | rules: peak 11702 total, 3697 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +50 ms one way, 1512 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 14.9 p99 448.3 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +50 ms one way, 280 OpenFlow packets delayed
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.4 p99 41.5 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    control channel: +50 ms one way, 30562 OpenFlow packets delayed
+    tap: controller heard of 6088 of 6088 flows (100.0%), 0 switch errors
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.4 p99 43.2 ms | large (>10MB) mean - ms
+    controller: 592 PACKET_IN/s, 0 FLOW_MOD/s, CPU 14.4% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s7/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s7/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s7/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s7/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s7/traffic_control.png
+[16:48:54] run  results/measured/night-20261124/ctrl-d0-s8: --seed 8 --ctrl-delay 0 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 55.6 p99 168.1 ms | large (>10MB) mean - ms
+    controller: 2397 PACKET_IN/s, 2396 FLOW_MOD/s, CPU 80.2% | rules: peak 11324 total, 3630 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.1 p99 38.4 ms | large (>10MB) mean - ms
+    controller: 6 PACKET_IN/s, 6 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 5.9 p99 39.1 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    tap: controller heard of 6057 of 6057 flows (100.0%), 0 switch errors
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.1 p99 39.6 ms | large (>10MB) mean - ms
+    controller: 589 PACKET_IN/s, 0 FLOW_MOD/s, CPU 14.9% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s8/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s8/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s8/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s8/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s8/traffic_control.png
+[16:52:20] run  results/measured/night-20261124/ctrl-d1-s8: --seed 8 --ctrl-delay 1 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 185731 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 68.1 p99 146.2 ms | large (>10MB) mean - ms
+    controller: 2105 PACKET_IN/s, 2105 FLOW_MOD/s, CPU 72.0% | rules: peak 11284 total, 3597 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 1290 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.1 p99 40.1 ms | large (>10MB) mean - ms
+    controller: 6 PACKET_IN/s, 5 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 242 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.0 p99 39.1 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 30694 OpenFlow packets delayed
+    tap: controller heard of 6057 of 6057 flows (100.0%), 0 switch errors
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.1 p99 39.9 ms | large (>10MB) mean - ms
+    controller: 591 PACKET_IN/s, 0 FLOW_MOD/s, CPU 14.0% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s8/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s8/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s8/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s8/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s8/traffic_control.png
+[16:55:46] run  results/measured/night-20261124/ctrl-d5-s8: --seed 8 --ctrl-delay 5 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 151054 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 141.1 p99 210.7 ms | large (>10MB) mean - ms
+    controller: 1849 PACKET_IN/s, 1849 FLOW_MOD/s, CPU 65.3% | rules: peak 11311 total, 3604 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 1415 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.6 p99 43.6 ms | large (>10MB) mean - ms
+    controller: 10 PACKET_IN/s, 9 FLOW_MOD/s, CPU 0.4% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 238 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.3 p99 40.6 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 30567 OpenFlow packets delayed
+    tap: controller heard of 6057 of 6057 flows (100.0%), 0 switch errors
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.4 p99 38.7 ms | large (>10MB) mean - ms
+    controller: 593 PACKET_IN/s, 0 FLOW_MOD/s, CPU 18.5% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s8/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s8/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s8/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s8/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s8/traffic_control.png
+[16:59:14] run  results/measured/night-20261124/ctrl-d20-s8: --seed 8 --ctrl-delay 20 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 135766 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 446.2 p99 576.2 ms | large (>10MB) mean - ms
+    controller: 1805 PACKET_IN/s, 1804 FLOW_MOD/s, CPU 69.0% | rules: peak 11468 total, 3663 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 1487 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 8.4 p99 91.8 ms | large (>10MB) mean - ms
+    controller: 17 PACKET_IN/s, 17 FLOW_MOD/s, CPU 0.7% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 264 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.4 p99 40.7 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 30083 OpenFlow packets delayed
+    tap: controller heard of 6057 of 6057 flows (100.0%), 0 switch errors
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.5 p99 40.8 ms | large (>10MB) mean - ms
+    controller: 595 PACKET_IN/s, 0 FLOW_MOD/s, CPU 18.9% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s8/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s8/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s8/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s8/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s8/traffic_control.png
+[17:02:42] run  results/measured/night-20261124/ctrl-d50-s8: --seed 8 --ctrl-delay 50 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 136101 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 1158.6 p99 2012.2 ms | large (>10MB) mean - ms
+    controller: 1939 PACKET_IN/s, 1939 FLOW_MOD/s, CPU 79.2% | rules: peak 12637 total, 4026 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 1313 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 14.5 p99 361.0 ms | large (>10MB) mean - ms
+    controller: 13 PACKET_IN/s, 13 FLOW_MOD/s, CPU 0.6% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 294 OpenFlow packets delayed
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.4 p99 40.2 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 31031 OpenFlow packets delayed
+    tap: controller heard of 6057 of 6057 flows (100.0%), 0 switch errors
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.5 p99 40.4 ms | large (>10MB) mean - ms
+    controller: 604 PACKET_IN/s, 0 FLOW_MOD/s, CPU 20.2% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s8/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s8/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s8/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s8/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s8/traffic_control.png
+[17:06:15] run  results/measured/night-20261124/ctrl-d0-s9: --seed 9 --ctrl-delay 0 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 149.8 p99 662.6 ms | large (>10MB) mean - ms
+    controller: 2198 PACKET_IN/s, 2197 FLOW_MOD/s, CPU 90.2% | rules: peak 11281 total, 3615 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.7 p99 39.6 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.5 p99 37.1 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    tap: controller heard of 6124 of 6124 flows (100.0%), 0 switch errors
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.5 p99 38.9 ms | large (>10MB) mean - ms
+    controller: 598 PACKET_IN/s, 0 FLOW_MOD/s, CPU 18.5% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s9/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s9/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s9/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s9/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d0-s9/traffic_control.png
+[17:09:45] run  results/measured/night-20261124/ctrl-d1-s9: --seed 9 --ctrl-delay 1 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 182298 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 93.2 p99 212.9 ms | large (>10MB) mean - ms
+    controller: 2155 PACKET_IN/s, 2155 FLOW_MOD/s, CPU 82.5% | rules: peak 11318 total, 3629 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 1099 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.6 p99 40.3 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 231 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.6 p99 39.0 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +1 ms one way, 30660 OpenFlow packets delayed
+    tap: controller heard of 6124 of 6124 flows (100.0%), 0 switch errors
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.6 p99 39.4 ms | large (>10MB) mean - ms
+    controller: 596 PACKET_IN/s, 0 FLOW_MOD/s, CPU 16.9% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s9/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s9/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s9/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s9/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s9/traffic_control.png
+[17:13:12] run  results/measured/night-20261124/ctrl-d5-s9: --seed 9 --ctrl-delay 5 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 155149 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 166.1 p99 311.4 ms | large (>10MB) mean - ms
+    controller: 1939 PACKET_IN/s, 1939 FLOW_MOD/s, CPU 76.6% | rules: peak 11383 total, 3633 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 1133 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.9 p99 46.2 ms | large (>10MB) mean - ms
+    controller: 9 PACKET_IN/s, 8 FLOW_MOD/s, CPU 0.4% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 243 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.5 p99 37.4 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +5 ms one way, 30610 OpenFlow packets delayed
+    tap: controller heard of 6124 of 6124 flows (100.0%), 0 switch errors
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.5 p99 37.4 ms | large (>10MB) mean - ms
+    controller: 598 PACKET_IN/s, 0 FLOW_MOD/s, CPU 18.8% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s9/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s9/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s9/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s9/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d5-s9/traffic_control.png
+[17:16:39] run  results/measured/night-20261124/ctrl-d20-s9: --seed 9 --ctrl-delay 20 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 142166 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 451.4 p99 582.7 ms | large (>10MB) mean - ms
+    controller: 1886 PACKET_IN/s, 1886 FLOW_MOD/s, CPU 68.7% | rules: peak 11598 total, 3722 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 1329 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 7.7 p99 126.2 ms | large (>10MB) mean - ms
+    controller: 12 PACKET_IN/s, 11 FLOW_MOD/s, CPU 0.5% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 250 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.6 p99 39.8 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +20 ms one way, 30251 OpenFlow packets delayed
+    tap: controller heard of 6124 of 6124 flows (100.0%), 0 switch errors
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.5 p99 37.3 ms | large (>10MB) mean - ms
+    controller: 598 PACKET_IN/s, 0 FLOW_MOD/s, CPU 18.6% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s9/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s9/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s9/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s9/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s9/traffic_control.png
+[17:20:05] run  results/measured/night-20261124/ctrl-d50-s9: --seed 9 --ctrl-delay 50 --modes reactive-sp reactive-dst proactive tap
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-sp
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 137415 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 1069.4 p99 1322.2 ms | large (>10MB) mean - ms
+    controller: 1902 PACKET_IN/s, 1902 FLOW_MOD/s, CPU 65.0% | rules: peak 11944 total, 3824 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 1366 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 13.9 p99 375.7 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 309 OpenFlow packets delayed
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.4 p99 36.8 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | tap
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    control channel: +50 ms one way, 29749 OpenFlow packets delayed
+    tap: controller heard of 6124 of 6124 flows (100.0%), 0 switch errors
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.5 p99 39.1 ms | large (>10MB) mean - ms
+    controller: 598 PACKET_IN/s, 0 FLOW_MOD/s, CPU 18.7% | rules: peak 128 total, 28 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s9/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s9/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s9/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s9/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d50-s9/traffic_control.png
+[17:23:32] B. run length 30 s vs 120 s
+[17:23:32] run  results/measured/night-20261124/len30-s7: --seed 7 --duration 30 --modes reactive-pair reactive-dst hybrid-25 oracle-25
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.8 p99 41.6 ms | large (>10MB) mean - ms
+    controller: 18 PACKET_IN/s, 17 FLOW_MOD/s, CPU 1.2% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.9 p99 43.4 ms | large (>10MB) mean - ms
+    controller: 8 PACKET_IN/s, 7 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | hybrid-25
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 16.7 p99 74.7 ms | large (>10MB) mean - ms
+    controller: 787 PACKET_IN/s, 803 FLOW_MOD/s, CPU 46.3% | rules: peak 4557 total, 1418 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | oracle-25
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 12.6 p99 60.9 ms | large (>10MB) mean - ms
+    controller: 575 PACKET_IN/s, 575 FLOW_MOD/s, CPU 36.8% | rules: peak 3294 total, 1014 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s7/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s7/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s7/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s7/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s7/traffic_control.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s7/traffic_budget.png
+[17:27:10] run  results/measured/night-20261124/len120-s7: --seed 7 --duration 120 --modes reactive-pair reactive-dst hybrid-25 oracle-25
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair
+======================================================================
+    schedule: 24457 flows in 120 s (203.8 flows/s), offered 88.1 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 24457 done, 0 failed | FCT small (<100KB) mean 6.2 p99 41.9 ms | large (>10MB) mean - ms
+    controller: 43 PACKET_IN/s, 43 FLOW_MOD/s, CPU 3.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 24457 flows in 120 s (203.8 flows/s), offered 88.1 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 24457 done, 0 failed | FCT small (<100KB) mean 6.0 p99 41.6 ms | large (>10MB) mean - ms
+    controller: 10 PACKET_IN/s, 9 FLOW_MOD/s, CPU 0.7% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | hybrid-25
+======================================================================
+    schedule: 24457 flows in 120 s (203.8 flows/s), offered 88.1 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 24457 done, 0 failed | FCT small (<100KB) mean 16.1 p99 108.0 ms | large (>10MB) mean - ms
+    controller: 713 PACKET_IN/s, 716 FLOW_MOD/s, CPU 47.1% | rules: peak 4603 total, 1435 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | oracle-25
+======================================================================
+    schedule: 24457 flows in 120 s (203.8 flows/s), offered 88.1 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 24457 done, 0 failed | FCT small (<100KB) mean 12.4 p99 56.2 ms | large (>10MB) mean - ms
+    controller: 632 PACKET_IN/s, 632 FLOW_MOD/s, CPU 40.2% | rules: peak 3544 total, 1072 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/traffic_control.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/traffic_budget.png
+[17:37:03] run  results/measured/night-20261124/len30-s8: --seed 8 --duration 30 --modes reactive-pair reactive-dst hybrid-25 oracle-25
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.9 p99 42.8 ms | large (>10MB) mean - ms
+    controller: 20 PACKET_IN/s, 19 FLOW_MOD/s, CPU 1.6% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.6 p99 39.5 ms | large (>10MB) mean - ms
+    controller: 5 PACKET_IN/s, 5 FLOW_MOD/s, CPU 0.4% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | hybrid-25
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 16.1 p99 65.7 ms | large (>10MB) mean - ms
+    controller: 775 PACKET_IN/s, 790 FLOW_MOD/s, CPU 46.6% | rules: peak 4725 total, 1463 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | oracle-25
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 12.3 p99 55.5 ms | large (>10MB) mean - ms
+    controller: 542 PACKET_IN/s, 542 FLOW_MOD/s, CPU 35.9% | rules: peak 3131 total, 961 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s8/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s8/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s8/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s8/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s8/traffic_control.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s8/traffic_budget.png
+[17:40:58] run  results/measured/night-20261124/len120-s8: --seed 8 --duration 120 --modes reactive-pair reactive-dst hybrid-25 oracle-25
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair
+======================================================================
+    schedule: 24419 flows in 120 s (203.5 flows/s), offered 87.3 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 87% leave the edge switch
+    flows: 24419 done, 0 failed | FCT small (<100KB) mean 6.9 p99 44.1 ms | large (>10MB) mean - ms
+    controller: 40 PACKET_IN/s, 39 FLOW_MOD/s, CPU 3.0% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 24419 flows in 120 s (203.5 flows/s), offered 87.3 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 87% leave the edge switch
+    flows: 24419 done, 0 failed | FCT small (<100KB) mean 6.9 p99 46.9 ms | large (>10MB) mean - ms
+    controller: 12 PACKET_IN/s, 11 FLOW_MOD/s, CPU 0.7% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | hybrid-25
+======================================================================
+    schedule: 24419 flows in 120 s (203.5 flows/s), offered 87.3 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 87% leave the edge switch
+    flows: 24419 done, 0 failed | FCT small (<100KB) mean 13.9 p99 65.6 ms | large (>10MB) mean - ms
+    controller: 639 PACKET_IN/s, 642 FLOW_MOD/s, CPU 42.4% | rules: peak 3991 total, 1206 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | oracle-25
+======================================================================
+    schedule: 24419 flows in 120 s (203.5 flows/s), offered 87.3 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 87% leave the edge switch
+    flows: 24419 done, 0 failed | FCT small (<100KB) mean 12.5 p99 55.8 ms | large (>10MB) mean - ms
+    controller: 585 PACKET_IN/s, 585 FLOW_MOD/s, CPU 38.1% | rules: peak 3245 total, 1002 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s8/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s8/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s8/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s8/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s8/traffic_control.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s8/traffic_budget.png
+[17:50:54] run  results/measured/night-20261124/len30-s9: --seed 9 --duration 30 --modes reactive-pair reactive-dst hybrid-25 oracle-25
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 6.2 p99 41.6 ms | large (>10MB) mean - ms
+    controller: 34 PACKET_IN/s, 33 FLOW_MOD/s, CPU 2.2% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.8 p99 40.0 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 1 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | hybrid-25
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 16.7 p99 65.8 ms | large (>10MB) mean - ms
+    controller: 921 PACKET_IN/s, 936 FLOW_MOD/s, CPU 51.3% | rules: peak 5023 total, 1601 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | oracle-25
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 12.2 p99 54.6 ms | large (>10MB) mean - ms
+    controller: 662 PACKET_IN/s, 661 FLOW_MOD/s, CPU 40.9% | rules: peak 3682 total, 1112 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s9/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s9/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s9/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s9/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s9/traffic_control.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s9/traffic_budget.png
+[17:54:48] run  results/measured/night-20261124/len120-s9: --seed 9 --duration 120 --modes reactive-pair reactive-dst hybrid-25 oracle-25
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair
+======================================================================
+    schedule: 24238 flows in 120 s (202.0 flows/s), offered 96.2 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 24237 done, 1 failed | FCT small (<100KB) mean 7.2 p99 43.7 ms | large (>10MB) mean - ms
+    controller: 42 PACKET_IN/s, 42 FLOW_MOD/s, CPU 3.0% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst
+======================================================================
+    schedule: 24238 flows in 120 s (202.0 flows/s), offered 96.2 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 24238 done, 0 failed | FCT small (<100KB) mean 7.1 p99 44.2 ms | large (>10MB) mean - ms
+    controller: 12 PACKET_IN/s, 12 FLOW_MOD/s, CPU 0.8% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | hybrid-25
+======================================================================
+    schedule: 24238 flows in 120 s (202.0 flows/s), offered 96.2 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 24238 done, 0 failed | FCT small (<100KB) mean 14.0 p99 60.9 ms | large (>10MB) mean - ms
+    controller: 769 PACKET_IN/s, 774 FLOW_MOD/s, CPU 40.0% | rules: peak 6009 total, 1916 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | oracle-25
+======================================================================
+    schedule: 24238 flows in 120 s (202.0 flows/s), offered 96.2 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 24238 done, 0 failed | FCT small (<100KB) mean 12.3 p99 55.8 ms | large (>10MB) mean - ms
+    controller: 642 PACKET_IN/s, 641 FLOW_MOD/s, CPU 35.3% | rules: peak 3664 total, 1121 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s9/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s9/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s9/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s9/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s9/traffic_control.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s9/traffic_budget.png
+[18:04:27] done. Next: python3 experiments/night_summary.py results/measured/night-20261124

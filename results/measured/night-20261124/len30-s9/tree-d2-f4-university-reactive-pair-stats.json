@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s9/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "pair",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 1347903,
+  "uptime_s": 39.55255174636841,
+  "written_at": 1795542711.0901482,
+  "totals": {
+    "packet_in": 1374,
+    "flow_mod": 1289,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 344,
+      "flow_mod": 325,
+      "packet_out": 0,
+      "connected_at": 1795542671.7541702,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 284,
+      "flow_mod": 265,
+      "packet_out": 0,
+      "connected_at": 1795542671.8484173,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 253,
+      "flow_mod": 238,
+      "packet_out": 0,
+      "connected_at": 1795542671.9747155,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 283,
+      "flow_mod": 267,
+      "packet_out": 0,
+      "connected_at": 1795542672.110043,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 210,
+      "flow_mod": 194,
+      "packet_out": 0,
+      "connected_at": 1795542672.2307463,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 1289,
+    "mean": 270.33773234474495,
+    "p50": 243.6640006635571,
+    "p95": 499.8009999326314,
+    "max": 6967.917000110901
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 129,
+    "ingress_new_flows": 431
+  }
+}

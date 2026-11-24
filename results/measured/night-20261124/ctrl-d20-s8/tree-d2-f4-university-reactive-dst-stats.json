@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d20-s8/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "dst",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 463800,
+  "uptime_s": 40.496896266937256,
+  "written_at": 1795539655.4074607,
+  "totals": {
+    "packet_in": 617,
+    "flow_mod": 522,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 116,
+      "flow_mod": 99,
+      "packet_out": 0,
+      "connected_at": 1795539615.291073,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 93,
+      "flow_mod": 71,
+      "packet_out": 0,
+      "connected_at": 1795539615.3583817,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 63,
+      "flow_mod": 46,
+      "packet_out": 0,
+      "connected_at": 1795539615.4302046,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 140,
+      "flow_mod": 121,
+      "packet_out": 0,
+      "connected_at": 1795539615.5419798,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 205,
+      "flow_mod": 185,
+      "packet_out": 0,
+      "connected_at": 1795539615.6381745,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 522,
+    "mean": 180.16263601099664,
+    "p50": 124.24099986674264,
+    "p95": 440.98100033806986,
+    "max": 4143.9860001446505
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 41,
+    "ingress_new_flows": 251
+  }
+}

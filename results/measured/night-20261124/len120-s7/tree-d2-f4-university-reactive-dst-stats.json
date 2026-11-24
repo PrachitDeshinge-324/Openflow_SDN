@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/len120-s7/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "dst",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 939050,
+  "uptime_s": 129.87918829917908,
+  "written_at": 1795541524.0277476,
+  "totals": {
+    "packet_in": 1386,
+    "flow_mod": 1306,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 235,
+      "flow_mod": 214,
+      "packet_out": 0,
+      "connected_at": 1795541394.3819108,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 243,
+      "flow_mod": 229,
+      "packet_out": 0,
+      "connected_at": 1795541394.4710958,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 333,
+      "flow_mod": 318,
+      "packet_out": 0,
+      "connected_at": 1795541394.5942798,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 243,
+      "flow_mod": 228,
+      "packet_out": 0,
+      "connected_at": 1795541394.6949294,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 332,
+      "flow_mod": 317,
+      "packet_out": 0,
+      "connected_at": 1795541394.7868867,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 1306,
+    "mean": 268.8269777947904,
+    "p50": 240.99900019791676,
+    "p95": 470.4869998022332,
+    "max": 10351.239000101486
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 104,
+    "ingress_new_flows": 818
+  }
+}

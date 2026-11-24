@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/ctrl-d1-s8/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "dst",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 354735,
+  "uptime_s": 40.43022418022156,
+  "written_at": 1795539239.7358868,
+  "totals": {
+    "packet_in": 472,
+    "flow_mod": 361,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 81,
+      "flow_mod": 57,
+      "packet_out": 0,
+      "connected_at": 1795539199.4729433,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 62,
+      "flow_mod": 39,
+      "packet_out": 0,
+      "connected_at": 1795539199.5357752,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 54,
+      "flow_mod": 32,
+      "packet_out": 0,
+      "connected_at": 1795539199.5907955,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 111,
+      "flow_mod": 90,
+      "packet_out": 0,
+      "connected_at": 1795539199.6210287,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 164,
+      "flow_mod": 143,
+      "packet_out": 0,
+      "connected_at": 1795539199.7218592,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 361,
+    "mean": 164.18207201240875,
+    "p50": 126.57499996748811,
+    "p95": 318.97399981062335,
+    "max": 6010.393999986263
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 31,
+    "ingress_new_flows": 189
+  }
+}

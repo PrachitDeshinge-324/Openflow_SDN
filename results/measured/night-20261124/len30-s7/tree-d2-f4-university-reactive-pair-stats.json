@@ -1,0 +1,86 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/night-20261124/len30-s7/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "pair",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10
+  },
+  "pid": 833636,
+  "uptime_s": 40.378090620040894,
+  "written_at": 1795541062.2206092,
+  "totals": {
+    "packet_in": 1254,
+    "flow_mod": 1150,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 355,
+      "flow_mod": 331,
+      "packet_out": 0,
+      "connected_at": 1795541021.9900022,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 200,
+      "flow_mod": 180,
+      "packet_out": 0,
+      "connected_at": 1795541022.0581076,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 233,
+      "flow_mod": 212,
+      "packet_out": 0,
+      "connected_at": 1795541022.137936,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 235,
+      "flow_mod": 216,
+      "packet_out": 0,
+      "connected_at": 1795541022.226186,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 231,
+      "flow_mod": 211,
+      "packet_out": 0,
+      "connected_at": 1795541022.2767262,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 1150,
+    "mean": 213.93746695890593,
+    "p50": 184.49299977874034,
+    "p95": 392.7910001948476,
+    "max": 4940.420999901107
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 125,
+    "ingress_new_flows": 489
+  }
+}
