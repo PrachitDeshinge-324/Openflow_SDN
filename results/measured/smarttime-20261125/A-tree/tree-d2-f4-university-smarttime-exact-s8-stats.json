@@ -1,0 +1,99 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 0,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-tree/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "exact",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10,
+    "timeout_policy": "smarttime",
+    "st_min": 1,
+    "st_max": 10,
+    "table_cap": 0,
+    "evict": "auto"
+  },
+  "pid": 108556,
+  "uptime_s": 40.82105088233948,
+  "written_at": 1795587578.7586753,
+  "totals": {
+    "packet_in": 72678,
+    "flow_mod": 72574,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 21714,
+      "flow_mod": 21690,
+      "packet_out": 0,
+      "connected_at": 1795587538.0723968,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 11887,
+      "flow_mod": 11865,
+      "packet_out": 0,
+      "connected_at": 1795587538.145698,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 15030,
+      "flow_mod": 15009,
+      "packet_out": 0,
+      "connected_at": 1795587538.2204504,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 11896,
+      "flow_mod": 11877,
+      "packet_out": 0,
+      "connected_at": 1795587538.3083193,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 12151,
+      "flow_mod": 12133,
+      "packet_out": 0,
+      "connected_at": 1795587538.3964345,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 72574,
+    "mean": 229.97170259305264,
+    "p50": 203.43899996078108,
+    "p95": 373.2250000894055,
+    "max": 72232.81899996437
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 6057,
+    "ingress_new_flows": 22845,
+    "st_installs": 33354,
+    "st_resets": 0,
+    "st_duplicates": 39220,
+    "st_removed": 33354,
+    "st_timeouts": {
+      "1": 33252,
+      "2": 102
+    }
+  }
+}

@@ -1,0 +1,218 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "ecmp",
+    "idle_timeout": 10,
+    "hard_timeout": 0,
+    "topo": "/home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-fattree/fattree-k4-topo.json",
+    "pairs_file": null,
+    "match": "exact",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10,
+    "timeout_policy": "smarttime",
+    "st_min": 1,
+    "st_max": 10,
+    "table_cap": 0,
+    "evict": "auto"
+  },
+  "pid": 470211,
+  "uptime_s": 47.594818115234375,
+  "written_at": 1795590046.584814,
+  "totals": {
+    "packet_in": 15353,
+    "flow_mod": 14956,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 771,
+      "flow_mod": 747,
+      "packet_out": 0,
+      "connected_at": 1795589999.1428092,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 647,
+      "flow_mod": 621,
+      "packet_out": 0,
+      "connected_at": 1795589999.1983774,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 302,
+      "flow_mod": 278,
+      "packet_out": 0,
+      "connected_at": 1795589999.242544,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 529,
+      "flow_mod": 505,
+      "packet_out": 0,
+      "connected_at": 1795589999.2995937,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 643,
+      "flow_mod": 628,
+      "packet_out": 0,
+      "connected_at": 1795589999.3503253,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "6": {
+      "packet_in": 564,
+      "flow_mod": 542,
+      "packet_out": 0,
+      "connected_at": 1795589999.3921697,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "7": {
+      "packet_in": 833,
+      "flow_mod": 813,
+      "packet_out": 0,
+      "connected_at": 1795589999.4538164,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "8": {
+      "packet_in": 726,
+      "flow_mod": 708,
+      "packet_out": 0,
+      "connected_at": 1795589999.4882362,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "9": {
+      "packet_in": 929,
+      "flow_mod": 905,
+      "packet_out": 0,
+      "connected_at": 1795589999.570904,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "10": {
+      "packet_in": 535,
+      "flow_mod": 511,
+      "packet_out": 0,
+      "connected_at": 1795589999.617494,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "11": {
+      "packet_in": 969,
+      "flow_mod": 953,
+      "packet_out": 0,
+      "connected_at": 1795589999.6780627,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "12": {
+      "packet_in": 924,
+      "flow_mod": 909,
+      "packet_out": 0,
+      "connected_at": 1795589999.712135,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "13": {
+      "packet_in": 964,
+      "flow_mod": 940,
+      "packet_out": 0,
+      "connected_at": 1795589999.7861285,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "14": {
+      "packet_in": 617,
+      "flow_mod": 598,
+      "packet_out": 0,
+      "connected_at": 1795589999.8471959,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "15": {
+      "packet_in": 1172,
+      "flow_mod": 1157,
+      "packet_out": 0,
+      "connected_at": 1795589999.9238553,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "16": {
+      "packet_in": 1110,
+      "flow_mod": 1094,
+      "packet_out": 0,
+      "connected_at": 1795589999.9867282,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "17": {
+      "packet_in": 827,
+      "flow_mod": 807,
+      "packet_out": 0,
+      "connected_at": 1795590000.034128,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "18": {
+      "packet_in": 335,
+      "flow_mod": 313,
+      "packet_out": 0,
+      "connected_at": 1795590000.0644624,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "19": {
+      "packet_in": 706,
+      "flow_mod": 688,
+      "packet_out": 0,
+      "connected_at": 1795590000.164455,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "20": {
+      "packet_in": 1250,
+      "flow_mod": 1239,
+      "packet_out": 0,
+      "connected_at": 1795590000.1930408,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 14956,
+    "mean": 340.5485586367779,
+    "p50": 268.8909999051248,
+    "p95": 770.5349999014288,
+    "max": 12591.174000135652
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 1106,
+    "ingress_new_flows": 2825,
+    "st_installs": 10248,
+    "st_resets": 0,
+    "st_duplicates": 4708,
+    "st_removed": 10248,
+    "st_timeouts": {
+      "1": 10248
+    }
+  }
+}

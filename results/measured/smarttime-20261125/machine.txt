@@ -1,0 +1,5 @@
+git e4e178e3b82742dbb27fae1c9b2436141802ae00 dirty=0
+Linux Harikrushna 6.18.58.1-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Tue Oct 27 00:24:11 UTC 2026 x86_64 GNU/Linux
+model name	: AMD Ryzen 7 8840HS w/ Radeon 780M Graphics
+16
+ovs-vsctl (Open vSwitch) 3.7.1
