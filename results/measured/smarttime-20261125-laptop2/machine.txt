@@ -1,0 +1,5 @@
+git e9d41c298449c8f8cec88090d3f795715ab01e2e dirty=0
+Linux Nisarg 6.18.58.1-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Tue Oct 27 00:24:11 UTC 2026 x86_64 GNU/Linux
+model name	: AMD Ryzen AI 7 350 w/ Radeon 860M
+16
+ovs-vsctl (Open vSwitch) 3.7.1
