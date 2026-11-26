@@ -52,23 +52,18 @@ al.) was found later, could not be read, and is not counted.
 | # | Baseline group (paper, Section II) | Baselines named | Coarse-rule reactive baseline? | Frequency counter at the same rule budget? | Upper bound / oracle? | Traffic | Network size | Evaluation | Code | Checked |
 |---|---|---|---|---|---|---|---|---|---|---|
 | A1 | Plain reactive only | Reactive mode (POX, Ryu) | No | No | No | Periodic IoT streams | small Mininet (n/s) | Emulation (Mininet) | n/s | Full text |
-| A2 | Plain reactive only | Reactive (proof of concept) | n/s | No (it is itself a simple method) | n/s | Periodic IoT | n/s | Proof of concept | n/s | Abstract |
-| A4 | Plain reactive only | Reactive (-90% installation delay) | n/s | n/s | n/s | IoT | n/s | Experimental | n/s | Abstract |
+| A2 | Plain reactive only | POX L3 learning switch; the pre-installed rule is the same rule, re-installed before each 5 s ping (idle timeout 1 s) | n/a (same rule) | No (it is itself a simple method) | No | One periodic ping flow | 1 switch, 2 hosts | Emulation (Mininet, POX); RTT about 10 ms to under 1 ms | n/s | **Full text** (25 Nov) |
+| A4 | Plain reactive only | Conventional reactive (Ryu); same rule, idle timeout 1 s below the 3-5 s duty cycle; no longer-timeout baseline | n/a (same rule) | No | No | Periodic and periodic/bursty sensor traffic (2 Z1 motes) | 2 gateways | Testbed: Raspberry Pi 3 + OVS 2.7, Ryu 4.4; head-of-flow delay 4 ms to 0.4 ms, OF messages 3 to 1 | n/s | **Full text** (25 Nov) |
 | A5 | Reactive and other published schemes | Basic reactive cache; MobiFlow (a predictor) | No | No | No | Mobile users | Abilene, 10 users | Simulation | n/s | Full text |
 | A6 | Reactive and other published schemes | OSPF, minimum-occupied-rule-capacity, distributed (non-SDN), MoRule | n/s | n/s | n/s | Mobility | n/s | Simulation | n/s | Abstract / PDF snippet |
 | A3 | Own earlier variants | Earlier PFIM variants | n/s | n/s | n/s | Periodic IoT | n/s | n/s | n/s | Abstract |
-| A7 | No baseline named | n/s | n/s | n/s | n/s | Mobility (SDN-IoT) | n/s | n/s | n/s | Abstract |
-| A8 | No baseline named | "Existing methods" | n/s | n/s | n/s | Vehicular mobility | n/s | n/s | n/s | Abstract |
+| A7 | Reactive and other published schemes | Standard hard-timeout scheme ("table miss"); Mobi-Flow | No (rule contents random, granularity not stated) | No | No | Exponential flow arrivals, mobile end devices | Tree, 25 switches, 200 hosts (parameter table says 3 switches) | Simulation (NS3, Matlab); delay 3.29 / 4.21 / 7.35 ms | n/s | **Full text** (25 Nov) |
+| A8 | Reactive and other published schemes | Reactive controller; FIFO and LRU schemes | **No; confound present**: pre-installed rules match a DSCP class, reactive rules match a src/dst MAC pair | No (LRU is named as a scheme, not as a budgeted pre-installation baseline) | No | Vehicular mobility (PeMS data) | 10 APs, 10 vehicles | Emulation (Mininet, Ryu); RTT 0.15 / 0.27 ms vs 2.04 ms reactive; -32% vs FIFO, -36% vs LRU | dataset public | **Full text** (25 Nov) |
 | A9 | No baseline named | n/s | n/s | n/s | n/s | n/s | n/s | ONOS + Open vSwitch | n/s | Abstract |
 | A10 | No baseline named | n/s (paywalled) | n/s | n/s | n/s | n/s | n/s | n/s | n/s | Abstract |
-| A11 | Benefit study, no baseline | (benefit varies with flow rate) | n/a | n/a | n/a | Traces | n/s | Virtual switch | n/s | Abstract |
+| A11 | Benefit study: no prediction vs perfect prediction | Empty OVS caches vs "Optimal" (all associated flows preloaded), with partial prediction in between | n/a (same OVS cache mechanism) | No | **Yes**: the perfect-prediction case is a stated performance ceiling | Google search RPC and Facebook Hadoop coflow traces | up to 200,000 flows | Testbed: OVS 3.3 / OVN on Xeon servers; predicting 25% of flows: about -24% latency, -12% CPU; benefit shrinks at high flow rates | n/s | **Full text** (25 Nov) |
 
-**Counts (11 papers):** 3 compare only against plain reactive installation (A1, A2, A4); 2 against reactive and
-other published schemes (A5, A6); 1 against its own earlier variants (A3); 4 name no baseline in the material
-available (A7-A10); 1 studies the benefit without a baseline (A11). **None** of the 11 reports, in that
-material, a coarse-rule reactive baseline, a frequency counter choosing pre-installed rules under the same
-budget, or an upper bound. The two read in full (A1, A5) certainly do not. Traffic is periodic IoT or mobility
-in 8 of the 9 rows that state it.
+**Counts (11 papers, updated 25 Nov after reading A2, A4, A7, A8 and A11 in full):** 3 compare only against plain reactive installation (A1, A2, A4); 4 against reactive and other published schemes (A5, A6, A7, A8); 1 against its own earlier variants (A3); 2 name no baseline in the abstract available (A9, A10); 1 compares no prediction with perfect prediction (A11). Read in full: 7 (A1, A2, A4, A5, A7, A8, A11); abstract only: 4 (A3, A6, A9, A10). Of the 7 read in full: in A2 and A4 the pre-installed rule is the rule the reactive baseline installs, so granularity is not confounded; their gain comes from installing it before a 1 s idle timeout (shorter than the traffic period) lets it expire, and neither reports a baseline with a longer timeout. A8 pre-installs coarser rules (per DSCP class) than its reactive baseline (per MAC pair), with no same-granularity reactive baseline. None of the 7 compares coarser pre-installed rules with a reactive baseline of the same granularity. Only A11 reports an upper bound (its perfect-prediction ceiling). Traffic is periodic IoT or mobility in 8 of the 9 rows that state it (A11: data-centre traces). The earlier statement "none reports an upper bound" was wrong for A11.
 
 ---
 
