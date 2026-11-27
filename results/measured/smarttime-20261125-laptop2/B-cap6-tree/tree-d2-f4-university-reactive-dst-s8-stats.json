@@ -1,0 +1,97 @@
+{
+  "mode": "hybrid",
+  "config": {
+    "budget": 0.0,
+    "decay": 0.97,
+    "interval": 1.0,
+    "hysteresis": 1.5,
+    "paths": "shortest",
+    "idle_timeout": 10,
+    "hard_timeout": 30,
+    "topo": "/home/Nisarg/Openflow_SDN/results/measured/smarttime-20261125-laptop2/B-cap6-tree/tree-d2-f4-topo.json",
+    "pairs_file": null,
+    "match": "dst",
+    "strategy": "counter",
+    "model_file": null,
+    "warmup_intervals": 10,
+    "timeout_policy": "fixed",
+    "st_min": 1,
+    "st_max": 10,
+    "table_cap": 6,
+    "evict": "auto"
+  },
+  "pid": 537825,
+  "uptime_s": 56.47369861602783,
+  "written_at": 1795614248.3279908,
+  "totals": {
+    "packet_in": 459879,
+    "flow_mod": 459764,
+    "packet_out": 0,
+    "rules_installed": 0
+  },
+  "switches": {
+    "1": {
+      "packet_in": 171212,
+      "flow_mod": 171186,
+      "packet_out": 0,
+      "connected_at": 1795614192.019142,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "2": {
+      "packet_in": 92975,
+      "flow_mod": 92950,
+      "packet_out": 0,
+      "connected_at": 1795614192.0587387,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "3": {
+      "packet_in": 74329,
+      "flow_mod": 74306,
+      "packet_out": 0,
+      "connected_at": 1795614192.1192808,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "4": {
+      "packet_in": 57747,
+      "flow_mod": 57727,
+      "packet_out": 0,
+      "connected_at": 1795614192.162651,
+      "rules_installed": 0,
+      "install_ms": null
+    },
+    "5": {
+      "packet_in": 63616,
+      "flow_mod": 63595,
+      "packet_out": 0,
+      "connected_at": 1795614192.2146933,
+      "rules_installed": 0,
+      "install_ms": null
+    }
+  },
+  "packet_in_processing_us": {
+    "count": 459764,
+    "mean": 68.20818719187008,
+    "p50": 54.54399979498703,
+    "p95": 109.79799981214455,
+    "max": 19448.74900027571
+  },
+  "extra": {
+    "budget_pairs": 0,
+    "total_pairs": 240,
+    "pair_installs": 0,
+    "pair_removals": 0,
+    "wasted_installs": 0,
+    "pairs_installed": 0,
+    "ingress_syn_misses": 5240,
+    "ingress_new_flows": 187674,
+    "table_cap": 6,
+    "evict_policy": "none",
+    "table_full_events": 74986,
+    "refused_installs": 453422,
+    "evictions": 0,
+    "reactive_installs": 459764
+  }
+}

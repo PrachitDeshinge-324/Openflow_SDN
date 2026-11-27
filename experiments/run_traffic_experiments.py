@@ -78,6 +78,11 @@ from run_path_experiments import MODE_LABEL, TX_CSUM_OFF, netem_available
 #   reactive-pair : reactive-sp, but each rule matches source + destination MAC, so later flows
 #                   of a pair hit it (no prediction; tests whether wildcards alone explain the hybrid)
 #   reactive-dst  : the same with the destination MAC only
+#   smarttime-exact / smarttime-pair / smarttime-dst : reactive-sp / -pair / -dst, but with a
+#                   SmartTime-style adaptive idle timeout reimplemented from Vishnoi et al., DEBS 2014
+#                   (hybrid_eval --timeout_policy=smarttime): idle = min(--st-min * 2^n, --st-max) s
+#                   after n earlier installs of the same rule on the same switch, no hard timeout,
+#                   no eviction (no table cap here). Simplifications: see docs/SmartTime_Port.md
 #   hybrid-NN     : hybrid_eval, weighted counter keeps the top NN% of host pairs pre-installed
 #   oracle-NN     : hindsight reference (the best FIXED set with an exact-match fallback; not a bound for
 #                   a predictor that changes its set): pre-install the NN% of pairs that really
@@ -93,9 +98,14 @@ MODE_LABEL.update({'reactive-long': 'Reactive, long timeouts',
                    'reactive-sp': 'Reactive on shortest paths (hybrid, budget 0%)',
                    'reactive-pair': 'Reactive on shortest paths, pair rules',
                    'reactive-dst': 'Reactive on shortest paths, destination rules',
+                   'smarttime-exact': 'SmartTime-style adaptive timeout, exact-match rules',
+                   'smarttime-pair': 'SmartTime-style adaptive timeout, pair rules',
+                   'smarttime-dst': 'SmartTime-style adaptive timeout, destination rules',
                    'tap': 'Forward first, tell the controller (destination rules + SYN/FIN copies)',
                    'proactive-dst': 'Proactive, one rule per destination (tap without its copy rules)'})
 SPANNING_TREE_MODES = ('reactive', 'reactive-long')
+# Modes that can run with --table-cap (reactive on hybrid_eval, no pre-installed rules)
+CAP_MODES = ('reactive-sp', 'reactive-pair', 'reactive-dst', 'smarttime-exact', 'smarttime-pair', 'smarttime-dst')
 
 
 def mode_label(mode):
@@ -112,6 +122,15 @@ def mode_label(mode):
 
 def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of=None):
   """The POX modules and options (after openflow.of_01) that make up each controller mode."""
+  module = _pox_module(mode, run_dir, tag, topo_file, net_name, args, flows, mac_of)
+  if getattr(args, 'table_cap', 0):
+    module += ['--table_cap=%d' % args.table_cap]
+    if args.fixed_evict and not mode.startswith('smarttime-'):
+      module += ['--evict=random']
+  return module
+
+
+def _pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of=None):
   paths = 'ecmp' if 'fattree' in net_name else 'shortest'
   if mode == 'reactive':   # as in run_path_experiments.start_pox
     return ['openflow.discovery', 'openflow.spanning_tree', '--no-flood', '--hold-down',
@@ -140,6 +159,10 @@ def pox_module(mode, run_dir, tag, topo_file, net_name, args, flows=None, mac_of
       module.append('--model_file=%s' % os.path.abspath(args.lstm_model))
       module.append('--warmup_intervals=%d' % args.lstm_warmup)
     return module
+  if mode in ('smarttime-exact', 'smarttime-pair', 'smarttime-dst'):
+    return ['hybrid_eval', '--topo=%s' % topo_file, '--budget=0', '--paths=%s' % paths,
+            '--match=%s' % mode.split('-', 1)[1], '--timeout_policy=smarttime',
+            '--st_min=%d' % args.st_min, '--st_max=%d' % args.st_max, '--hard_timeout=0']
   if mode.startswith('oracle-'):
     counts = {}
     for _, src, dst, _ in flows:   # a TCP flow uses both directions (data, then the reply)
@@ -406,6 +429,19 @@ def hybrid_summary(st0, st1, rows):
           'wasted_installs': e1['wasted_installs'], 'pairs_installed_end': e1['pairs_installed']}
 
 
+def table_summary(st0, st1, cap, samples, full_samples, full_switch_samples, n_switches):
+  """With --table-cap: how often a table was full, and what the controller did about it."""
+  e0, e1 = st0.get('extra', {}), st1.get('extra', {})
+  d = lambda k: e1.get(k, 0) - e0.get(k, 0)
+  return {'cap': cap, 'evict_policy': e1.get('evict_policy'),
+          'reactive_installs': d('reactive_installs'), 'refused_installs': d('refused_installs'),
+          'evictions': d('evictions'), 'table_full_events': d('table_full_events'),
+          # SmartTime's own cost (their Eq. 4 with C_evict / C_install = 1): installs + evictions
+          'smarttime_cost': d('reactive_installs') - d('refused_installs') + d('evictions'),
+          'full_samples_pct': 100.0 * full_samples / max(1, samples),          # any switch full
+          'full_switch_samples_pct': 100.0 * full_switch_samples / max(1, samples * n_switches)}
+
+
 def fct_summary(rows):
   ok = [r for r in rows if r['ok']]
   res = {'flows': len(rows), 'completed': len(ok), 'failed': len(rows) - len(ok),
@@ -539,6 +575,12 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
       wait_for(lambda: len(ctrl.stats()['switches']) >= len(net.switches), 30)
 
     ctrl_rules = control_rules(net)
+    if args.table_cap:   # cap the data rules of every switch; the switch refuses rules beyond it
+      for sw in net.switches:
+        out = sw.cmd('ovs-vsctl -- --id=@ft create Flow_Table flow_limit=%d overflow_policy=refuse '
+                     '-- set Bridge %s flow_tables:0=@ft' % (args.table_cap + ctrl_rules.get(sw.name, 0), sw.name))
+        if 'error' in out.lower():
+          raise RuntimeError('--table-cap: ovs-vsctl failed on %s: %s' % (sw.name, out.strip()))
     for h in net.hosts:
       h.cmd('timeout %d python3 %s %d > /dev/null 2>&1 &'
             % (args.duration + args.flow_timeout + 60, server, FLOW_PORT))
@@ -569,12 +611,19 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
     st0 = ctrl.fresh()
     s0, c0, w0 = st0['totals'], ctrl.cpu_seconds(), time.time()
     peak_total, peak_switch = 0, 0
+    samples = full_samples = full_switch_samples = 0
+    every = 1 if args.table_cap else 5
     while time.time() < t0 + args.duration:   # sample the flow tables while traffic runs
-      time.sleep(min(5, max(0.1, t0 + args.duration - time.time())))
+      time.sleep(min(every, max(0.1, t0 + args.duration - time.time())))
       now = rule_counts(net)
       data = {k: max(0, now[k] - ctrl_rules.get(k, 0)) for k in now}   # data rules only
       peak_total = max(peak_total, sum(data.values()))
       peak_switch = max(peak_switch, max(data.values()))
+      if args.table_cap:
+        full = sum(1 for v in data.values() if v >= args.table_cap)
+        samples += 1
+        full_samples += 1 if full else 0
+        full_switch_samples += full
     for tm in freeze:   # the controller must be running again before we read its stats
       tm.join()
     st1 = ctrl.fresh()
@@ -618,6 +667,8 @@ def run_one(net_name, workload, mode, args, run_dir, repeat=0):
                   'controller_cpu_pct': 100.0 * (c1 - c0) / window,
                   'peak_rules_total': peak_total, 'peak_rules_one_switch': peak_switch},
       'hybrid': hybrid_summary(st_pre, st1, rows) if 'ingress_syn_misses' in st1.get('extra', {}) else None,
+      'table': table_summary(st_pre, st1, args.table_cap, samples, full_samples, full_switch_samples,
+                             len(net.switches)) if args.table_cap else None,
       'start_late_ms_p99': pct([r['late_ms'] for r in rows], 0.99),
     })
     if args.pause_controller:   # flows that started while the controller was frozen
@@ -726,6 +777,19 @@ def write_markdown(results, meta, run_dir):
       r['network'], r['workload'], mode_label(r['mode']), v(r, ('control', 'packet_in_per_s'), 0),
       v(r, ('control', 'flow_mod_per_s'), 0), v(r, ('control', 'controller_cpu_pct')),
       v(r, ('control', 'peak_rules_total'), 0), v(r, ('control', 'peak_rules_one_switch'), 0)))
+  capped = [r for r in merged if r.get('table')]
+  if capped:
+    lines += ['', '## Capped tables (--table-cap %d rules per switch, Open vSwitch refuses beyond it)'
+              % capped[0]['table']['cap'], '',
+              '| Network | Workload | Controller | Hit rate % | Refused installs | Evictions | '
+              'PACKET_INs at a full table | Samples with a full switch % | SmartTime cost (installs + evictions) |',
+              '| --- | --- | --- | --- | --- | --- | --- | --- | --- |']
+    for r in capped:
+      lines.append('| %s | %s | %s | %s | %s | %s | %s | %s | %s |' % (
+        r['network'], r['workload'], mode_label(r['mode']), v(r, ('hybrid', 'hit_rate_pct')),
+        v(r, ('table', 'refused_installs'), 0), v(r, ('table', 'evictions'), 0),
+        v(r, ('table', 'table_full_events'), 0), v(r, ('table', 'full_samples_pct')),
+        v(r, ('table', 'smarttime_cost'), 0)))
   hyb = [r for r in merged if r.get('hybrid')]
   if hyb:
     lines += ['', '## Budgeted hybrid (hit rate = new connections whose first packet found a rule)', '',
@@ -855,6 +919,15 @@ def main():
                   help='hybrid: a newcomer must score this many times the weakest kept pair')
   ap.add_argument('--long-idle', type=int, default=60, help='reactive-long idle timeout, s')
   ap.add_argument('--long-hard', type=int, default=300, help='reactive-long hard timeout, s')
+  ap.add_argument('--st-min', type=int, default=1,
+                  help='smarttime-* modes: first idle timeout, s (the paper: 100 ms; OpenFlow 1.0: whole s)')
+  ap.add_argument('--st-max', type=int, default=10, help='smarttime-* modes: largest idle timeout, s (the paper: 10 s)')
+  ap.add_argument('--table-cap', type=int, default=0, metavar='N',
+                  help='cap every switch at N data rules (Open vSwitch flow_limit, overflow_policy=refuse); '
+                       'only for %s' % ', '.join(CAP_MODES))
+  ap.add_argument('--fixed-evict', action='store_true',
+                  help='with --table-cap: fixed-timeout modes also evict a random rule above 95%% '
+                       '(the paper\'s random-eviction baseline); default: the switch refuses')
   ap.add_argument('--pair-zipf', type=float, default=0.0,
                   help='Zipf exponent of host-pair popularity (0 = uniform destinations)')
   ap.add_argument('--tm', default=DEFAULT_TM, help='hourly traffic matrices for the isp workload '
@@ -926,6 +999,12 @@ def main():
     ap.error('LSTM model file not found: %s' % args.lstm_model)
   if args.lstm_warmup < 0:
     ap.error('--lstm-warmup must be non-negative')
+  if args.table_cap < 0:
+    sys.exit('--table-cap must be >= 0')
+  if args.table_cap and args.controller_host:
+    sys.exit('--table-cap works with a local controller only')
+  if args.table_cap and any(m not in CAP_MODES for _, _, m in scenarios):
+    sys.exit('--table-cap works only with the modes %s' % ' '.join(CAP_MODES))
   if args.repeats < 1:
     sys.exit("--repeats must be at least 1")
   controller = controller_info(args)

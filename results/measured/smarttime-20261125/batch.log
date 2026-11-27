@@ -1,0 +1,1143 @@
+[06:10:42] self-checks
+POX 0.7.0 (gar) / Copyright 2011-2020 James McCauley, et al.
+pair rules: idle timeouts [1, 2, 4, 8, 10, 10]
+duplicate PACKET_IN before FLOW_REMOVED: same timeout, not counted as a repeat
+reset rule: idle timeouts [1, 2, 4, 8, 10, 1]
+exact-match rules: every new connection gets 1 s
+fixed policy: idle 10 s, no FLOW_REMOVED flag (as before)
+capped table, SmartTime: rule without the packet + PACKET_OUT; full table -> 1 random DELETE_STRICT
+capped table, fixed: no eviction, refused install counted, packet forwarded anyway
+all SmartTime checks passed
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair
+======================================================================
+    schedule: 1990 flows in 10 s (199.0 flows/s), offered 79.7 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 1990 done, 0 failed | FCT small (<100KB) mean 4980.6 p99 16415.5 ms | large (>10MB) mean - ms
+    controller: 5744 PACKET_IN/s, 5744 FLOW_MOD/s, CPU 99.7% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair
+======================================================================
+    schedule: 1990 flows in 10 s (199.0 flows/s), offered 79.7 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 1990 done, 0 failed | FCT small (<100KB) mean 6669.1 p99 20789.3 ms | large (>10MB) mean - ms
+    controller: 5345 PACKET_IN/s, 7156 FLOW_MOD/s, CPU 100.0% | rules: peak 30 total, 6 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/check-cap/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/check-cap/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/check-cap/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/check-cap/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/check-cap/traffic_control.png
+check-cap: {'reactive-pair': ({'cap': 6, 'evict_policy': 'none', 'reactive_installs': 57665, 'refused_installs': 54019, 'evictions': 0, 'table_full_events': 16013, 'smarttime_cost': 3646, 'full_samples_pct': 100.0, 'full_switch_samples_pct': 100.0}, 6), 'smarttime-pair': ({'cap': 6, 'evict_policy': 'random', 'reactive_installs': 56611, 'refused_installs': 0, 'evictions': 19063, 'table_full_events': 19063, 'smarttime_cost': 75674, 'full_samples_pct': 100.0, 'full_switch_samples_pct': 93.33333333333333}, 6)}
+[06:12:56] table-cap self-check passed
+[06:12:56] run  results/measured/smarttime-20261125/A-tree: --repeats 5 --scenarios tree-d2-f4:university --modes reactive-pair reactive-dst smarttime-exact smarttime-pair proactive
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.6 p99 43.6 ms | large (>10MB) mean - ms
+    controller: 24 PACKET_IN/s, 24 FLOW_MOD/s, CPU 1.3% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 7.1 p99 48.0 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 1 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-exact | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 48.6 p99 157.9 ms | large (>10MB) mean - ms
+    controller: 2313 PACKET_IN/s, 2312 FLOW_MOD/s, CPU 86.9% | rules: peak 1289 total, 400 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 7.4 p99 47.5 ms | large (>10MB) mean - ms
+    controller: 120 PACKET_IN/s, 119 FLOW_MOD/s, CPU 6.9% | rules: peak 600 total, 184 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 7.1 p99 46.7 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.4 p99 40.8 ms | large (>10MB) mean - ms
+    controller: 17 PACKET_IN/s, 17 FLOW_MOD/s, CPU 1.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.4 p99 41.6 ms | large (>10MB) mean - ms
+    controller: 2 PACKET_IN/s, 2 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-exact | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 50.2 p99 128.9 ms | large (>10MB) mean - ms
+    controller: 2407 PACKET_IN/s, 2407 FLOW_MOD/s, CPU 88.1% | rules: peak 1232 total, 399 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.8 p99 40.4 ms | large (>10MB) mean - ms
+    controller: 124 PACKET_IN/s, 124 FLOW_MOD/s, CPU 7.1% | rules: peak 594 total, 182 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.3 p99 39.6 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.7 p99 38.9 ms | large (>10MB) mean - ms
+    controller: 26 PACKET_IN/s, 25 FLOW_MOD/s, CPU 1.4% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.7 p99 41.7 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 1 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-exact | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 44.1 p99 113.6 ms | large (>10MB) mean - ms
+    controller: 2531 PACKET_IN/s, 2530 FLOW_MOD/s, CPU 86.3% | rules: peak 1291 total, 410 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 6.0 p99 39.1 ms | large (>10MB) mean - ms
+    controller: 123 PACKET_IN/s, 123 FLOW_MOD/s, CPU 7.0% | rules: peak 616 total, 190 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.6 p99 38.5 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 6056 flows in 30 s (201.9 flows/s), offered 71.9 Mbit/s = 4% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6056 done, 0 failed | FCT small (<100KB) mean 4.8 p99 34.3 ms | large (>10MB) mean - ms
+    controller: 42 PACKET_IN/s, 42 FLOW_MOD/s, CPU 1.9% | rules: peak 622 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 6056 flows in 30 s (201.9 flows/s), offered 71.9 Mbit/s = 4% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6056 done, 0 failed | FCT small (<100KB) mean 4.8 p99 34.8 ms | large (>10MB) mean - ms
+    controller: 10 PACKET_IN/s, 10 FLOW_MOD/s, CPU 0.4% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-exact | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 6056 flows in 30 s (201.9 flows/s), offered 71.9 Mbit/s = 4% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6056 done, 0 failed | FCT small (<100KB) mean 35.7 p99 86.4 ms | large (>10MB) mean - ms
+    controller: 2497 PACKET_IN/s, 2496 FLOW_MOD/s, CPU 83.2% | rules: peak 1150 total, 376 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 6056 flows in 30 s (201.9 flows/s), offered 71.9 Mbit/s = 4% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6056 done, 0 failed | FCT small (<100KB) mean 5.0 p99 34.0 ms | large (>10MB) mean - ms
+    controller: 107 PACKET_IN/s, 106 FLOW_MOD/s, CPU 6.2% | rules: peak 606 total, 188 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 6056 flows in 30 s (201.9 flows/s), offered 71.9 Mbit/s = 4% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6056 done, 0 failed | FCT small (<100KB) mean 4.6 p99 33.9 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 6040 flows in 30 s (201.3 flows/s), offered 85.9 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 73% leave the edge switch
+    flows: 6040 done, 0 failed | FCT small (<100KB) mean 4.9 p99 36.7 ms | large (>10MB) mean - ms
+    controller: 43 PACKET_IN/s, 42 FLOW_MOD/s, CPU 1.8% | rules: peak 624 total, 192 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 6040 flows in 30 s (201.3 flows/s), offered 85.9 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 73% leave the edge switch
+    flows: 6040 done, 0 failed | FCT small (<100KB) mean 4.9 p99 37.3 ms | large (>10MB) mean - ms
+    controller: 8 PACKET_IN/s, 7 FLOW_MOD/s, CPU 0.4% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-exact | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 6040 flows in 30 s (201.3 flows/s), offered 85.9 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 73% leave the edge switch
+    flows: 6040 done, 0 failed | FCT small (<100KB) mean 52.9 p99 173.5 ms | large (>10MB) mean - ms
+    controller: 2268 PACKET_IN/s, 2268 FLOW_MOD/s, CPU 90.3% | rules: peak 1242 total, 371 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 6040 flows in 30 s (201.3 flows/s), offered 85.9 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 73% leave the edge switch
+    flows: 6040 done, 0 failed | FCT small (<100KB) mean 5.2 p99 35.3 ms | large (>10MB) mean - ms
+    controller: 124 PACKET_IN/s, 124 FLOW_MOD/s, CPU 6.8% | rules: peak 598 total, 184 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | proactive | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 6040 flows in 30 s (201.3 flows/s), offered 85.9 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 73% leave the edge switch
+    flows: 6040 done, 0 failed | FCT small (<100KB) mean 4.3 p99 36.1 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 624 total, 192 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-tree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-tree/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-tree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-tree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-tree/traffic_control.png
+[06:34:06] run  results/measured/smarttime-20261125/A-fattree: --repeats 5 --scenarios fattree-k4:websearch --modes reactive-pair reactive-dst smarttime-exact smarttime-pair proactive-ecmp
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 51.7 p99 291.6 ms | large (>10MB) mean 7390.3 ms
+    controller: 120 PACKET_IN/s, 116 FLOW_MOD/s, CPU 5.6% | rules: peak 844 total, 52 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 51.1 p99 291.7 ms | large (>10MB) mean 8077.9 ms
+    controller: 30 PACKET_IN/s, 26 FLOW_MOD/s, CPU 1.4% | rules: peak 275 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-exact | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 91.6 p99 350.2 ms | large (>10MB) mean 7626.0 ms
+    controller: 503 PACKET_IN/s, 498 FLOW_MOD/s, CPU 41.6% | rules: peak 1080 total, 160 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 54.7 p99 288.4 ms | large (>10MB) mean 7766.5 ms
+    controller: 157 PACKET_IN/s, 152 FLOW_MOD/s, CPU 10.1% | rules: peak 570 total, 38 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | proactive-ecmp | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 51.5 p99 299.8 ms | large (>10MB) mean 7812.6 ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.3% | rules: peak 1072 total, 58 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 58.8 p99 355.9 ms | large (>10MB) mean 15832.8 ms
+    controller: 88 PACKET_IN/s, 83 FLOW_MOD/s, CPU 5.3% | rules: peak 836 total, 51 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 60.0 p99 316.6 ms | large (>10MB) mean 15666.0 ms
+    controller: 51 PACKET_IN/s, 47 FLOW_MOD/s, CPU 2.0% | rules: peak 275 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-exact | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 92.0 p99 323.5 ms | large (>10MB) mean 15787.7 ms
+    controller: 554 PACKET_IN/s, 550 FLOW_MOD/s, CPU 40.4% | rules: peak 887 total, 132 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 59.8 p99 321.3 ms | large (>10MB) mean 15362.1 ms
+    controller: 163 PACKET_IN/s, 159 FLOW_MOD/s, CPU 9.5% | rules: peak 564 total, 38 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | proactive-ecmp | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 55.6 p99 332.8 ms | large (>10MB) mean 15525.1 ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 1072 total, 58 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 68.0 p99 349.3 ms | large (>10MB) mean 9556.9 ms
+    controller: 185 PACKET_IN/s, 181 FLOW_MOD/s, CPU 6.3% | rules: peak 798 total, 50 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 64.2 p99 329.6 ms | large (>10MB) mean 10111.9 ms
+    controller: 56 PACKET_IN/s, 52 FLOW_MOD/s, CPU 2.8% | rules: peak 283 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-exact | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 104.8 p99 387.6 ms | large (>10MB) mean 10138.5 ms
+    controller: 491 PACKET_IN/s, 486 FLOW_MOD/s, CPU 40.6% | rules: peak 1057 total, 128 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 71.2 p99 353.2 ms | large (>10MB) mean 9610.2 ms
+    controller: 152 PACKET_IN/s, 148 FLOW_MOD/s, CPU 9.1% | rules: peak 546 total, 40 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | proactive-ecmp | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 64.3 p99 342.2 ms | large (>10MB) mean 9896.1 ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 1072 total, 58 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1129 flows in 30 s (37.6 flows/s), offered 467.9 Mbit/s = 29% of host capacity, 9 capped at 20 MB, 78% leave the edge switch
+    flows: 1129 done, 0 failed | FCT small (<100KB) mean 47.4 p99 252.2 ms | large (>10MB) mean 8132.9 ms
+    controller: 81 PACKET_IN/s, 77 FLOW_MOD/s, CPU 4.3% | rules: peak 868 total, 54 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1129 flows in 30 s (37.6 flows/s), offered 467.9 Mbit/s = 29% of host capacity, 9 capped at 20 MB, 78% leave the edge switch
+    flows: 1129 done, 0 failed | FCT small (<100KB) mean 46.7 p99 257.7 ms | large (>10MB) mean 9026.0 ms
+    controller: 30 PACKET_IN/s, 26 FLOW_MOD/s, CPU 1.5% | rules: peak 285 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-exact | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1129 flows in 30 s (37.6 flows/s), offered 467.9 Mbit/s = 29% of host capacity, 9 capped at 20 MB, 78% leave the edge switch
+    flows: 1129 done, 0 failed | FCT small (<100KB) mean 78.6 p99 273.3 ms | large (>10MB) mean 7201.3 ms
+    controller: 440 PACKET_IN/s, 436 FLOW_MOD/s, CPU 34.9% | rules: peak 572 total, 120 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1129 flows in 30 s (37.6 flows/s), offered 467.9 Mbit/s = 29% of host capacity, 9 capped at 20 MB, 78% leave the edge switch
+    flows: 1129 done, 0 failed | FCT small (<100KB) mean 50.6 p99 263.4 ms | large (>10MB) mean 7246.9 ms
+    controller: 158 PACKET_IN/s, 154 FLOW_MOD/s, CPU 10.1% | rules: peak 582 total, 38 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | proactive-ecmp | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1129 flows in 30 s (37.6 flows/s), offered 467.9 Mbit/s = 29% of host capacity, 9 capped at 20 MB, 78% leave the edge switch
+    flows: 1129 done, 0 failed | FCT small (<100KB) mean 44.9 p99 250.0 ms | large (>10MB) mean 7913.0 ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 1072 total, 58 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1106 flows in 30 s (36.9 flows/s), offered 490.4 Mbit/s = 31% of host capacity, 17 capped at 20 MB, 96% leave the edge switch
+    flows: 1106 done, 0 failed | FCT small (<100KB) mean 55.7 p99 303.8 ms | large (>10MB) mean 5292.8 ms
+    controller: 79 PACKET_IN/s, 75 FLOW_MOD/s, CPU 4.9% | rules: peak 798 total, 52 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1106 flows in 30 s (36.9 flows/s), offered 490.4 Mbit/s = 31% of host capacity, 17 capped at 20 MB, 96% leave the edge switch
+    flows: 1106 done, 0 failed | FCT small (<100KB) mean 54.7 p99 268.9 ms | large (>10MB) mean 4687.6 ms
+    controller: 59 PACKET_IN/s, 54 FLOW_MOD/s, CPU 1.9% | rules: peak 281 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-exact | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1106 flows in 30 s (36.9 flows/s), offered 490.4 Mbit/s = 31% of host capacity, 17 capped at 20 MB, 96% leave the edge switch
+    flows: 1106 done, 0 failed | FCT small (<100KB) mean 94.2 p99 354.0 ms | large (>10MB) mean 5714.6 ms
+    controller: 490 PACKET_IN/s, 485 FLOW_MOD/s, CPU 40.8% | rules: peak 873 total, 87 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1106 flows in 30 s (36.9 flows/s), offered 490.4 Mbit/s = 31% of host capacity, 17 capped at 20 MB, 96% leave the edge switch
+    flows: 1106 done, 0 failed | FCT small (<100KB) mean 56.3 p99 295.5 ms | large (>10MB) mean 6034.7 ms
+    controller: 149 PACKET_IN/s, 145 FLOW_MOD/s, CPU 10.0% | rules: peak 572 total, 38 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | proactive-ecmp | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1106 flows in 30 s (36.9 flows/s), offered 490.4 Mbit/s = 31% of host capacity, 17 capped at 20 MB, 96% leave the edge switch
+    flows: 1106 done, 0 failed | FCT small (<100KB) mean 50.8 p99 320.8 ms | large (>10MB) mean 5546.4 ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 1072 total, 58 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-fattree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-fattree/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-fattree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-fattree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-fattree/traffic_control.png
+[07:02:51] run  results/measured/smarttime-20261125/A-abilene: --repeats 5 --scenarios abilene:isp --modes reactive-pair reactive-dst smarttime-exact smarttime-pair proactive
+
+======================================================================
+[*] abilene | isp traffic | reactive-pair | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1761 flows in 30 s (58.7 flows/s), offered 27.5 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1761 done, 0 failed | FCT small (<100KB) mean 58.4 p99 190.5 ms | large (>10MB) mean - ms
+    controller: 15 PACKET_IN/s, 13 FLOW_MOD/s, CPU 1.0% | rules: peak 376 total, 60 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-dst | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1761 flows in 30 s (58.7 flows/s), offered 27.5 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1761 done, 0 failed | FCT small (<100KB) mean 58.0 p99 189.4 ms | large (>10MB) mean - ms
+    controller: 5 PACKET_IN/s, 3 FLOW_MOD/s, CPU 0.4% | rules: peak 121 total, 11 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-exact | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1761 flows in 30 s (58.7 flows/s), offered 27.5 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1761 done, 0 failed | FCT small (<100KB) mean 71.7 p99 210.7 ms | large (>10MB) mean - ms
+    controller: 459 PACKET_IN/s, 457 FLOW_MOD/s, CPU 30.5% | rules: peak 872 total, 151 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-pair | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1761 flows in 30 s (58.7 flows/s), offered 27.5 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1761 done, 0 failed | FCT small (<100KB) mean 58.5 p99 189.6 ms | large (>10MB) mean - ms
+    controller: 39 PACKET_IN/s, 37 FLOW_MOD/s, CPU 2.6% | rules: peak 366 total, 56 in one switch
+
+======================================================================
+[*] abilene | isp traffic | proactive | run 1 of 5 (seed 7)
+======================================================================
+    schedule: 1761 flows in 30 s (58.7 flows/s), offered 27.5 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1761 done, 0 failed | FCT small (<100KB) mean 58.0 p99 189.4 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 386 total, 62 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-pair | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1722 flows in 30 s (57.4 flows/s), offered 26.6 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1722 done, 0 failed | FCT small (<100KB) mean 55.7 p99 171.5 ms | large (>10MB) mean - ms
+    controller: 14 PACKET_IN/s, 13 FLOW_MOD/s, CPU 0.9% | rules: peak 380 total, 62 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-dst | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1722 flows in 30 s (57.4 flows/s), offered 26.6 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1722 done, 0 failed | FCT small (<100KB) mean 55.5 p99 171.2 ms | large (>10MB) mean - ms
+    controller: 5 PACKET_IN/s, 3 FLOW_MOD/s, CPU 0.4% | rules: peak 118 total, 11 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-exact | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1722 flows in 30 s (57.4 flows/s), offered 26.6 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1722 done, 0 failed | FCT small (<100KB) mean 69.8 p99 195.0 ms | large (>10MB) mean - ms
+    controller: 450 PACKET_IN/s, 448 FLOW_MOD/s, CPU 31.3% | rules: peak 646 total, 102 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-pair | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1722 flows in 30 s (57.4 flows/s), offered 26.6 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1722 done, 0 failed | FCT small (<100KB) mean 56.0 p99 175.9 ms | large (>10MB) mean - ms
+    controller: 40 PACKET_IN/s, 38 FLOW_MOD/s, CPU 2.7% | rules: peak 350 total, 56 in one switch
+
+======================================================================
+[*] abilene | isp traffic | proactive | run 2 of 5 (seed 8)
+======================================================================
+    schedule: 1722 flows in 30 s (57.4 flows/s), offered 26.6 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1722 done, 0 failed | FCT small (<100KB) mean 55.5 p99 173.3 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 386 total, 62 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-pair | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1804 flows in 30 s (60.1 flows/s), offered 26.7 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1804 done, 0 failed | FCT small (<100KB) mean 58.8 p99 232.5 ms | large (>10MB) mean - ms
+    controller: 14 PACKET_IN/s, 12 FLOW_MOD/s, CPU 0.9% | rules: peak 386 total, 62 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-dst | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1804 flows in 30 s (60.1 flows/s), offered 26.7 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1804 done, 0 failed | FCT small (<100KB) mean 58.7 p99 227.2 ms | large (>10MB) mean - ms
+    controller: 5 PACKET_IN/s, 3 FLOW_MOD/s, CPU 0.4% | rules: peak 121 total, 11 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-exact | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1804 flows in 30 s (60.1 flows/s), offered 26.7 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1804 done, 0 failed | FCT small (<100KB) mean 72.2 p99 258.4 ms | large (>10MB) mean - ms
+    controller: 471 PACKET_IN/s, 469 FLOW_MOD/s, CPU 31.0% | rules: peak 631 total, 96 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-pair | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1804 flows in 30 s (60.1 flows/s), offered 26.7 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1804 done, 0 failed | FCT small (<100KB) mean 59.2 p99 233.0 ms | large (>10MB) mean - ms
+    controller: 40 PACKET_IN/s, 38 FLOW_MOD/s, CPU 2.7% | rules: peak 358 total, 56 in one switch
+
+======================================================================
+[*] abilene | isp traffic | proactive | run 3 of 5 (seed 9)
+======================================================================
+    schedule: 1804 flows in 30 s (60.1 flows/s), offered 26.7 Mbit/s = 2% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1804 done, 0 failed | FCT small (<100KB) mean 58.6 p99 232.4 ms | large (>10MB) mean - ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 386 total, 62 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-pair | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1737 flows in 30 s (57.9 flows/s), offered 29.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1737 done, 0 failed | FCT small (<100KB) mean 63.4 p99 243.1 ms | large (>10MB) mean 1478.8 ms
+    controller: 15 PACKET_IN/s, 13 FLOW_MOD/s, CPU 0.9% | rules: peak 374 total, 58 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-dst | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1737 flows in 30 s (57.9 flows/s), offered 29.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1737 done, 0 failed | FCT small (<100KB) mean 63.2 p99 242.8 ms | large (>10MB) mean 1479.9 ms
+    controller: 5 PACKET_IN/s, 3 FLOW_MOD/s, CPU 0.4% | rules: peak 120 total, 11 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-exact | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1737 flows in 30 s (57.9 flows/s), offered 29.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1737 done, 0 failed | FCT small (<100KB) mean 76.4 p99 254.7 ms | large (>10MB) mean 1514.2 ms
+    controller: 447 PACKET_IN/s, 445 FLOW_MOD/s, CPU 30.1% | rules: peak 770 total, 112 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-pair | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1737 flows in 30 s (57.9 flows/s), offered 29.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1737 done, 0 failed | FCT small (<100KB) mean 63.8 p99 246.1 ms | large (>10MB) mean 1480.1 ms
+    controller: 40 PACKET_IN/s, 38 FLOW_MOD/s, CPU 2.7% | rules: peak 340 total, 54 in one switch
+
+======================================================================
+[*] abilene | isp traffic | proactive | run 4 of 5 (seed 10)
+======================================================================
+    schedule: 1737 flows in 30 s (57.9 flows/s), offered 29.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1737 done, 0 failed | FCT small (<100KB) mean 63.2 p99 242.7 ms | large (>10MB) mean 1485.9 ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 386 total, 62 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-pair | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1720 flows in 30 s (57.3 flows/s), offered 31.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1720 done, 0 failed | FCT small (<100KB) mean 58.2 p99 192.0 ms | large (>10MB) mean 1428.2 ms
+    controller: 15 PACKET_IN/s, 13 FLOW_MOD/s, CPU 0.9% | rules: peak 380 total, 62 in one switch
+
+======================================================================
+[*] abilene | isp traffic | reactive-dst | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1720 flows in 30 s (57.3 flows/s), offered 31.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1720 done, 0 failed | FCT small (<100KB) mean 58.2 p99 195.0 ms | large (>10MB) mean 1428.1 ms
+    controller: 6 PACKET_IN/s, 5 FLOW_MOD/s, CPU 0.5% | rules: peak 119 total, 11 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-exact | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1720 flows in 30 s (57.3 flows/s), offered 31.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1720 done, 0 failed | FCT small (<100KB) mean 70.8 p99 213.9 ms | large (>10MB) mean 1436.0 ms
+    controller: 441 PACKET_IN/s, 440 FLOW_MOD/s, CPU 29.7% | rules: peak 627 total, 100 in one switch
+
+======================================================================
+[*] abilene | isp traffic | smarttime-pair | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1720 flows in 30 s (57.3 flows/s), offered 31.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1720 done, 0 failed | FCT small (<100KB) mean 58.7 p99 194.8 ms | large (>10MB) mean 1429.9 ms
+    controller: 41 PACKET_IN/s, 39 FLOW_MOD/s, CPU 2.7% | rules: peak 362 total, 58 in one switch
+
+======================================================================
+[*] abilene | isp traffic | proactive | run 5 of 5 (seed 11)
+======================================================================
+    schedule: 1720 flows in 30 s (57.3 flows/s), offered 31.9 Mbit/s = 3% of host capacity, 0 capped at 20 MB, 100% leave the edge switch
+    flows: 1720 done, 0 failed | FCT small (<100KB) mean 58.0 p99 189.8 ms | large (>10MB) mean 1429.0 ms
+    controller: 0 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.1% | rules: peak 386 total, 62 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-abilene/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-abilene/traffic.md
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-abilene/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-abilene/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/A-abilene/traffic_control.png
+[07:23:38] run  results/measured/smarttime-20261125/B-cap20-tree: --repeats 3 --table-cap 20 --scenarios tree-d2-f4:university --modes reactive-pair reactive-dst smarttime-pair smarttime-dst
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6047 done, 41 failed | FCT small (<100KB) mean 4865.0 p99 21859.8 ms | large (>10MB) mean - ms
+    controller: 7736 PACKET_IN/s, 7736 FLOW_MOD/s, CPU 100.1% | rules: peak 100 total, 20 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.2 p99 46.0 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6064 done, 24 failed | FCT small (<100KB) mean 5719.0 p99 26824.3 ms | large (>10MB) mean - ms
+    controller: 6023 PACKET_IN/s, 7616 FLOW_MOD/s, CPU 97.4% | rules: peak 100 total, 20 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 6.3 p99 47.0 ms | large (>10MB) mean - ms
+    controller: 4 PACKET_IN/s, 3 FLOW_MOD/s, CPU 0.3% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6014 done, 43 failed | FCT small (<100KB) mean 6793.8 p99 27598.2 ms | large (>10MB) mean - ms
+    controller: 7667 PACKET_IN/s, 7667 FLOW_MOD/s, CPU 100.1% | rules: peak 100 total, 20 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.0 p99 42.4 ms | large (>10MB) mean - ms
+    controller: 6 PACKET_IN/s, 6 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6039 done, 18 failed | FCT small (<100KB) mean 6525.6 p99 26873.8 ms | large (>10MB) mean - ms
+    controller: 6237 PACKET_IN/s, 7930 FLOW_MOD/s, CPU 99.7% | rules: peak 100 total, 20 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 6.2 p99 44.4 ms | large (>10MB) mean - ms
+    controller: 4 PACKET_IN/s, 3 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 3896.9 p99 19811.6 ms | large (>10MB) mean - ms
+    controller: 7222 PACKET_IN/s, 7222 FLOW_MOD/s, CPU 100.2% | rules: peak 100 total, 20 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.2 p99 43.9 ms | large (>10MB) mean - ms
+    controller: 1 PACKET_IN/s, 0 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6121 done, 3 failed | FCT small (<100KB) mean 5212.2 p99 23676.2 ms | large (>10MB) mean - ms
+    controller: 5539 PACKET_IN/s, 7155 FLOW_MOD/s, CPU 93.1% | rules: peak 100 total, 20 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 5.2 p99 45.4 ms | large (>10MB) mean - ms
+    controller: 3 PACKET_IN/s, 3 FLOW_MOD/s, CPU 0.2% | rules: peak 80 total, 16 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-tree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-tree/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-tree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-tree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-tree/traffic_control.png
+[07:36:49] run  results/measured/smarttime-20261125/B-cap20-fattree: --repeats 3 --table-cap 20 --scenarios fattree-k4:websearch --modes reactive-pair reactive-dst smarttime-pair smarttime-dst
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 1874.3 p99 18708.1 ms | large (>10MB) mean 13865.1 ms
+    controller: 6081 PACKET_IN/s, 6077 FLOW_MOD/s, CPU 95.7% | rules: peak 400 total, 20 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 55.0 p99 293.0 ms | large (>10MB) mean 8171.6 ms
+    controller: 142 PACKET_IN/s, 138 FLOW_MOD/s, CPU 3.5% | rules: peak 278 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 125.0 p99 873.6 ms | large (>10MB) mean 8353.0 ms
+    controller: 1484 PACKET_IN/s, 1564 FLOW_MOD/s, CPU 46.3% | rules: peak 390 total, 20 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 57.3 p99 282.5 ms | large (>10MB) mean 8023.3 ms
+    controller: 67 PACKET_IN/s, 62 FLOW_MOD/s, CPU 3.5% | rules: peak 242 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 3243.2 p99 23135.1 ms | large (>10MB) mean 26847.7 ms
+    controller: 6522 PACKET_IN/s, 6518 FLOW_MOD/s, CPU 97.1% | rules: peak 400 total, 20 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 61.9 p99 324.6 ms | large (>10MB) mean 13376.1 ms
+    controller: 31 PACKET_IN/s, 27 FLOW_MOD/s, CPU 1.7% | rules: peak 275 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 144.1 p99 780.1 ms | large (>10MB) mean 15383.9 ms
+    controller: 1758 PACKET_IN/s, 1853 FLOW_MOD/s, CPU 49.5% | rules: peak 397 total, 20 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 71.3 p99 345.4 ms | large (>10MB) mean 15216.7 ms
+    controller: 70 PACKET_IN/s, 66 FLOW_MOD/s, CPU 3.3% | rules: peak 257 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 2260.4 p99 22242.5 ms | large (>10MB) mean 18036.9 ms
+    controller: 6220 PACKET_IN/s, 6216 FLOW_MOD/s, CPU 95.4% | rules: peak 400 total, 20 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 69.7 p99 347.9 ms | large (>10MB) mean 9825.5 ms
+    controller: 149 PACKET_IN/s, 145 FLOW_MOD/s, CPU 3.7% | rules: peak 281 total, 16 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 134.1 p99 906.2 ms | large (>10MB) mean 9943.5 ms
+    controller: 1098 PACKET_IN/s, 1159 FLOW_MOD/s, CPU 34.7% | rules: peak 394 total, 20 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 75.7 p99 354.6 ms | large (>10MB) mean 9743.9 ms
+    controller: 66 PACKET_IN/s, 62 FLOW_MOD/s, CPU 3.2% | rules: peak 246 total, 16 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-fattree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-fattree/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-fattree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-fattree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap20-fattree/traffic_control.png
+[07:51:45] run  results/measured/smarttime-20261125/B-cap12-tree: --repeats 3 --table-cap 12 --scenarios tree-d2-f4:university --modes reactive-pair reactive-dst smarttime-pair smarttime-dst
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 5899 done, 189 failed | FCT small (<100KB) mean 10556.9 p99 36480.7 ms | large (>10MB) mean - ms
+    controller: 8070 PACKET_IN/s, 8070 FLOW_MOD/s, CPU 100.0% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 123.2 p99 1015.4 ms | large (>10MB) mean - ms
+    controller: 5126 PACKET_IN/s, 5126 FLOW_MOD/s, CPU 87.9% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 5004 done, 1084 failed | FCT small (<100KB) mean 13366.6 p99 40167.1 ms | large (>10MB) mean - ms
+    controller: 6619 PACKET_IN/s, 8733 FLOW_MOD/s, CPU 100.1% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 6088 done, 0 failed | FCT small (<100KB) mean 15.4 p99 81.9 ms | large (>10MB) mean - ms
+    controller: 1499 PACKET_IN/s, 1704 FLOW_MOD/s, CPU 35.6% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 5818 done, 239 failed | FCT small (<100KB) mean 12670.3 p99 36057.3 ms | large (>10MB) mean - ms
+    controller: 8075 PACKET_IN/s, 8074 FLOW_MOD/s, CPU 100.1% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 28.4 p99 289.2 ms | large (>10MB) mean - ms
+    controller: 3775 PACKET_IN/s, 3774 FLOW_MOD/s, CPU 74.8% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 4586 done, 1471 failed | FCT small (<100KB) mean 13960.0 p99 42996.0 ms | large (>10MB) mean - ms
+    controller: 6608 PACKET_IN/s, 8811 FLOW_MOD/s, CPU 100.1% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6057 done, 0 failed | FCT small (<100KB) mean 15.1 p99 83.2 ms | large (>10MB) mean - ms
+    controller: 1433 PACKET_IN/s, 1630 FLOW_MOD/s, CPU 34.0% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 5843 done, 281 failed | FCT small (<100KB) mean 7124.8 p99 30695.3 ms | large (>10MB) mean - ms
+    controller: 7781 PACKET_IN/s, 7781 FLOW_MOD/s, CPU 100.0% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 19.1 p99 231.2 ms | large (>10MB) mean - ms
+    controller: 3416 PACKET_IN/s, 3416 FLOW_MOD/s, CPU 64.7% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 4319 done, 1805 failed | FCT small (<100KB) mean 12354.6 p99 44608.0 ms | large (>10MB) mean - ms
+    controller: 6303 PACKET_IN/s, 8571 FLOW_MOD/s, CPU 100.1% | rules: peak 60 total, 12 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6124 done, 0 failed | FCT small (<100KB) mean 16.0 p99 84.1 ms | large (>10MB) mean - ms
+    controller: 1555 PACKET_IN/s, 1781 FLOW_MOD/s, CPU 36.6% | rules: peak 60 total, 12 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-tree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-tree/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-tree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-tree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-tree/traffic_control.png
+[08:05:04] run  results/measured/smarttime-20261125/B-cap12-fattree: --repeats 3 --table-cap 12 --scenarios fattree-k4:websearch --modes reactive-pair reactive-dst smarttime-pair smarttime-dst
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 916 done, 240 failed | FCT small (<100KB) mean 6135.9 p99 33212.1 ms | large (>10MB) mean 16334.0 ms
+    controller: 7688 PACKET_IN/s, 7684 FLOW_MOD/s, CPU 98.7% | rules: peak 240 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 77.3 p99 568.8 ms | large (>10MB) mean 7883.3 ms
+    controller: 4336 PACKET_IN/s, 4332 FLOW_MOD/s, CPU 89.6% | rules: peak 236 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1081 done, 75 failed | FCT small (<100KB) mean 2438.5 p99 26082.2 ms | large (>10MB) mean 15936.5 ms
+    controller: 5549 PACKET_IN/s, 5884 FLOW_MOD/s, CPU 93.4% | rules: peak 240 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 1156 done, 0 failed | FCT small (<100KB) mean 62.7 p99 303.5 ms | large (>10MB) mean 8444.7 ms
+    controller: 435 PACKET_IN/s, 446 FLOW_MOD/s, CPU 14.6% | rules: peak 227 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 847 done, 264 failed | FCT small (<100KB) mean 7941.4 p99 37695.4 ms | large (>10MB) mean 16890.2 ms
+    controller: 7221 PACKET_IN/s, 7216 FLOW_MOD/s, CPU 98.2% | rules: peak 240 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 347.9 p99 6276.3 ms | large (>10MB) mean 18199.6 ms
+    controller: 5787 PACKET_IN/s, 5783 FLOW_MOD/s, CPU 94.4% | rules: peak 236 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1024 done, 87 failed | FCT small (<100KB) mean 4814.0 p99 29164.0 ms | large (>10MB) mean 19054.7 ms
+    controller: 6049 PACKET_IN/s, 6479 FLOW_MOD/s, CPU 97.8% | rules: peak 240 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 1111 done, 0 failed | FCT small (<100KB) mean 69.0 p99 351.0 ms | large (>10MB) mean 15696.9 ms
+    controller: 287 PACKET_IN/s, 299 FLOW_MOD/s, CPU 10.5% | rules: peak 231 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 861 done, 243 failed | FCT small (<100KB) mean 6397.0 p99 34708.1 ms | large (>10MB) mean 5661.1 ms
+    controller: 7307 PACKET_IN/s, 7303 FLOW_MOD/s, CPU 97.9% | rules: peak 240 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 300.3 p99 5528.5 ms | large (>10MB) mean 11181.8 ms
+    controller: 5649 PACKET_IN/s, 5645 FLOW_MOD/s, CPU 93.6% | rules: peak 239 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 965 done, 139 failed | FCT small (<100KB) mean 6478.1 p99 33982.8 ms | large (>10MB) mean 21291.8 ms
+    controller: 6366 PACKET_IN/s, 6797 FLOW_MOD/s, CPU 95.8% | rules: peak 240 total, 12 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 1104 done, 0 failed | FCT small (<100KB) mean 79.2 p99 345.8 ms | large (>10MB) mean 9270.0 ms
+    controller: 341 PACKET_IN/s, 352 FLOW_MOD/s, CPU 12.4% | rules: peak 224 total, 12 in one switch
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-fattree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-fattree/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-fattree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-fattree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap12-fattree/traffic_control.png
+[08:21:19] run  results/measured/smarttime-20261125/B-cap6-tree: --repeats 3 --table-cap 6 --scenarios tree-d2-f4:university --modes reactive-pair reactive-dst smarttime-pair smarttime-dst
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 3222 done, 2866 failed | FCT small (<100KB) mean 12206.9 p99 48117.9 ms | large (>10MB) mean - ms
+    controller: 6400 PACKET_IN/s, 6399 FLOW_MOD/s, CPU 99.5% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 5989 done, 99 failed | FCT small (<100KB) mean 6804.2 p99 30613.0 ms | large (>10MB) mean - ms
+    controller: 6468 PACKET_IN/s, 6467 FLOW_MOD/s, CPU 98.6% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 2422 done, 3666 failed | FCT small (<100KB) mean 9296.1 p99 41625.1 ms | large (>10MB) mean - ms
+    controller: 5763 PACKET_IN/s, 8128 FLOW_MOD/s, CPU 99.7% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 6088 flows in 30 s (202.9 flows/s), offered 97.3 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 84% leave the edge switch
+    flows: 5993 done, 95 failed | FCT small (<100KB) mean 6674.8 p99 28493.4 ms | large (>10MB) mean - ms
+    controller: 6166 PACKET_IN/s, 7249 FLOW_MOD/s, CPU 99.5% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 3030 done, 3027 failed | FCT small (<100KB) mean 12018.0 p99 45016.2 ms | large (>10MB) mean - ms
+    controller: 6917 PACKET_IN/s, 6917 FLOW_MOD/s, CPU 99.2% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6027 done, 30 failed | FCT small (<100KB) mean 6180.8 p99 28381.5 ms | large (>10MB) mean - ms
+    controller: 5971 PACKET_IN/s, 5971 FLOW_MOD/s, CPU 98.6% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 2020 done, 4037 failed | FCT small (<100KB) mean 9171.7 p99 44192.2 ms | large (>10MB) mean - ms
+    controller: 5536 PACKET_IN/s, 7887 FLOW_MOD/s, CPU 99.7% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 6057 flows in 30 s (201.9 flows/s), offered 95.7 Mbit/s = 6% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 5886 done, 171 failed | FCT small (<100KB) mean 8375.0 p99 32071.4 ms | large (>10MB) mean - ms
+    controller: 5936 PACKET_IN/s, 6973 FLOW_MOD/s, CPU 99.5% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 3707 done, 2417 failed | FCT small (<100KB) mean 11701.6 p99 44253.2 ms | large (>10MB) mean - ms
+    controller: 6840 PACKET_IN/s, 6840 FLOW_MOD/s, CPU 98.7% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | reactive-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6088 done, 36 failed | FCT small (<100KB) mean 5997.2 p99 27632.5 ms | large (>10MB) mean - ms
+    controller: 6344 PACKET_IN/s, 6343 FLOW_MOD/s, CPU 98.7% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 2064 done, 4060 failed | FCT small (<100KB) mean 8084.9 p99 36879.3 ms | large (>10MB) mean - ms
+    controller: 5269 PACKET_IN/s, 7797 FLOW_MOD/s, CPU 99.8% | rules: peak 30 total, 6 in one switch
+
+======================================================================
+[*] tree-d2-f4 | university traffic | smarttime-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 6124 flows in 30 s (204.1 flows/s), offered 76.4 Mbit/s = 5% of host capacity, 0 capped at 20 MB, 88% leave the edge switch
+    flows: 6012 done, 112 failed | FCT small (<100KB) mean 7287.9 p99 30493.2 ms | large (>10MB) mean - ms
+    controller: 6253 PACKET_IN/s, 7440 FLOW_MOD/s, CPU 99.5% | rules: peak 30 total, 6 in one switch
+[!] tree-d2-f4 / university (seed 7): even the best controller (smarttime-dst) lost 95 of 6088 flows. Either the links are overloaded or this machine cannot keep up; try a lower --load or --bw and say which you used.
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-tree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-tree/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-tree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-tree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-tree/traffic_control.png
+[08:38:13] run  results/measured/smarttime-20261125/B-cap6-fattree: --repeats 3 --table-cap 6 --scenarios fattree-k4:websearch --modes reactive-pair reactive-dst smarttime-pair smarttime-dst
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 602 done, 554 failed | FCT small (<100KB) mean 9808.2 p99 41837.5 ms | large (>10MB) mean 1855.0 ms
+    controller: 7070 PACKET_IN/s, 7066 FLOW_MOD/s, CPU 99.6% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 766 done, 390 failed | FCT small (<100KB) mean 6288.3 p99 38073.0 ms | large (>10MB) mean 8657.2 ms
+    controller: 7095 PACKET_IN/s, 7091 FLOW_MOD/s, CPU 98.9% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 478 done, 678 failed | FCT small (<100KB) mean 12991.8 p99 38697.1 ms | large (>10MB) mean - ms
+    controller: 6204 PACKET_IN/s, 7128 FLOW_MOD/s, CPU 99.2% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 1 of 3 (seed 7)
+======================================================================
+    schedule: 1156 flows in 30 s (38.5 flows/s), offered 497.8 Mbit/s = 31% of host capacity, 21 capped at 20 MB, 94% leave the edge switch
+    flows: 962 done, 194 failed | FCT small (<100KB) mean 6175.4 p99 33121.5 ms | large (>10MB) mean 30379.8 ms
+    controller: 5996 PACKET_IN/s, 6311 FLOW_MOD/s, CPU 97.6% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 547 done, 564 failed | FCT small (<100KB) mean 10559.3 p99 39002.1 ms | large (>10MB) mean 13180.3 ms
+    controller: 6814 PACKET_IN/s, 6810 FLOW_MOD/s, CPU 98.8% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 665 done, 446 failed | FCT small (<100KB) mean 6753.3 p99 34686.5 ms | large (>10MB) mean 11714.2 ms
+    controller: 6882 PACKET_IN/s, 6877 FLOW_MOD/s, CPU 98.2% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 351 done, 760 failed | FCT small (<100KB) mean 14848.7 p99 41963.1 ms | large (>10MB) mean - ms
+    controller: 6110 PACKET_IN/s, 7078 FLOW_MOD/s, CPU 98.9% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 2 of 3 (seed 8)
+======================================================================
+    schedule: 1111 flows in 30 s (37.0 flows/s), offered 463.9 Mbit/s = 29% of host capacity, 13 capped at 20 MB, 96% leave the edge switch
+    flows: 708 done, 403 failed | FCT small (<100KB) mean 9391.6 p99 35418.3 ms | large (>10MB) mean 57871.9 ms
+    controller: 6585 PACKET_IN/s, 7010 FLOW_MOD/s, CPU 98.8% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 546 done, 558 failed | FCT small (<100KB) mean 11588.5 p99 38862.9 ms | large (>10MB) mean 3881.2 ms
+    controller: 6716 PACKET_IN/s, 6712 FLOW_MOD/s, CPU 99.0% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | reactive-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 707 done, 397 failed | FCT small (<100KB) mean 9646.6 p99 41428.8 ms | large (>10MB) mean 2261.0 ms
+    controller: 6520 PACKET_IN/s, 6516 FLOW_MOD/s, CPU 98.9% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-pair | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 458 done, 646 failed | FCT small (<100KB) mean 11443.1 p99 43451.8 ms | large (>10MB) mean 20141.2 ms
+    controller: 5877 PACKET_IN/s, 6682 FLOW_MOD/s, CPU 98.6% | rules: peak 120 total, 6 in one switch
+
+======================================================================
+[*] fattree-k4 | websearch traffic | smarttime-dst | run 3 of 3 (seed 9)
+======================================================================
+    schedule: 1104 flows in 30 s (36.8 flows/s), offered 467.8 Mbit/s = 29% of host capacity, 12 capped at 20 MB, 94% leave the edge switch
+    flows: 828 done, 276 failed | FCT small (<100KB) mean 7424.0 p99 34375.1 ms | large (>10MB) mean 19565.4 ms
+    controller: 6161 PACKET_IN/s, 6487 FLOW_MOD/s, CPU 97.6% | rules: peak 120 total, 6 in one switch
+[!] fattree-k4 / websearch (seed 7): even the best controller (smarttime-dst) lost 194 of 1156 flows. Either the links are overloaded or this machine cannot keep up; try a lower --load or --bw and say which you used.
+[!] fattree-k4 / websearch (seed 8): even the best controller (smarttime-dst) lost 403 of 1111 flows. Either the links are overloaded or this machine cannot keep up; try a lower --load or --bw and say which you used.
+[!] fattree-k4 / websearch (seed 9): even the best controller (smarttime-dst) lost 276 of 1104 flows. Either the links are overloaded or this machine cannot keep up; try a lower --load or --bw and say which you used.
+
+[+] Raw results: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-fattree/traffic.json
+[+] Tables:      /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-fattree/traffic.md
+/home/mrudul/Openflow_SDN/experiments/plot_traffic.py:59: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0][-1].legend(frameon=False, fontsize=9, loc='lower right')
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-fattree/traffic_fct_cdf.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-fattree/traffic_small_fct.png
+[+] Plot: /home/mrudul/Openflow_SDN/results/measured/smarttime-20261125/B-cap6-fattree/traffic_control.png
+[08:56:34] done: results/measured/smarttime-20261125

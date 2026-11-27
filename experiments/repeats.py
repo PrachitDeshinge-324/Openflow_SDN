@@ -33,6 +33,8 @@ METRICS = [('fct', 'completed'), ('fct', 'failed'), ('fct', 'flows'),
            ('control', 'peak_rules_one_switch'),
            ('hybrid', 'hit_rate_pct'), ('hybrid', 'pair_installs'), ('hybrid', 'wasted_installs'),
            ('hybrid', 'syn_misses'),
+           ('table', 'refused_installs'), ('table', 'evictions'), ('table', 'table_full_events'),
+           ('table', 'smarttime_cost'), ('table', 'full_samples_pct'), ('table', 'full_switch_samples_pct'),
            ('schedule', 'flows'), ('schedule', 'flows_per_s'), ('schedule', 'offered_mbps'),
            ('schedule', 'offered_load'), ('schedule', 'capped_flows'), ('schedule', 'off_rack_pct')]
 
