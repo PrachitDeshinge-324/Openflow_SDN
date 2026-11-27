@@ -45,6 +45,8 @@ Abbreviations:
 
 ## A'. The 11 pre-installation papers, as counted in the paper (Paper_TODO 0.1)
 
+One section per paper (what it does, setup, baselines, results, granularity, upper bound): `Preinstallation_Papers_Summary.md`.
+
 Built 22 Nov from section A above and `Literature_Review_IdleHybrid.md`. "n/s" = not stated in the material we
 had: for **Abstract** rows that means the abstract does not say it, not that the paper lacks it. A12 (Hariri et
 al.) was found later, could not be read, and is not counted.
